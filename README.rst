@@ -1,7 +1,7 @@
 adapya-base
 ===========
 
-adapya.base is a Python package that provides the foundations for
+adapya-base is a Python package that provides the foundations for
 the other adapya packages, especially for adapya-adabas,
 the Adabas API for Python.
 

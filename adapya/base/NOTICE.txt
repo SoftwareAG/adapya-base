@@ -1,0 +1,29 @@
+adapya.base - Adabas Python package base
+
+Copyright 2004-ThisYear Software AG
+
+Licensed under the Apache License, Version 2.0 (see file
+LICENSE-2.0.txt in this directory)
+
+
+This product includes software developed at Software AG
+(http://www.softwareag.com/).
+
+
+The following software is derived from code copyrighted from
+© 1990-2007, Python Software Foundation, P.O. Box 653,
+Ipswich, MA 01938, USA. All rights reserved.
+
+    adabas\recipes.py
+        contains function moneyfmt() from Python 2.5 Documentation 6.3.7
+
+
+Formulas used in adapya/base/dtconv.py for Julian or Gregorian Days to/from DATE conversion
+    from http://www.tondering.dk/claus/calendar.html
+        With the following copyright text:
+    This document is Copyright ©2008 by Claus Tøndering.
+    E-mail: claus@tondering.dk. (Please include the word ``calendar'' in the subject line.)
+    The document may be freely distributed,
+         provided this copyright notice is included and no money is charged for the document.
+    This document is provided ``as is''. No warranties are made as to its correctness.
+

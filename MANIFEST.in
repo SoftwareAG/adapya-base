@@ -1,0 +1,12 @@
+global-include *.txt
+global-include *.py
+global-include *.pdf
+global-include *.css
+global-include *.bat
+global-include *.txt
+global-include *.gif
+global-include *.html
+global-include *.jpg
+global-include *.cmd
+global-include *.fdt
+prune adapya/base/cover
