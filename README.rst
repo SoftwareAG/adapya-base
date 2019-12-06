@@ -21,6 +21,7 @@ Installation
 Links
 -----
 
+- Details of adapya-base: https://softwareag.github.io/adapya-base/index.html
 - Adabas at Software AG: https://www.softwareag.com
 - Adabas forum: http://tech.forums.softwareag.com/techjforum/forums/show/171.page
 - Adabas documentation: http://techcommunity.softwareag.com
