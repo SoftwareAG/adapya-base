@@ -1,0 +1,620 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>adapya.base.smfrecordz &mdash; adapya-base 1.0.5 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../../../_static/SAG2015.ico"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> adapya-base
+          
+
+          
+            
+            <img src="../../../_static/SAG2015.ico" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0.5
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installing.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide.html">Using adapya-base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../scripts.html">Scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">Package Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../indices.html">Indices</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">adapya-base</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>adapya.base.smfrecordz</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for adapya.base.smfrecordz</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># IBM System management Facilities (SMF) record structures</span>
+<span class="c1"># (only some SMF30 record types)</span>
+<span class="c1">#</span>
+
+<span class="kn">from</span> <span class="nn">adapya.base.datamap</span> <span class="k">import</span> <span class="n">Datamap</span><span class="p">,</span><span class="n">Bytes</span><span class="p">,</span><span class="n">str_str</span><span class="p">,</span><span class="n">Int2</span><span class="p">,</span><span class="n">Int4</span><span class="p">,</span>\
+    <span class="n">NETWORKBO</span><span class="p">,</span><span class="n">String</span><span class="p">,</span><span class="n">Packed</span><span class="p">,</span><span class="n">str_str</span><span class="p">,</span>\
+    <span class="n">T_NONE</span><span class="p">,</span><span class="n">T_HEX</span><span class="p">,</span><span class="n">T_STCK</span><span class="p">,</span><span class="n">Uint1</span><span class="p">,</span><span class="n">Uint2</span><span class="p">,</span><span class="n">Uint4</span><span class="p">,</span><span class="n">Uint8</span>
+
+
+<span class="n">percent</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">i</span><span class="p">:</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> </span><span class="si">%%</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">i</span>
+<span class="n">plural_s</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">j</span><span class="p">:</span> <span class="s1">&#39;&#39;</span> <span class="k">if</span> <span class="n">j</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="s1">&#39;s&#39;</span>
+<span class="n">dezi</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">i</span><span class="p">:</span> <span class="n">dot1</span> <span class="o">*</span> <span class="n">i</span>  <span class="c1"># dezi(123) returns decimal(&#39;12.3&#39;)</span>
+
+<span class="n">div256</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">i</span><span class="p">:</span> <span class="s1">&#39;</span><span class="si">%.2f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="o">/</span><span class="mf">256.</span><span class="p">,)</span>
+
+<div class="viewcode-block" id="dtime100"><a class="viewcode-back" href="../../../modules.html#adapya.base.smfrecordz.dtime100">[docs]</a><span class="k">def</span> <span class="nf">dtime100</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+    <span class="s2">&quot;return readable time since midnight 1/100 sec precision&quot;</span>
+    <span class="n">hh</span> <span class="o">=</span> <span class="n">i</span><span class="o">/</span><span class="p">(</span><span class="mi">100</span><span class="o">*</span><span class="mi">3600</span><span class="p">)</span>
+    <span class="n">mm</span> <span class="o">=</span> <span class="n">i</span><span class="o">/</span><span class="p">(</span><span class="mi">100</span><span class="o">*</span><span class="mi">60</span><span class="p">)</span> <span class="o">-</span> <span class="n">hh</span><span class="o">*</span><span class="mi">60</span>
+    <span class="n">ss</span> <span class="o">=</span> <span class="n">i</span><span class="o">/</span><span class="mi">100</span> <span class="o">-</span> <span class="n">hh</span><span class="o">*</span><span class="mi">60</span><span class="o">*</span><span class="mi">60</span> <span class="o">-</span> <span class="n">mm</span><span class="o">*</span><span class="mi">60</span>
+    <span class="n">hs</span> <span class="o">=</span> <span class="n">i</span><span class="o">%</span><span class="mi">100</span>
+    <span class="k">return</span> <span class="s1">&#39;</span><span class="si">%02d</span><span class="s1">:</span><span class="si">%02d</span><span class="s1">:</span><span class="si">%02d</span><span class="s1">.</span><span class="si">%02d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">hh</span><span class="p">,</span><span class="n">mm</span><span class="p">,</span><span class="n">ss</span><span class="p">,</span><span class="n">hs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="idate"><a class="viewcode-back" href="../../../modules.html#adapya.base.smfrecordz.idate">[docs]</a><span class="k">def</span> <span class="nf">idate</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+    <span class="s2">&quot; Return string from IBM date 0cyyddd &quot;</span>
+    <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">100000</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s1">&#39;20</span><span class="si">%02d</span><span class="s1">.</span><span class="si">%03d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span> <span class="p">(</span><span class="n">i</span><span class="o">-</span><span class="mi">100000</span><span class="p">)</span><span class="o">/</span><span class="mi">1000</span><span class="p">,</span> <span class="n">i</span><span class="o">%</span><span class="mi">1000</span> <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s1">&#39;19</span><span class="si">%02d</span><span class="s1">.</span><span class="si">%03d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="o">/</span><span class="mi">1000</span><span class="p">,</span> <span class="n">i</span><span class="o">%</span><span class="mi">1000</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="i2dt"><a class="viewcode-back" href="../../../modules.html#adapya.base.smfrecordz.i2dt">[docs]</a><span class="k">def</span> <span class="nf">i2dt</span><span class="p">(</span><span class="n">idat</span><span class="p">,</span><span class="n">itim</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Convert industry date time to datetime object</span>
+
+<span class="sd">        :param idat: integer IBM industry date 0cyyddd</span>
+<span class="sd">        :param itim: integer IBM time in 100ths of a second in day</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
+    <span class="n">hh</span><span class="o">=</span><span class="n">mm</span><span class="o">=</span><span class="n">ss</span><span class="o">=</span><span class="n">hs</span><span class="o">=</span><span class="mi">0</span>
+
+    <span class="k">if</span> <span class="n">idat</span> <span class="o">&gt;</span> <span class="mi">100000</span><span class="p">:</span>
+        <span class="n">yy</span> <span class="o">=</span> <span class="mi">2000</span> <span class="o">+</span> <span class="p">(</span><span class="n">idat</span><span class="o">-</span><span class="mi">100000</span><span class="p">)</span> <span class="o">//</span> <span class="mi">1000</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">yy</span> <span class="o">=</span> <span class="mi">2000</span> <span class="o">+</span> <span class="n">idat</span> <span class="o">//</span> <span class="mi">1000</span>
+    <span class="n">tdays</span> <span class="o">=</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">idat</span><span class="o">%</span><span class="mi">1000</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="c1"># day in year starting with 0</span>
+
+    <span class="k">if</span> <span class="n">itim</span><span class="p">:</span>
+        <span class="n">hh</span> <span class="o">=</span> <span class="n">itim</span><span class="o">/</span><span class="p">(</span><span class="mi">100</span><span class="o">*</span><span class="mi">3600</span><span class="p">)</span>
+        <span class="n">mm</span> <span class="o">=</span> <span class="n">itim</span><span class="o">/</span><span class="p">(</span><span class="mi">100</span><span class="o">*</span><span class="mi">60</span><span class="p">)</span> <span class="o">-</span> <span class="n">hh</span><span class="o">*</span><span class="mi">60</span>
+        <span class="n">ss</span> <span class="o">=</span> <span class="n">itim</span><span class="o">/</span><span class="mi">100</span> <span class="o">-</span> <span class="n">hh</span><span class="o">*</span><span class="mi">60</span><span class="o">*</span><span class="mi">60</span> <span class="o">-</span> <span class="n">mm</span><span class="o">*</span><span class="mi">60</span>
+        <span class="n">hs</span> <span class="o">=</span> <span class="n">itim</span><span class="o">%</span><span class="mi">100</span>
+    <span class="k">return</span> <span class="n">datetime</span><span class="p">(</span><span class="n">yy</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">hh</span><span class="p">,</span><span class="n">mm</span><span class="p">,</span><span class="n">ss</span><span class="p">,</span><span class="n">hs</span><span class="o">*</span><span class="mi">10000</span><span class="p">)</span><span class="o">+</span><span class="n">tdays</span></div>
+
+<span class="c1">#</span>
+<span class="c1"># Standard SMF record header</span>
+<span class="c1">#</span>
+<div class="viewcode-block" id="Smf"><a class="viewcode-back" href="../../../modules.html#adapya.base.smfrecordz.Smf">[docs]</a><span class="k">class</span> <span class="nc">Smf</span><span class="p">(</span><span class="n">Datamap</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+        <span class="n">Datamap</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;SMF Record Header&#39;</span><span class="p">,</span>
+    <span class="n">Int2</span><span class="p">(</span><span class="s1">&#39;rlen&#39;</span><span class="p">),</span> <span class="c1"># Record length        RDW header</span>
+    <span class="n">Uint1</span><span class="p">(</span><span class="s1">&#39;seg&#39;</span><span class="p">),</span> <span class="c1"># Segment control</span>
+    <span class="n">Uint1</span><span class="p">(</span><span class="s1">&#39;seg2&#39;</span><span class="p">),</span> <span class="c1"># Segment control 2 (unused)</span>
+
+    <span class="n">Bytes</span><span class="p">(</span><span class="s1">&#39;flg&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;System indicator&#39;</span><span class="p">),</span> <span class="c1"># System indicator flags</span>
+    <span class="c1">#q Asfxxx   equ    x&#39;80&#39;               subsystem id follows system id</span>
+    <span class="c1">#q Asfstv   equ    x&#39;40&#39;               subtypes are valid</span>
+    <span class="c1">#q Asfv4    equ    x&#39;10&#39;               mvs/sp v4 and above</span>
+    <span class="c1">#q Asfv3    equ    x&#39;08&#39;               mvs/sp v3 and above</span>
+    <span class="c1">#q Asfv2    equ    x&#39;04&#39;               mvs/sp v2 and above</span>
+    <span class="c1">#q Asfvs2   equ    x&#39;02&#39;               vs2</span>
+
+    <span class="n">Uint1</span><span class="p">(</span><span class="s1">&#39;rty&#39;</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;SMF record type&#39;</span><span class="p">),</span>  <span class="c1"># SMF record type</span>
+
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;tme&#39;</span><span class="p">,</span><span class="n">ppfunc</span><span class="o">=</span><span class="n">dtime100</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Record creation time&#39;</span><span class="p">),</span> <span class="c1"># Time since midnight</span>
+                                  <span class="c1"># when record was moved into smf buffer in 1/100 sec</span>
+
+    <span class="n">Packed</span><span class="p">(</span><span class="s1">&#39;dte&#39;</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="n">ppfunc</span><span class="o">=</span><span class="n">idate</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Record creation date&#39;</span><span class="p">),</span> <span class="c1"># Date when record was</span>
+                                  <span class="c1"># moved into smf buffer as 0cyydddf</span>
+
+    <span class="n">String</span><span class="p">(</span><span class="s1">&#39;sid&#39;</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;System identifier&#39;</span><span class="p">),</span> <span class="c1"># smfprmxx sid</span>
+    <span class="c1"># up to here if SMF record withtout subtypes</span>
+
+    <span class="n">String</span><span class="p">(</span><span class="s1">&#39;ssi&#39;</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Subsystem identifier&#39;</span><span class="p">),</span>
+    <span class="n">Uint2</span><span class="p">(</span><span class="s1">&#39;sty&#39;</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Subtype&#39;</span><span class="p">),</span> <span class="c1"># Subtype  ppfunc=Asbase.assty_str</span>
+    <span class="n">byteOrder</span><span class="o">=</span><span class="n">NETWORKBO</span><span class="p">,</span><span class="n">ebcdic</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="o">**</span><span class="n">kw</span><span class="p">)</span></div>
+<span class="n">SMFWOS</span> <span class="o">=</span> <span class="mh">0x12</span>   <span class="c1"># without subtypes</span>
+<span class="c1"># dmlen = 0x18  # with subtypes</span>
+
+<span class="c1">#</span>
+<span class="c1"># SMF record type 30: Accounting information &quot;Common address space work&quot;</span>
+<span class="c1">#</span>
+<div class="viewcode-block" id="Smf30"><a class="viewcode-back" href="../../../modules.html#adapya.base.smfrecordz.Smf30">[docs]</a><span class="k">class</span> <span class="nc">Smf30</span><span class="p">(</span><span class="n">Datamap</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+        <span class="n">Datamap</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;SMF30 Acccounting Information Record&#39;</span><span class="p">,</span>
+    <span class="n">Int2</span><span class="p">(</span><span class="s1">&#39;rlen&#39;</span><span class="p">),</span> <span class="c1"># Record length        RDW header</span>
+    <span class="n">Uint1</span><span class="p">(</span><span class="s1">&#39;seg&#39;</span><span class="p">),</span> <span class="c1"># Segment control</span>
+    <span class="n">Uint1</span><span class="p">(</span><span class="s1">&#39;seg2&#39;</span><span class="p">),</span> <span class="c1"># Segment control 2 (unused)</span>
+
+    <span class="n">Bytes</span><span class="p">(</span><span class="s1">&#39;flg&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;System indicator&#39;</span><span class="p">),</span> <span class="c1"># System indicator flags</span>
+    <span class="n">Uint1</span><span class="p">(</span><span class="s1">&#39;rty&#39;</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;SMF record type&#39;</span><span class="p">),</span>  <span class="c1"># SMF record type</span>
+
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;tme&#39;</span><span class="p">,</span><span class="n">ppfunc</span><span class="o">=</span><span class="n">dtime100</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Record creation time&#39;</span><span class="p">),</span> <span class="c1"># Time since midnight</span>
+                                  <span class="c1"># when record was moved into smf buffer in 1/100 sec</span>
+
+    <span class="n">Packed</span><span class="p">(</span><span class="s1">&#39;dte&#39;</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="n">ppfunc</span><span class="o">=</span><span class="n">idate</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Record creation date&#39;</span><span class="p">),</span> <span class="c1"># Date when record was</span>
+                                  <span class="c1"># moved into smf buffer as 0cyydddf</span>
+
+    <span class="n">String</span><span class="p">(</span><span class="s1">&#39;sid&#39;</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;System identifier&#39;</span><span class="p">),</span> <span class="c1"># smfprmxx sid</span>
+    <span class="n">String</span><span class="p">(</span><span class="s1">&#39;ssi&#39;</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Subsystem identifier&#39;</span><span class="p">),</span>
+    <span class="n">Uint2</span><span class="p">(</span><span class="s1">&#39;sty&#39;</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Subtype&#39;</span><span class="p">),</span> <span class="c1"># Subtype  ppfunc=Asbase.assty_str</span>
+    <span class="c1">#q Asbasel  equ   *-asbase            length of standard header</span>
+
+    <span class="c1"># Self-defining section offset 0x14 w/o RDW</span>
+    <span class="c1"># Bytes(&#39;sds&#39;,152,opt=T_NONE,caption=&#39;Self defining section&#39;), # too short</span>
+
+    <span class="c1"># Subsystem section</span>
+    <span class="c1"># following offsets number are + 4 because our record is w/o RDW</span>
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;sof&#39;</span><span class="p">),</span>  <span class="c1"># Offset to section from record start + 4</span>
+    <span class="n">Uint2</span><span class="p">(</span><span class="s1">&#39;sln&#39;</span><span class="p">),</span>  <span class="c1"># Length of subsystem section</span>
+    <span class="n">Uint2</span><span class="p">(</span><span class="s1">&#39;son&#39;</span><span class="p">),</span>  <span class="c1"># Number of subsystem section(s)</span>
+
+    <span class="c1"># Identification section (always present)</span>
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;iof&#39;</span><span class="p">),</span>  <span class="c1"># Offset to id section from record start + 4</span>
+    <span class="n">Uint2</span><span class="p">(</span><span class="s1">&#39;iln&#39;</span><span class="p">),</span>  <span class="c1"># Length of id section</span>
+    <span class="n">Uint2</span><span class="p">(</span><span class="s1">&#39;ion&#39;</span><span class="p">),</span>  <span class="c1"># Number of id section(s)</span>
+
+    <span class="c1"># I/O activity section</span>
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;uof&#39;</span><span class="p">),</span>  <span class="c1"># Offset to section from record start + 4</span>
+    <span class="n">Uint2</span><span class="p">(</span><span class="s1">&#39;uln&#39;</span><span class="p">),</span>  <span class="c1"># Length of section</span>
+    <span class="n">Uint2</span><span class="p">(</span><span class="s1">&#39;uon&#39;</span><span class="p">),</span>  <span class="c1"># Number of sections</span>
+
+    <span class="c1"># Completion section</span>
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;tof&#39;</span><span class="p">),</span>  <span class="c1"># Offset to section from record start + 4</span>
+    <span class="n">Uint2</span><span class="p">(</span><span class="s1">&#39;tln&#39;</span><span class="p">),</span>  <span class="c1"># Length of section</span>
+    <span class="n">Uint2</span><span class="p">(</span><span class="s1">&#39;ton&#39;</span><span class="p">),</span>  <span class="c1"># Number of sections</span>
+
+    <span class="c1"># Processor section</span>
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;cof&#39;</span><span class="p">),</span>  <span class="c1"># Offset to section from record start + 4</span>
+    <span class="n">Uint2</span><span class="p">(</span><span class="s1">&#39;cln&#39;</span><span class="p">),</span>  <span class="c1"># Length of section</span>
+    <span class="n">Uint2</span><span class="p">(</span><span class="s1">&#39;con&#39;</span><span class="p">),</span>  <span class="c1"># Number of sections</span>
+
+    <span class="c1"># Accouting section</span>
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;aof&#39;</span><span class="p">),</span>  <span class="c1"># Offset to section from record start + 4</span>
+    <span class="n">Uint2</span><span class="p">(</span><span class="s1">&#39;aln&#39;</span><span class="p">),</span>  <span class="c1"># Length of section</span>
+    <span class="n">Uint2</span><span class="p">(</span><span class="s1">&#39;aon&#39;</span><span class="p">),</span>  <span class="c1"># Number of sections</span>
+
+    <span class="c1"># Storage section</span>
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;rof&#39;</span><span class="p">),</span>  <span class="c1"># Offset to section from record start + 4</span>
+    <span class="n">Uint2</span><span class="p">(</span><span class="s1">&#39;rln&#39;</span><span class="p">),</span>  <span class="c1"># Length of section</span>
+    <span class="n">Uint2</span><span class="p">(</span><span class="s1">&#39;ron&#39;</span><span class="p">),</span>  <span class="c1"># Number of sections</span>
+
+    <span class="c1"># Performance section</span>
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;pof&#39;</span><span class="p">),</span>  <span class="c1"># Offset to section from record start + 4</span>
+    <span class="n">Uint2</span><span class="p">(</span><span class="s1">&#39;pln&#39;</span><span class="p">),</span>  <span class="c1"># Length of section</span>
+    <span class="n">Uint2</span><span class="p">(</span><span class="s1">&#39;pon&#39;</span><span class="p">),</span>  <span class="c1"># Number of sections</span>
+
+    <span class="c1"># Operator section</span>
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;oof&#39;</span><span class="p">),</span>  <span class="c1"># Offset to section from record start + 4</span>
+    <span class="n">Uint2</span><span class="p">(</span><span class="s1">&#39;oln&#39;</span><span class="p">),</span>  <span class="c1"># Length of section</span>
+    <span class="n">Uint2</span><span class="p">(</span><span class="s1">&#39;oon&#39;</span><span class="p">),</span>  <span class="c1"># Number of sections</span>
+
+    <span class="c1"># EXCP section</span>
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;eof&#39;</span><span class="p">),</span>  <span class="c1"># Offset to section from record start + 4</span>
+    <span class="n">Uint2</span><span class="p">(</span><span class="s1">&#39;eln&#39;</span><span class="p">),</span>  <span class="c1"># Length of section</span>
+    <span class="n">Uint2</span><span class="p">(</span><span class="s1">&#39;eon&#39;</span><span class="p">),</span>  <span class="c1"># Number of sections</span>
+
+    <span class="n">Uint2</span><span class="p">(</span><span class="s1">&#39;eor&#39;</span><span class="p">),</span>  <span class="c1"># Number of segments in subsequent records (might be invalid)</span>
+    <span class="n">Uint2</span><span class="p">(</span><span class="s1">&#39;rvd&#39;</span><span class="p">),</span>  <span class="c1"># reserved</span>
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;eos&#39;</span><span class="p">),</span>  <span class="c1"># Number of segments in subsequent records (fullword)</span>
+
+    <span class="c1"># APPC/MVS section</span>
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;dro&#39;</span><span class="p">),</span>  <span class="c1"># Offset to section from record start + 4</span>
+    <span class="n">Uint2</span><span class="p">(</span><span class="s1">&#39;drl&#39;</span><span class="p">),</span>  <span class="c1"># Length of section</span>
+    <span class="n">Uint2</span><span class="p">(</span><span class="s1">&#39;drn&#39;</span><span class="p">),</span>  <span class="c1"># Number of sections</span>
+
+    <span class="c1"># APPC/MVS section cumulative</span>
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;aro&#39;</span><span class="p">),</span>  <span class="c1"># Offset to section from record start + 4</span>
+    <span class="n">Uint2</span><span class="p">(</span><span class="s1">&#39;arl&#39;</span><span class="p">),</span>  <span class="c1"># Length of section</span>
+    <span class="n">Uint2</span><span class="p">(</span><span class="s1">&#39;arn&#39;</span><span class="p">),</span>  <span class="c1"># Number of sections</span>
+
+    <span class="c1"># OpenMVS section</span>
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;opo&#39;</span><span class="p">),</span>  <span class="c1"># Offset to section from record start + 4</span>
+    <span class="n">Uint2</span><span class="p">(</span><span class="s1">&#39;opl&#39;</span><span class="p">),</span>  <span class="c1"># Length of section</span>
+    <span class="n">Uint2</span><span class="p">(</span><span class="s1">&#39;opn&#39;</span><span class="p">),</span>  <span class="c1"># Number of sections</span>
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;opm&#39;</span><span class="p">),</span>  <span class="c1"># Number of sections in subsequent records</span>
+
+    <span class="c1"># Usage section</span>
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;udo&#39;</span><span class="p">),</span>  <span class="c1"># Offset to section from record start + 4</span>
+    <span class="n">Uint2</span><span class="p">(</span><span class="s1">&#39;udl&#39;</span><span class="p">),</span>  <span class="c1"># Length of section</span>
+    <span class="n">Uint2</span><span class="p">(</span><span class="s1">&#39;uds&#39;</span><span class="p">),</span>  <span class="c1"># Number of sections</span>
+
+    <span class="c1"># First ARM section</span>
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;rmo&#39;</span><span class="p">),</span>  <span class="c1"># Offset to section from record start + 4</span>
+    <span class="n">Uint2</span><span class="p">(</span><span class="s1">&#39;rml&#39;</span><span class="p">),</span>  <span class="c1"># Length of section</span>
+    <span class="n">Uint2</span><span class="p">(</span><span class="s1">&#39;rmn&#39;</span><span class="p">),</span>  <span class="c1"># Number of sections</span>
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;rms&#39;</span><span class="p">),</span>  <span class="c1"># Number of sections in subsequent records</span>
+
+    <span class="c1"># MultiSystem Enclave Remote System Data section</span>
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;mof&#39;</span><span class="p">),</span>  <span class="c1"># Offset to section from record start + 4</span>
+    <span class="n">Uint2</span><span class="p">(</span><span class="s1">&#39;mln&#39;</span><span class="p">),</span>  <span class="c1"># Length of section</span>
+    <span class="n">Uint2</span><span class="p">(</span><span class="s1">&#39;mno&#39;</span><span class="p">),</span>  <span class="c1"># Number of sections</span>
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;mos&#39;</span><span class="p">),</span>  <span class="c1"># Number of sections in subsequent records</span>
+
+    <span class="c1"># Counter Data section</span>
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;cdo&#39;</span><span class="p">),</span>  <span class="c1"># Offset to section from record start + 4</span>
+    <span class="n">Uint2</span><span class="p">(</span><span class="s1">&#39;cdl&#39;</span><span class="p">),</span>  <span class="c1"># Length of section</span>
+    <span class="n">Uint2</span><span class="p">(</span><span class="s1">&#39;cdn&#39;</span><span class="p">),</span>  <span class="c1"># Number of sections</span>
+
+    <span class="c1"># zEDC usage statistics section</span>
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;uso&#39;</span><span class="p">),</span>  <span class="c1"># Offset to section from record start + 4</span>
+    <span class="n">Uint2</span><span class="p">(</span><span class="s1">&#39;usl&#39;</span><span class="p">),</span>  <span class="c1"># Length of section</span>
+    <span class="n">Uint2</span><span class="p">(</span><span class="s1">&#39;usn&#39;</span><span class="p">),</span>  <span class="c1"># Number of sections</span>
+    <span class="n">byteOrder</span><span class="o">=</span><span class="n">NETWORKBO</span><span class="p">,</span><span class="n">ebcdic</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="o">**</span><span class="n">kw</span><span class="p">)</span></div>
+
+<span class="c1">#</span>
+<span class="c1">#   Smf30pss - Product or Subsystem Section</span>
+<span class="c1">#</span>
+
+<div class="viewcode-block" id="Smf30pss"><a class="viewcode-back" href="../../../modules.html#adapya.base.smfrecordz.Smf30pss">[docs]</a><span class="k">class</span> <span class="nc">Smf30pss</span><span class="p">(</span><span class="n">Datamap</span><span class="p">):</span>
+  <span class="nd">@staticmethod</span>
+  <span class="k">def</span> <span class="nf">subtyp_str</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">str_str</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="p">{</span><span class="mi">1</span><span class="p">:</span><span class="s1">&#39;Job/work unit start&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span><span class="s1">&#39;Interval activity&#39;</span><span class="p">,</span>
+      <span class="mi">3</span><span class="p">:</span><span class="s1">&#39;Last interval before step term&#39;</span><span class="p">,</span> <span class="mi">4</span><span class="p">:</span><span class="s1">&#39;Step total&#39;</span><span class="p">,</span>
+      <span class="mi">5</span><span class="p">:</span><span class="s1">&#39;Job/work unit term&#39;</span><span class="p">,</span> <span class="mi">6</span><span class="p">:</span><span class="s1">&#39;System address space&#39;</span><span class="p">})</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+    <span class="n">Datamap</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;Product or Subsystem Section&#39;</span><span class="p">,</span>
+    <span class="n">Uint2</span><span class="p">(</span><span class="s1">&#39;typ&#39;</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;SMF30 sub type&#39;</span><span class="p">,</span><span class="n">ppfunc</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subtyp_str</span><span class="p">),</span>
+    <span class="n">String</span><span class="p">(</span><span class="s1">&#39;rs1&#39;</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="n">opt</span><span class="o">=</span><span class="n">T_NONE</span><span class="p">),</span>
+    <span class="n">String</span><span class="p">(</span><span class="s1">&#39;rvn&#39;</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Record version number&#39;</span><span class="p">),</span>
+    <span class="n">String</span><span class="p">(</span><span class="s1">&#39;pnm&#39;</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Subsystem product name&#39;</span><span class="p">),</span>
+
+    <span class="n">String</span><span class="p">(</span><span class="s1">&#39;osl&#39;</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;MVS product level&#39;</span><span class="p">),</span>
+    <span class="n">String</span><span class="p">(</span><span class="s1">&#39;syn&#39;</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;System name&#39;</span><span class="p">),</span>
+    <span class="n">String</span><span class="p">(</span><span class="s1">&#39;syp&#39;</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Sysplex name&#39;</span><span class="p">),</span>
+    <span class="n">byteOrder</span><span class="o">=</span><span class="n">NETWORKBO</span><span class="p">,</span><span class="n">ebcdic</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="o">**</span><span class="n">kw</span><span class="p">)</span></div>
+
+<span class="c1">#</span>
+<span class="c1">#   Smf30id - Job or Session Identification Section</span>
+<span class="c1">#</span>
+
+<div class="viewcode-block" id="Smf30id"><a class="viewcode-back" href="../../../modules.html#adapya.base.smfrecordz.Smf30id">[docs]</a><span class="k">class</span> <span class="nc">Smf30id</span><span class="p">(</span><span class="n">Datamap</span><span class="p">):</span>
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+    <span class="n">Datamap</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;Job/Session Id Section&#39;</span><span class="p">,</span>
+    <span class="n">String</span><span class="p">(</span><span class="s1">&#39;jbn&#39;</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Job/session name&#39;</span><span class="p">),</span> <span class="c1"># JMRJOB</span>
+    <span class="n">String</span><span class="p">(</span><span class="s1">&#39;pgm&#39;</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Program name&#39;</span><span class="p">),</span>     <span class="c1"># SCTPGMNM &#39;*.DD.&#39; if backward reference</span>
+    <span class="n">String</span><span class="p">(</span><span class="s1">&#39;stm&#39;</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Step name&#39;</span><span class="p">),</span>        <span class="c1"># SCTSNAME</span>
+    <span class="n">String</span><span class="p">(</span><span class="s1">&#39;uif&#39;</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;User id&#39;</span><span class="p">),</span> <span class="c1"># JMRUSEID taken from the common exit parm</span>
+    <span class="n">String</span><span class="p">(</span><span class="s1">&#39;jnm&#39;</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;JES job id&#39;</span><span class="p">),</span>  <span class="c1"># SSIB</span>
+
+    <span class="n">Uint2</span><span class="p">(</span><span class="s1">&#39;stn&#39;</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Step number&#39;</span><span class="p">),</span>         <span class="c1"># SCTSNUMB, first step = 1</span>
+    <span class="n">String</span><span class="p">(</span><span class="s1">&#39;cls&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Job class&#39;</span><span class="p">),</span>        <span class="c1"># JCTJCSMF, zero for TSO/started task</span>
+    <span class="n">Uint1</span><span class="p">(</span><span class="s1">&#39;jb1&#39;</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Job/Session Id section flag&#39;</span><span class="p">),</span>
+    <span class="n">Uint2</span><span class="p">(</span><span class="s1">&#39;pgn&#39;</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Job performance group member&#39;</span><span class="p">),</span> <span class="c1"># OUCBNPG</span>
+    <span class="n">Uint2</span><span class="p">(</span><span class="s1">&#39;jpt&#39;</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;JES input priority&#39;</span><span class="p">),</span>  <span class="c1"># JCTJPRTY</span>
+
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;ast&#39;</span><span class="p">,</span><span class="n">ppfunc</span><span class="o">=</span><span class="n">dtime100</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Device allocation start time&#39;</span><span class="p">),</span> <span class="c1"># TCTAST</span>
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;pss&#39;</span><span class="p">,</span><span class="n">ppfunc</span><span class="o">=</span><span class="n">dtime100</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Problem program start time&#39;</span><span class="p">),</span>   <span class="c1"># TCTPPST</span>
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;sit&#39;</span><span class="p">,</span><span class="n">ppfunc</span><span class="o">=</span><span class="n">dtime100</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Time initiator selected step&#39;</span><span class="p">),</span> <span class="c1"># JCTJMRSS</span>
+    <span class="n">Packed</span><span class="p">(</span><span class="s1">&#39;std&#39;</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="n">ppfunc</span><span class="o">=</span><span class="n">idate</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Date initiator selected step&#39;</span><span class="p">),</span> <span class="c1"># JCTSSD</span>
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;rst&#39;</span><span class="p">,</span><span class="n">ppfunc</span><span class="o">=</span><span class="n">dtime100</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Time reader found job card&#39;</span><span class="p">),</span> <span class="c1"># JMRENTRY</span>
+    <span class="n">Packed</span><span class="p">(</span><span class="s1">&#39;rsd&#39;</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="n">ppfunc</span><span class="o">=</span><span class="n">idate</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Date reader found job card&#39;</span><span class="p">),</span> <span class="c1"># JMREDATE</span>
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;ret&#39;</span><span class="p">,</span><span class="n">ppfunc</span><span class="o">=</span><span class="n">dtime100</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Time reader found end of job&#39;</span><span class="p">),</span>
+    <span class="n">Packed</span><span class="p">(</span><span class="s1">&#39;red&#39;</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="n">ppfunc</span><span class="o">=</span><span class="n">idate</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Date reader found end of job&#39;</span><span class="p">),</span>
+
+    <span class="n">String</span><span class="p">(</span><span class="s1">&#39;usr&#39;</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Programmers name&#39;</span><span class="p">),</span><span class="c1"># ACTPRGNM</span>
+    <span class="n">String</span><span class="p">(</span><span class="s1">&#39;grp&#39;</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;RACF group id&#39;</span><span class="p">),</span>    <span class="c1"># ACEEGRPN</span>
+    <span class="n">String</span><span class="p">(</span><span class="s1">&#39;rud&#39;</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;RACF user id&#39;</span><span class="p">),</span>     <span class="c1"># ACEEUSRI</span>
+    <span class="n">String</span><span class="p">(</span><span class="s1">&#39;tid&#39;</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;RACF terminal id&#39;</span><span class="p">),</span> <span class="c1"># ACEETRMF</span>
+
+    <span class="n">String</span><span class="p">(</span><span class="s1">&#39;tsn&#39;</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Terminal sybolic name&#39;</span><span class="p">),</span> <span class="c1"># TSBTRMID</span>
+    <span class="n">String</span><span class="p">(</span><span class="s1">&#39;psn&#39;</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Step name invoking procedure&#39;</span><span class="p">),</span> <span class="c1"># SCTSCLPC, blanks if step not part of expanded procedure</span>
+    <span class="n">String</span><span class="p">(</span><span class="s1">&#39;cl8&#39;</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Job class&#39;</span><span class="p">),</span> <span class="c1"># LCTCLASS or JCTJCSMF</span>
+    <span class="n">Uint8</span><span class="p">(</span><span class="s1">&#39;iss&#39;</span><span class="p">,</span><span class="n">opt</span><span class="o">=</span><span class="n">T_STCK</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Interval start time&#39;</span><span class="p">),</span> <span class="c1"># TCTISS for subtype 2, 3 and 6 records</span>
+    <span class="n">Uint8</span><span class="p">(</span><span class="s1">&#39;iet&#39;</span><span class="p">,</span><span class="n">opt</span><span class="o">=</span><span class="n">T_STCK</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Interval end time&#39;</span><span class="p">),</span>   <span class="c1"># SMCXINTE for subtype 2, 3 and 6 records</span>
+
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;ssn&#39;</span><span class="p">,</span><span class="n">ppfunc</span><span class="o">=</span><span class="n">dtime100</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Sub-step number&#39;</span><span class="p">),</span><span class="c1"># SCTSSNUM</span>
+    <span class="n">String</span><span class="p">(</span><span class="s1">&#39;exn&#39;</span><span class="p">,</span><span class="mi">16</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;OpenMVS program name&#39;</span><span class="p">),</span>
+    <span class="n">Uint2</span><span class="p">(</span><span class="s1">&#39;asi&#39;</span><span class="p">,</span><span class="n">opt</span><span class="o">=</span><span class="n">T_HEX</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Address space id&#39;</span><span class="p">),</span>    <span class="c1"># ASCBASID</span>
+    <span class="n">String</span><span class="p">(</span><span class="s1">&#39;cor&#39;</span><span class="p">,</span><span class="mi">64</span><span class="p">,</span><span class="n">opt</span><span class="o">=</span><span class="n">T_NONE</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;JES job correlator&#39;</span><span class="p">),</span>  <span class="c1"># JMRJOBCORRELATOR</span>
+
+    <span class="n">byteOrder</span><span class="o">=</span><span class="n">NETWORKBO</span><span class="p">,</span><span class="n">ebcdic</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="o">**</span><span class="n">kw</span><span class="p">)</span></div>
+
+
+<span class="c1">#</span>
+<span class="c1">#   Smf30prf - Performance Section</span>
+<span class="c1">#              (currently only few selected fields :-)</span>
+<span class="c1">#</span>
+
+<div class="viewcode-block" id="Smf30prf"><a class="viewcode-back" href="../../../modules.html#adapya.base.smfrecordz.Smf30prf">[docs]</a><span class="k">class</span> <span class="nc">Smf30prf</span><span class="p">(</span><span class="n">Datamap</span><span class="p">):</span>
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+    <span class="n">Datamap</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;Performance section&#39;</span><span class="p">,</span>
+    <span class="n">Uint2</span><span class="p">(</span><span class="s1">&#39;snf&#39;</span><span class="p">,</span><span class="n">ppfunc</span><span class="o">=</span><span class="n">div256</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;zIIP normalization factor&#39;</span><span class="p">,</span><span class="n">pos</span><span class="o">=</span><span class="mh">0x88</span><span class="p">),</span>
+    <span class="c1"># to convert between real zIIP times and normalized zIIP times (=equivalent time on normal CP)</span>
+    <span class="c1"># multiply zIIP time with snf and divide by 256</span>
+    <span class="n">Bytes</span><span class="p">(</span><span class="s1">&#39;prf&#39;</span><span class="p">,</span><span class="mh">0xd8</span><span class="p">,</span><span class="n">opt</span><span class="o">=</span><span class="n">T_NONE</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;prf DSECT&#39;</span><span class="p">,</span><span class="n">pos</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="c1"># todo: define more fields in structure</span>
+    <span class="n">byteOrder</span><span class="o">=</span><span class="n">NETWORKBO</span><span class="p">,</span><span class="n">ebcdic</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="o">**</span><span class="n">kw</span><span class="p">)</span></div>
+
+<span class="c1">#</span>
+<span class="c1">#   Smf30cas - CPU Accounting Section</span>
+<span class="c1">#</span>
+
+<div class="viewcode-block" id="Smf30cas"><a class="viewcode-back" href="../../../modules.html#adapya.base.smfrecordz.Smf30cas">[docs]</a><span class="k">class</span> <span class="nc">Smf30cas</span><span class="p">(</span><span class="n">Datamap</span><span class="p">):</span>
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+    <span class="n">Datamap</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;CPU accounting section&#39;</span><span class="p">,</span>
+
+    <span class="n">Uint2</span><span class="p">(</span><span class="s1">&#39;pty&#39;</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Address space dispatching priority&#39;</span><span class="p">),</span> <span class="c1"># from DPRTY parm on EXEC card or APG value in CVTAPG</span>
+    <span class="n">Bytes</span><span class="p">(</span><span class="s1">&#39;tfl1&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Timer Flag1&#39;</span><span class="p">),</span>
+    <span class="n">Bytes</span><span class="p">(</span><span class="s1">&#39;tfl2&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Timer Flag2&#39;</span><span class="p">),</span>
+    <span class="c1">#o todo flag bits</span>
+
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;cpt&#39;</span><span class="p">,</span><span class="n">ppfunc</span><span class="o">=</span><span class="n">dtime100</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Step CPU time under TCB&#39;</span><span class="p">),</span>
+    <span class="c1"># ASCBEJST OR (ACTJTIME + ASSBASST + RQSVECPT  - TCTEJST)</span>
+    <span class="c1"># only consumption of GCP not zIIPs,zAAPs, includes enclave time</span>
+
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;cps&#39;</span><span class="p">,</span><span class="n">ppfunc</span><span class="o">=</span><span class="n">dtime100</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Step CPU time under SRB&#39;</span><span class="p">),</span> <span class="c1"># ASCBSRBT OR (SCTSRBT-TCTSRBT)</span>
+
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;icu&#39;</span><span class="p">,</span><span class="n">ppfunc</span><span class="o">=</span><span class="n">dtime100</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Initiator CPU time under TCB&#39;</span><span class="p">),</span> <span class="c1"># ASCBEJST+TCTITCB</span>
+    <span class="c1"># Total working CPU time for initiator under the TCB. It includes values of</span>
+    <span class="c1"># SMF30ICU_Step_Term (time spent in termination of the previous step) and</span>
+    <span class="c1"># SMF30ICU_Step_Init (time spent in initialization of the current step)</span>
+
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;isb&#39;</span><span class="p">,</span><span class="n">ppfunc</span><span class="o">=</span><span class="n">dtime100</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Initiator CPU time under SRB&#39;</span><span class="p">),</span> <span class="c1"># ASCBSRBT+TCTISRB</span>
+    <span class="c1"># Total working CPU time for the initiator under any SRB. It includes values of</span>
+    <span class="c1"># SMF30ISB_Step_Term (time spent in termination of the previous step) and</span>
+    <span class="c1"># SMF30ISB_Step_Init (time spent in initialization of the current step)</span>
+
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;jvu&#39;</span><span class="p">,</span><span class="n">ppfunc</span><span class="o">=</span><span class="n">dtime100</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Step Vector usage time&#39;</span><span class="p">),</span>
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;ivu&#39;</span><span class="p">,</span><span class="n">ppfunc</span><span class="o">=</span><span class="n">dtime100</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Initiator Vector usage time&#39;</span><span class="p">),</span>
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;jva&#39;</span><span class="p">,</span><span class="n">ppfunc</span><span class="o">=</span><span class="n">dtime100</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Step Vector affinity time&#39;</span><span class="p">),</span>
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;iva&#39;</span><span class="p">,</span><span class="n">ppfunc</span><span class="o">=</span><span class="n">dtime100</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Initiator Vector affinity time&#39;</span><span class="p">),</span>
+
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;ist&#39;</span><span class="p">,</span><span class="n">ppfunc</span><span class="o">=</span><span class="n">dtime100</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Interval start time&#39;</span><span class="p">),</span> <span class="c1"># for subtype 2,3 records</span>
+    <span class="n">Packed</span><span class="p">(</span><span class="s1">&#39;idt&#39;</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="n">ppfunc</span><span class="o">=</span><span class="n">idate</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Interval start date&#39;</span><span class="p">),</span> <span class="c1"># Date</span>
+
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;iip&#39;</span><span class="p">,</span><span class="n">ppfunc</span><span class="o">=</span><span class="n">dtime100</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;CPU time I/O Interrupts&#39;</span><span class="p">),</span>       <span class="c1"># ASSBIIPT-TCTEIIP</span>
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;rct&#39;</span><span class="p">,</span><span class="n">ppfunc</span><span class="o">=</span><span class="n">dtime100</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;CPU time Region Control Task&#39;</span><span class="p">),</span>  <span class="c1"># TCBTIME-TCTERCT</span>
+
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;hpt&#39;</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Step CPU time transfers hiper space and A/S&#39;</span><span class="p">),</span> <span class="c1"># ASSBHST-TCTEHPT</span>
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;csc&#39;</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;ICSF Crypto service count&#39;</span><span class="p">),</span> <span class="c1"># ASSBFSC-TCTANSC</span>
+
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;dmi&#39;</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;ADMF moved pages writes&#39;</span><span class="p">),</span> <span class="c1"># ASSBTPMT-TCTADMFW</span>
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;dmo&#39;</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;ADMF moved pages reads&#39;</span><span class="p">),</span> <span class="c1"># ASSBTPMA-TCTADMFR</span>
+
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;asr&#39;</span><span class="p">,</span><span class="n">ppfunc</span><span class="o">=</span><span class="n">dtime100</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Step CPU time preemptable and client SRBs&#39;</span><span class="p">),</span>  <span class="c1"># ASSBASST, value included in cpt</span>
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;enc&#39;</span><span class="p">,</span><span class="n">ppfunc</span><span class="o">=</span><span class="n">dtime100</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Step independent enclave CPU time&#39;</span><span class="p">),</span> <span class="c1"># RQSVECPT, value included in cpt</span>
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;det&#39;</span><span class="p">,</span><span class="n">ppfunc</span><span class="o">=</span><span class="n">dtime100</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Step dependent enclave CPU time&#39;</span><span class="p">),</span>  <span class="c1"># RQSVDET, value included in cpt</span>
+
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;cep&#39;</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;CPU time while ENQ promoted&#39;</span><span class="p">),</span>  <span class="c1"># in 1.024 millisec, cumulative even for interval records</span>
+
+    <span class="n">Bytes</span><span class="p">(</span><span class="s1">&#39;tf2&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Timer Flag2&#39;</span><span class="p">),</span>
+    <span class="c1">#o todo</span>
+    <span class="n">Bytes</span><span class="p">(</span><span class="s1">&#39;t32&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Timer Flag32&#39;</span><span class="p">),</span>
+    <span class="n">Bytes</span><span class="p">(</span><span class="s1">&#39;t33&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Timer Flag33&#39;</span><span class="p">),</span>
+    <span class="n">Bytes</span><span class="p">(</span><span class="s1">&#39;t34&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">opt</span><span class="o">=</span><span class="n">T_NONE</span><span class="p">),</span>
+
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;toi&#39;</span><span class="p">,</span><span class="n">ppfunc</span><span class="o">=</span><span class="n">dtime100</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Time on IFA&#39;</span><span class="p">),</span>             <span class="c1"># ASSB_Time_On_IFA, includes enclave time</span>
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;etoi&#39;</span><span class="p">,</span><span class="n">ppfunc</span><span class="o">=</span><span class="n">dtime100</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Enclave time on IFA&#39;</span><span class="p">),</span>    <span class="c1"># Rqsv_Enclave_Time_On_IFA</span>
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;detoi&#39;</span><span class="p">,</span><span class="n">ppfunc</span><span class="o">=</span><span class="n">dtime100</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Dependent enclave time on IFA&#39;</span><span class="p">),</span>  <span class="c1"># Rqsv_Dep_Enclave_Time_On_IFA</span>
+
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;tic&#39;</span><span class="p">,</span><span class="n">ppfunc</span><span class="o">=</span><span class="n">dtime100</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;IFA time on CP&#39;</span><span class="p">),</span>          <span class="c1"># ASSB_Time_IFA_ON_CP IFA includes enclave time</span>
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;etic&#39;</span><span class="p">,</span><span class="n">ppfunc</span><span class="o">=</span><span class="n">dtime100</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;IFA enclave time on CP&#39;</span><span class="p">),</span> <span class="c1"># Rqsv_Enclave_Time_IFA_ON_CP</span>
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;detic&#39;</span><span class="p">,</span><span class="n">ppfunc</span><span class="o">=</span><span class="n">dtime100</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;IFA dependent enclave time on CP&#39;</span><span class="p">),</span>  <span class="c1"># Rqsv_Dep_Enclave_Time_IFA_ON_CP</span>
+
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;cepi&#39;</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;CPU time while ENQ promoted&#39;</span><span class="p">),</span>  <span class="c1"># in 1.024 millisec, interval time</span>
+
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;toz&#39;</span><span class="p">,</span><span class="n">ppfunc</span><span class="o">=</span><span class="n">dtime100</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Time on zIIP&#39;</span><span class="p">),</span>             <span class="c1"># ASSB_Time_On_zIIP Time, includes enclave time</span>
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;etoz&#39;</span><span class="p">,</span><span class="n">ppfunc</span><span class="o">=</span><span class="n">dtime100</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Enclave time on zIIP&#39;</span><span class="p">),</span>    <span class="c1"># Rqsv_Enclave_Time_On_SUP</span>
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;detoz&#39;</span><span class="p">,</span><span class="n">ppfunc</span><span class="o">=</span><span class="n">dtime100</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Dependent enclave time on zIIP&#39;</span><span class="p">),</span>  <span class="c1"># Rqsv_DEPENC_Time_On_SUP</span>
+
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;zoc&#39;</span><span class="p">,</span><span class="n">ppfunc</span><span class="o">=</span><span class="n">dtime100</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;zIIP time on CP&#39;</span><span class="p">),</span>          <span class="c1"># ASSB_Time_zIIP_ON_CP includes enclave time</span>
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;ezoc&#39;</span><span class="p">,</span><span class="n">ppfunc</span><span class="o">=</span><span class="n">dtime100</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Enclave zIIP time on CP&#39;</span><span class="p">),</span> <span class="c1"># Rqsv_Enclave_Time_SUP_ON_CP</span>
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;dezoc&#39;</span><span class="p">,</span><span class="n">ppfunc</span><span class="o">=</span><span class="n">dtime100</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Dependent enclave zIIP time on CP&#39;</span><span class="p">),</span>  <span class="c1"># Rqsv_DEPENC_Time_SUP_ON_CP</span>
+
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;etozq&#39;</span><span class="p">,</span><span class="n">ppfunc</span><span class="o">=</span><span class="n">dtime100</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Enclave zIIP time on CP normalized&#39;</span><span class="p">),</span>  <span class="c1"># Rqsv_Enclave_TIME_SUP_QUAL</span>
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;detozq&#39;</span><span class="p">,</span><span class="n">ppfunc</span><span class="o">=</span><span class="n">dtime100</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Dependent enclave zIIP time on CP normalized&#39;</span><span class="p">),</span>  <span class="c1"># Rqsv_DepEnc_TIME_SUP_QUAL</span>
+
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;crp&#39;</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;CPU time while CRM promoted&#39;</span><span class="p">),</span>  <span class="c1"># in 1.024 millisec, time during interval</span>
+    <span class="c1"># RqsvCPUtimeConsumedWhileCRMpromoted, CRM - chronic resource contention</span>
+
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;icust&#39;</span><span class="p">,</span><span class="n">ppfunc</span><span class="o">=</span><span class="n">dtime100</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;CPU TCB time for step term&#39;</span><span class="p">),</span> <span class="c1"># included in icu</span>
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;icusi&#39;</span><span class="p">,</span><span class="n">ppfunc</span><span class="o">=</span><span class="n">dtime100</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;CPU TCB time for step init&#39;</span><span class="p">),</span> <span class="c1"># included in icu</span>
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;isbst&#39;</span><span class="p">,</span><span class="n">ppfunc</span><span class="o">=</span><span class="n">dtime100</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;CPU SRB time for step term&#39;</span><span class="p">),</span> <span class="c1"># included in isb</span>
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;isbsi&#39;</span><span class="p">,</span><span class="n">ppfunc</span><span class="o">=</span><span class="n">dtime100</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;CPU SRB time for step init&#39;</span><span class="p">),</span> <span class="c1"># included in isb</span>
+
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;mblk&#39;</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Missed I/O block counting &#39;</span><span class="p">),</span>      <span class="c1"># w/o serialization to counter SMF30BLK, zero for startet tasks</span>
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;mdct&#39;</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Missed device connect counting&#39;</span><span class="p">),</span> <span class="c1"># w/o serialization to counter SMF30DCT, zero for started tasks</span>
+
+    <span class="n">Uint2</span><span class="p">(</span><span class="s1">&#39;hit&#39;</span><span class="p">,</span><span class="n">ppfunc</span><span class="o">=</span><span class="n">percent</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Highest Task CPU percent&#39;</span><span class="p">),</span>  <span class="c1"># TCB time * 100 / interval time</span>
+    <span class="n">String</span><span class="p">(</span><span class="s1">&#39;hip&#39;</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Highest Task Program name&#39;</span><span class="p">),</span>
+
+    <span class="n">Bytes</span><span class="p">(</span><span class="s1">&#39;flag&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;CPU Accounting flag&#39;</span><span class="p">),</span>
+    <span class="n">Bytes</span><span class="p">(</span><span class="s1">&#39;r0bb&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">opt</span><span class="o">=</span><span class="n">T_NONE</span><span class="p">),</span>
+
+    <span class="c1">#dmlen should be == SMF30CASLEN</span>
+    <span class="n">byteOrder</span><span class="o">=</span><span class="n">NETWORKBO</span><span class="p">,</span><span class="n">ebcdic</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="o">**</span><span class="n">kw</span><span class="p">)</span></div>
+<span class="n">SMF30CASLEN</span> <span class="o">=</span> <span class="mh">0xbc</span>  <span class="c1"># 188</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">sys</span>
+    <span class="c1"># import doctest</span>
+    <span class="c1"># doctest.testmod()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="si">%s</span><span class="s1"> defines SMF record structures.</span><span class="se">\n\t</span><span class="s1">It has no main section - do not execute it directly.</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="vm">__file__</span><span class="p">)</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">99</span><span class="p">)</span>
+
+<span class="c1">#  Copyright 2004-ThisYear Software AG</span>
+<span class="c1">#</span>
+<span class="c1">#  Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1">#  you may not use this file except in compliance with the License.</span>
+<span class="c1">#  You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#      http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1">#  Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1">#  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1">#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1">#  See the License for the specific language governing permissions and</span>
+<span class="c1">#  limitations under the License.</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2004-2019, software AG
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

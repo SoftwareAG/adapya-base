@@ -18,10 +18,10 @@ for the adapya packages
 """
 from __future__ import print_function          # PY3
 
-__version__ = '1.0.4'
-if __version__ == '1.0.4':
-    _svndate='$Date: 2019-11-21 15:21:10 +0100 (Thu, 21 Nov 2019) $'
-    _svnrev='$Rev: 949 $'
+__version__ = '1.0.5'
+if __version__ == '1.0.5':
+    _svndate='$Date: 2019-12-06 14:28:33 +0100 (Fri, 06 Dec 2019) $'
+    _svnrev='$Rev: 966 $'
     __version__ = 'Dev ' +  _svnrev.strip('$') + \
                   ' '.join(_svndate.strip('$').split()[0:3])
 
@@ -439,17 +439,21 @@ logstr = ''            # log options printable last set
 #  and output it only on error (2011_1102)
 #  leaving it on sys.stderr would write the full log even for successful tests
 console = logging.StreamHandler(sys.stdout)   #default is sys.stderr
-#console.setLevel(logging.DEBUG)
 
+#console.setLevel(logging.DEBUG)
 # format for simple console use
 #formatter = logging.Formatter('adalog: %(message)s')
 ## tell the handler to use this format
 #console.setFormatter(formatter)
 
 # add the handler to the root logger
-logging.getLogger('').addHandler(console)
+rootlog = logging.getLogger('')
+if not rootlog.handlers:
+    rootlog.addHandler(console)
+
 adalog = logging.getLogger('adalog')
 adalog.setLevel(logging.DEBUG)
+# adalog.propagate = False # avoid duplicate messages
 
 
 def log(logparm=None):

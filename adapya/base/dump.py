@@ -314,7 +314,7 @@ blanks and CR LF are suppressed
 
 txt2buf=lambda txt: txt.replace(' ','').replace('\n','')
 """
-convert text input 'txt' that may be split over se1.0.4 lines to string
+convert text input 'txt' that may be split over se1.0.5 lines to string
 blanks and CR LF are suppressed
 """
 

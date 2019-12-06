@@ -1,0 +1,517 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>adapya.base.conv &mdash; adapya-base 1.0.5 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../../../_static/SAG2015.ico"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> adapya-base
+          
+
+          
+            
+            <img src="../../../_static/SAG2015.ico" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0.5
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installing.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide.html">Using adapya-base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../scripts.html">Scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">Package Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../indices.html">Indices</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">adapya-base</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>adapya.base.conv</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for adapya.base.conv</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: latin1 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">conv - Text conversion routines</span>
+<span class="sd">===============================</span>
+
+<span class="sd">The module conv.py contains several conversion routines for ASCII/EBCDIC</span>
+<span class="sd">conversion and byte swapping.</span>
+
+<span class="sd">Character set is Latin1 per default with cp37 as EBCDIC</span>
+<span class="sd">and cp819 (ISO-8859-1) as extended ASCII code pages.</span>
+
+<span class="sd">The following conversions are defined::</span>
+
+<span class="sd">     37 &lt;=&gt; 819</span>
+<span class="sd">   1047 &lt;=&gt; 819</span>
+<span class="sd">   1141 &lt;=&gt; 1252</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">byteorder</span> <span class="o">==</span><span class="s1">&#39;little&#39;</span><span class="p">:</span>
+    <span class="n">UTF16_NATIVE</span> <span class="o">=</span> <span class="s1">&#39;UTF_16_LE&#39;</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">UTF16_NATIVE</span> <span class="o">=</span> <span class="s1">&#39;UTF_16_BE&#39;</span>
+
+<span class="n">tt37_819</span> <span class="o">=</span> \
+    <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x00\x01\x02\x03\x9C\x09\x86\x7F\x97\x8D\x8E\x0B\x0C\x0D\x0E\x0F</span><span class="s1">&#39;</span>\
+    <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x10\x11\x12\x13\x9D\x85\x08\x87\x18\x19\x92\x8F\x1C\x1D\x1E\x1F</span><span class="s1">&#39;</span>\
+    <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x80\x81\x82\x83\x84\x0A\x17\x1B\x88\x89\x8A\x8B\x8C\x05\x06\x07</span><span class="s1">&#39;</span>\
+    <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x90\x91\x16\x93\x94\x95\x96\x04\x98\x99\x9A\x9B\x14\x15\x9E\x1A</span><span class="s1">&#39;</span>\
+    <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x20\xA0\xE2\xE4\xE0\xE1\xE3\xE5\xE7\xF1\xA2\x2E\x3C\x28\x2B\x7C</span><span class="s1">&#39;</span>\
+    <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x26\xE9\xEA\xEB\xE8\xED\xEE\xEF\xEC\xDF\x21\x24\x2A\x29\x3B\xAC</span><span class="s1">&#39;</span>\
+    <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x2D\x2F\xC2\xC4\xC0\xC1\xC3\xC5\xC7\xD1\xA6\x2C\x25\x5F\x3E\x3F</span><span class="s1">&#39;</span>\
+    <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\xF8\xC9\xCA\xCB\xC8\xCD\xCE\xCF\xCC\x60\x3A\x23\x40\x27\x3D\x22</span><span class="s1">&#39;</span>\
+    <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\xD8\x61\x62\x63\x64\x65\x66\x67\x68\x69\xAB\xBB\xF0\xFD\xFE\xB1</span><span class="s1">&#39;</span>\
+    <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\xB0\x6A\x6B\x6C\x6D\x6E\x6F\x70\x71\x72\xAA\xBA\xE6\xB8\xC6\xA4</span><span class="s1">&#39;</span>\
+    <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\xB5\x7E\x73\x74\x75\x76\x77\x78\x79\x7A\xA1\xBF\xD0\xDD\xDE\xAE</span><span class="s1">&#39;</span>\
+    <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x5E\xA3\xA5\xB7\xA9\xA7\xB6\xBC\xBD\xBE\x5B\x5D\xAF\xA8\xB4\xD7</span><span class="s1">&#39;</span>\
+    <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x7B\x41\x42\x43\x44\x45\x46\x47\x48\x49\xAD\xF4\xF6\xF2\xF3\xF5</span><span class="s1">&#39;</span>\
+    <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x7D\x4A\x4B\x4C\x4D\x4E\x4F\x50\x51\x52\xB9\xFB\xFC\xF9\xFA\xFF</span><span class="s1">&#39;</span>\
+    <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x5C\xF7\x53\x54\x55\x56\x57\x58\x59\x5A\xB2\xD4\xD6\xD2\xD3\xD5</span><span class="s1">&#39;</span>\
+    <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x30\x31\x32\x33\x34\x35\x36\x37\x38\x39\xB3\xDB\xDC\xD9\xDA\x9F</span><span class="s1">&#39;</span>
+
+<span class="n">tt819_37</span> <span class="o">=</span> \
+    <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x00\x01\x02\x03\x37\x2D\x2E\x2F\x16\x05\x25\x0B\x0C\x0D\x0E\x0F</span><span class="s1">&#39;</span>\
+    <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x10\x11\x12\x13\x3C\x3D\x32\x26\x18\x19\x3F\x27\x1C\x1D\x1E\x1F</span><span class="s1">&#39;</span>\
+    <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x40\x5A\x7F\x7B\x5B\x6C\x50\x7D\x4D\x5D\x5C\x4E\x6B\x60\x4B\x61</span><span class="s1">&#39;</span>\
+    <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\xF0\xF1\xF2\xF3\xF4\xF5\xF6\xF7\xF8\xF9\x7A\x5E\x4C\x7E\x6E\x6F</span><span class="s1">&#39;</span>\
+    <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x7C\xC1\xC2\xC3\xC4\xC5\xC6\xC7\xC8\xC9\xD1\xD2\xD3\xD4\xD5\xD6</span><span class="s1">&#39;</span>\
+    <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\xD7\xD8\xD9\xE2\xE3\xE4\xE5\xE6\xE7\xE8\xE9\xBA\xE0\xBB\xB0\x6D</span><span class="s1">&#39;</span>\
+    <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x79\x81\x82\x83\x84\x85\x86\x87\x88\x89\x91\x92\x93\x94\x95\x96</span><span class="s1">&#39;</span>\
+    <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x97\x98\x99\xA2\xA3\xA4\xA5\xA6\xA7\xA8\xA9\xC0\x4F\xD0\xA1\x07</span><span class="s1">&#39;</span>\
+    <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x20\x21\x22\x23\x24\x15\x06\x17\x28\x29\x2A\x2B\x2C\x09\x0A\x1B</span><span class="s1">&#39;</span>\
+    <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x30\x31\x1A\x33\x34\x35\x36\x08\x38\x39\x3A\x3B\x04\x14\x3E\xFF</span><span class="s1">&#39;</span>\
+    <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x41\xAA\x4A\xB1\x9F\xB2\x6A\xB5\xBD\xB4\x9A\x8A\x5F\xCA\xAF\xBC</span><span class="s1">&#39;</span>\
+    <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x90\x8F\xEA\xFA\xBE\xA0\xB6\xB3\x9D\xDA\x9B\x8B\xB7\xB8\xB9\xAB</span><span class="s1">&#39;</span>\
+    <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x64\x65\x62\x66\x63\x67\x9E\x68\x74\x71\x72\x73\x78\x75\x76\x77</span><span class="s1">&#39;</span>\
+    <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\xAC\x69\xED\xEE\xEB\xEF\xEC\xBF\x80\xFD\xFE\xFB\xFC\xAD\xAE\x59</span><span class="s1">&#39;</span>\
+    <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x44\x45\x42\x46\x43\x47\x9C\x48\x54\x51\x52\x53\x58\x55\x56\x57</span><span class="s1">&#39;</span>\
+    <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x8C\x49\xCD\xCE\xCB\xCF\xCC\xE1\x70\xDD\xDE\xDB\xDC\x8D\x8E\xDF</span><span class="s1">&#39;</span>
+
+<span class="c1"># 1141 EBCDIC German, Austria with Euro to 1252 Windows Latin1</span>
+<span class="c1"># substitution character is 0x1a</span>
+<span class="n">tt1141_1252</span> <span class="o">=</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x00\x01\x02\x03\x1A\x09\x1A\x7F\x1A\x8D\x1A\x0B\x0C\x0D\x0E\x0F</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x10\x11\x12\x13\x9D\x1A\x08\x1A\x18\x19\x1A\x8F\x1C\x1D\x1E\x1F</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x1A\x81\x1A\x1A\x1A\x0A\x17\x1B\x1A\x1A\x1A\x1A\x1A\x05\x06\x07</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x90\x1A\x16\x1A\x1A\x1A\x1A\x04\x1A\x1A\x1A\x1A\x14\x15\x1A\x1A</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x20\xA0\xE2\x7B\xE0\xE1\xE3\xE5\xE7\xF1\xC4\x2E\x3C\x28\x2B\x21</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x26\xE9\xEA\xEB\xE8\xED\xEE\xEF\xEC\x7E\xDC\x24\x2A\x29\x3B\x5E</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x2D\x2F\xC2\x5B\xC0\xC1\xC3\xC5\xC7\xD1\xF6\x2C\x25\x5F\x3E\x3F</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\xF8\xC9\xCA\xCB\xC8\xCD\xCE\xCF\xCC\x60\x3A\x23\xA7\x27\x3D\x22</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\xD8\x61\x62\x63\x64\x65\x66\x67\x68\x69\xAB\xBB\xF0\xFD\xFE\xB1</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\xB0\x6A\x6B\x6C\x6D\x6E\x6F\x70\x71\x72\xAA\xBA\xE6\xB8\xC6\x80</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\xB5\xDF\x73\x74\x75\x76\x77\x78\x79\x7A\xA1\xBF\xD0\xDD\xDE\xAE</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\xA2\xA3\xA5\xB7\xA9\x40\xB6\xBC\xBD\xBE\xAC\x7C\xAF\xA8\xB4\xD7</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\xE4\x41\x42\x43\x44\x45\x46\x47\x48\x49\xAD\xF4\xA6\xF2\xF3\xF5</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\xFC\x4A\x4B\x4C\x4D\x4E\x4F\x50\x51\x52\xB9\xFB\x7D\xF9\xFA\xFF</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\xD6\xF7\x53\x54\x55\x56\x57\x58\x59\x5A\xB2\xD4\x5C\xD2\xD3\xD5</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x30\x31\x32\x33\x34\x35\x36\x37\x38\x39\xB3\xDB\x5D\xD9\xDA\x1A</span><span class="s2">&quot;</span>
+
+<span class="c1"># substitution character is 0x3f</span>
+<span class="n">tt1252_1141</span> <span class="o">=</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x00\x01\x02\x03\x37\x2D\x2E\x2F\x16\x05\x25\x0B\x0C\x0D\x0E\x0F</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x10\x11\x12\x13\x3C\x3D\x32\x26\x18\x19\x3F\x27\x1C\x1D\x1E\x1F</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x40\x4F\x7F\x7B\x5B\x6C\x50\x7D\x4D\x5D\x5C\x4E\x6B\x60\x4B\x61</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\xF0\xF1\xF2\xF3\xF4\xF5\xF6\xF7\xF8\xF9\x7A\x5E\x4C\x7E\x6E\x6F</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\xB5\xC1\xC2\xC3\xC4\xC5\xC6\xC7\xC8\xC9\xD1\xD2\xD3\xD4\xD5\xD6</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\xD7\xD8\xD9\xE2\xE3\xE4\xE5\xE6\xE7\xE8\xE9\x63\xEC\xFC\x5F\x6D</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x79\x81\x82\x83\x84\x85\x86\x87\x88\x89\x91\x92\x93\x94\x95\x96</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x97\x98\x99\xA2\xA3\xA4\xA5\xA6\xA7\xA8\xA9\x43\xBB\xDC\x59\x07</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x9F\x21\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x09\x3F\x1B</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x30\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x3F\x14\x3F\x3F</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x41\xAA\xB0\xB1\x3F\xB2\xCC\x7C\xBD\xB4\x9A\x8A\xBA\xCA\xAF\xBC</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x90\x8F\xEA\xFA\xBE\xA0\xB6\xB3\x9D\xDA\x9B\x8B\xB7\xB8\xB9\xAB</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x64\x65\x62\x66\x4A\x67\x9E\x68\x74\x71\x72\x73\x78\x75\x76\x77</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\xAC\x69\xED\xEE\xEB\xEF\xE0\xBF\x80\xFD\xFE\xFB\x5A\xAD\xAE\xA1</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x44\x45\x42\x46\xC0\x47\x9C\x48\x54\x51\x52\x53\x58\x55\x56\x57</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x8C\x49\xCD\xCE\xCB\xCF\x6A\xE1\x70\xDD\xDE\xDB\xD0\x8D\x8E\xDF</span><span class="s2">&quot;</span>
+<span class="c1">#      0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F</span>
+
+<span class="c1"># Translation table from codepage 1047 swap NL,LF to 819</span>
+<span class="n">tt1047_819</span> <span class="o">=</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x00\x01\x02\x03\x9C\x09\x86\x7F\x97\x8D\x8E\x0B\x0C\x0D\x0E\x0F</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x10\x11\x12\x13\x9D\x0A\x08\x87\x18\x19\x92\x8F\x1C\x1D\x1E\x1F</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x80\x81\x82\x83\x84\x85\x17\x1B\x88\x89\x8A\x8B\x8C\x05\x06\x07</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x90\x91\x16\x93\x94\x95\x96\x04\x98\x99\x9A\x9B\x14\x15\x9E\x1A</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x20\xA0\xE2\xE4\xE0\xE1\xE3\xE5\xE7\xF1\xA2\x2E\x3C\x28\x2B\x7C</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x26\xE9\xEA\xEB\xE8\xED\xEE\xEF\xEC\xDF\x21\x24\x2A\x29\x3B\x5E</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x2D\x2F\xC2\xC4\xC0\xC1\xC3\xC5\xC7\xD1\xA6\x2C\x25\x5F\x3E\x3F</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\xF8\xC9\xCA\xCB\xC8\xCD\xCE\xCF\xCC\x60\x3A\x23\x40\x27\x3D\x22</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\xD8\x61\x62\x63\x64\x65\x66\x67\x68\x69\xAB\xBB\xF0\xFD\xFE\xB1</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\xB0\x6A\x6B\x6C\x6D\x6E\x6F\x70\x71\x72\xAA\xBA\xE6\xB8\xC6\xA4</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\xB5\x7E\x73\x74\x75\x76\x77\x78\x79\x7A\xA1\xBF\xD0\x5B\xDE\xAE</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\xAC\xA3\xA5\xB7\xA9\xA7\xB6\xBC\xBD\xBE\xDD\xA8\xAF\x5D\xB4\xD7</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x7B\x41\x42\x43\x44\x45\x46\x47\x48\x49\xAD\xF4\xF6\xF2\xF3\xF5</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x7D\x4A\x4B\x4C\x4D\x4E\x4F\x50\x51\x52\xB9\xFB\xFC\xF9\xFA\xFF</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x5C\xF7\x53\x54\x55\x56\x57\x58\x59\x5A\xB2\xD4\xD6\xD2\xD3\xD5</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x30\x31\x32\x33\x34\x35\x36\x37\x38\x39\xB3\xDB\xDC\xD9\xDA\x9F</span><span class="s2">&quot;</span> \
+<span class="c1">#      0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F</span>
+
+<span class="c1"># Translation table from codepage 819 to 1047 swap NL,LF</span>
+<span class="n">tt819_1047</span> <span class="o">=</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x00\x01\x02\x03\x37\x2D\x2E\x2F\x16\x05\x15\x0B\x0C\x0D\x0E\x0F</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x10\x11\x12\x13\x3C\x3D\x32\x26\x18\x19\x3F\x27\x1C\x1D\x1E\x1F</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x40\x5A\x7F\x7B\x5B\x6C\x50\x7D\x4D\x5D\x5C\x4E\x6B\x60\x4B\x61</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\xF0\xF1\xF2\xF3\xF4\xF5\xF6\xF7\xF8\xF9\x7A\x5E\x4C\x7E\x6E\x6F</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x7C\xC1\xC2\xC3\xC4\xC5\xC6\xC7\xC8\xC9\xD1\xD2\xD3\xD4\xD5\xD6</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\xD7\xD8\xD9\xE2\xE3\xE4\xE5\xE6\xE7\xE8\xE9\xAD\xE0\xBD\x5F\x6D</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x79\x81\x82\x83\x84\x85\x86\x87\x88\x89\x91\x92\x93\x94\x95\x96</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x97\x98\x99\xA2\xA3\xA4\xA5\xA6\xA7\xA8\xA9\xC0\x4F\xD0\xA1\x07</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x20\x21\x22\x23\x24\x25\x06\x17\x28\x29\x2A\x2B\x2C\x09\x0A\x1B</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x30\x31\x1A\x33\x34\x35\x36\x08\x38\x39\x3A\x3B\x04\x14\x3E\xFF</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x41\xAA\x4A\xB1\x9F\xB2\x6A\xB5\xBB\xB4\x9A\x8A\xB0\xCA\xAF\xBC</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x90\x8F\xEA\xFA\xBE\xA0\xB6\xB3\x9D\xDA\x9B\x8B\xB7\xB8\xB9\xAB</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x64\x65\x62\x66\x63\x67\x9E\x68\x74\x71\x72\x73\x78\x75\x76\x77</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\xAC\x69\xED\xEE\xEB\xEF\xEC\xBF\x80\xFD\xFE\xFB\xFC\xBA\xAE\x59</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x44\x45\x42\x46\x43\x47\x9C\x48\x54\x51\x52\x53\x58\x55\x56\x57</span><span class="s2">&quot;</span> \
+    <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x8C\x49\xCD\xCE\xCB\xCF\xCC\xE1\x70\xDD\xDE\xDB\xDC\x8D\x8E\xDF</span><span class="s2">&quot;</span> \
+<span class="c1">#      0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F</span>
+
+<span class="c1"># translation tables dictionary</span>
+<span class="n">ttdic</span> <span class="o">=</span> <span class="p">{(</span><span class="mi">37</span><span class="p">,</span><span class="mi">819</span><span class="p">):</span> <span class="n">tt37_819</span><span class="p">,</span> <span class="p">(</span><span class="mi">819</span><span class="p">,</span><span class="mi">37</span><span class="p">):</span> <span class="n">tt819_37</span><span class="p">,</span>
+         <span class="p">(</span><span class="mi">1047</span><span class="p">,</span><span class="mi">819</span><span class="p">):</span> <span class="n">tt1047_819</span><span class="p">,</span> <span class="p">(</span><span class="mi">819</span><span class="p">,</span><span class="mi">1047</span><span class="p">):</span> <span class="n">tt819_1047</span><span class="p">,</span>
+         <span class="p">(</span><span class="mi">1141</span><span class="p">,</span><span class="mi">1252</span><span class="p">):</span> <span class="n">tt1141_1252</span><span class="p">,</span> <span class="p">(</span><span class="mi">1252</span><span class="p">,</span><span class="mi">1141</span><span class="p">):</span> <span class="n">tt1252_1141</span><span class="p">,</span>
+        <span class="p">}</span>
+
+<div class="viewcode-block" id="asc2ebc"><a class="viewcode-back" href="../../../modules.html#adapya.base.conv.asc2ebc">[docs]</a><span class="k">def</span> <span class="nf">asc2ebc</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span><span class="n">start</span><span class="p">,</span><span class="n">stop</span><span class="p">,</span><span class="n">senco</span><span class="o">=</span><span class="mi">819</span><span class="p">,</span><span class="n">tenco</span><span class="o">=</span><span class="mi">37</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; convert ASCII bytes in buffer to EBCDIC</span>
+
+<span class="sd">        :param buf: buffer</span>
+<span class="sd">        :param start: start offset in buf</span>
+<span class="sd">        :param stop: ending offset in buf</span>
+<span class="sd">        :param senco: source ASCII encoding. Supported are:</span>
+
+<span class="sd">            819 (Latin1 ISO-8859-1) or 1252 (Windows Latin1)</span>
+
+<span class="sd">        :param tenco: target EBCDIC encoding. Supported are:</span>
+
+<span class="sd">            37 (US EBCDIC Latin1) or 1141 (US EBCDIC with Euro)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">tt</span> <span class="o">=</span> <span class="n">ttdic</span><span class="p">[(</span><span class="n">senco</span><span class="p">,</span><span class="n">tenco</span><span class="p">)]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">start</span><span class="p">,</span><span class="n">stop</span><span class="p">):</span>
+        <span class="n">buf</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">tt</span><span class="p">[</span><span class="nb">ord</span><span class="p">(</span><span class="n">buf</span><span class="p">[</span><span class="n">i</span><span class="p">])]</span></div>
+
+
+<div class="viewcode-block" id="ebc2asc"><a class="viewcode-back" href="../../../modules.html#adapya.base.conv.ebc2asc">[docs]</a><span class="k">def</span> <span class="nf">ebc2asc</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span><span class="n">start</span><span class="p">,</span><span class="n">stop</span><span class="p">,</span><span class="n">senco</span><span class="o">=</span><span class="mi">37</span><span class="p">,</span><span class="n">tenco</span><span class="o">=</span><span class="mi">819</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; convert EBCDIC bytes in buffer to ASCII</span>
+
+<span class="sd">        :param buf: buffer</span>
+<span class="sd">        :param start: start offset in buf</span>
+<span class="sd">        :param stop: ending offset in buf</span>
+<span class="sd">        :param senco: source EBCDIC encoding. Supported code pages</span>
+
+<span class="sd">            37 (US EBCDIC Latin1) or 1141 (US EBCDIC with Euro)</span>
+
+<span class="sd">        :param tenco: target ASCII encoding. Supported code</span>
+
+<span class="sd">            819 (Latin1 ISO-8859-1) or 1252 (Windows Latin1)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">tt</span> <span class="o">=</span> <span class="n">ttdic</span><span class="p">[(</span><span class="n">senco</span><span class="p">,</span><span class="n">tenco</span><span class="p">)]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">start</span><span class="p">,</span><span class="n">stop</span><span class="p">):</span>
+        <span class="n">buf</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">tt</span><span class="p">[</span><span class="nb">ord</span><span class="p">(</span><span class="n">buf</span><span class="p">[</span><span class="n">i</span><span class="p">])]</span></div>
+
+
+<span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">hexversion</span> <span class="o">&lt;</span> <span class="mh">0x03010100</span><span class="p">:</span>
+    <span class="c1"># Python 2</span>
+    <span class="kn">import</span> <span class="nn">array</span>    <span class="c1"># str2uni() uni2str()</span>
+    <span class="kn">import</span> <span class="nn">string</span>
+
+    <span class="k">def</span> <span class="nf">ebc2str</span><span class="p">(</span><span class="n">istr</span><span class="p">,</span><span class="n">senco</span><span class="o">=</span><span class="mi">37</span><span class="p">,</span><span class="n">tenco</span><span class="o">=</span><span class="mi">819</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Translate characters string to target encoding</span>
+
+<span class="sd">        &gt;&gt;&gt; ebc2str(&#39;\xc1\xc2\xc3&#39;) == &#39;ABC&#39;</span>
+<span class="sd">        True</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tt</span> <span class="o">=</span> <span class="n">ttdic</span><span class="p">[(</span><span class="n">senco</span><span class="p">,</span><span class="n">tenco</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="n">string</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">istr</span><span class="p">,</span><span class="n">tt</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">str2ebc</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span><span class="n">senco</span><span class="o">=</span><span class="mi">819</span><span class="p">,</span><span class="n">tenco</span><span class="o">=</span><span class="mi">37</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Translate characters string to target encoding</span>
+
+<span class="sd">        &gt;&gt;&gt; str2ebc(&#39;ABC&#39;) == &#39;\xc1\xc2\xc3&#39;</span>
+<span class="sd">        True</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tt</span> <span class="o">=</span> <span class="n">ttdic</span><span class="p">[(</span><span class="n">senco</span><span class="p">,</span><span class="n">tenco</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="n">string</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span><span class="n">tt</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">str2asc</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span><span class="n">senco</span><span class="o">=</span><span class="mi">37</span><span class="p">,</span><span class="n">tenco</span><span class="o">=</span><span class="mi">819</span><span class="p">):</span>
+        <span class="n">tt</span> <span class="o">=</span> <span class="n">ttdic</span><span class="p">[(</span><span class="n">senco</span><span class="p">,</span><span class="n">tenco</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="n">string</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span><span class="n">tt</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">uni2str</span><span class="p">(</span><span class="n">u</span><span class="p">):</span>
+        <span class="s2">&quot;convert unicode string to binary string&quot;</span>
+        <span class="k">return</span> <span class="n">array</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="s1">&#39;u&#39;</span><span class="p">,</span> <span class="n">u</span><span class="p">)</span><span class="o">.</span><span class="n">tostring</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">str2uni</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Convert binary string to unicode string.</span>
+<span class="sd">           The length of the input string s must be even otherwise</span>
+<span class="sd">           a ValueError exception is raised. &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">array</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="s1">&#39;u&#39;</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">tounicode</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">swap</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;swap string&quot;&quot;&quot;</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">array</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="s1">&#39;c&#39;</span><span class="p">,</span><span class="n">s</span><span class="p">)</span>
+        <span class="n">a</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">a</span><span class="o">.</span><span class="n">tostring</span><span class="p">()</span>
+
+<span class="k">else</span><span class="p">:</span>
+    <span class="c1"># Python 3 and higher</span>
+<div class="viewcode-block" id="str2ebc"><a class="viewcode-back" href="../../../modules.html#adapya.base.conv.str2ebc">[docs]</a>    <span class="k">def</span> <span class="nf">str2ebc</span><span class="p">(</span><span class="n">istr</span><span class="p">,</span><span class="n">senco</span><span class="o">=</span><span class="mi">819</span><span class="p">,</span><span class="n">tenco</span><span class="o">=</span><span class="mi">37</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Translate bytes in bytes, bytearray or  string</span>
+<span class="sd">        to target encoding</span>
+
+<span class="sd">        &gt;&gt;&gt; str2ebc(b&#39;ABC&#39;)</span>
+<span class="sd">        b&#39;\xc1\xc2\xc3&#39;</span>
+
+<span class="sd">        &gt;&gt;&gt; abc=bytearray(&#39;ABC&#39;,encoding=&#39;Latin1&#39;)</span>
+
+<span class="sd">        &gt;&gt;&gt; str2ebc(abc)</span>
+<span class="sd">        bytearray(b&#39;\xc1\xc2\xc3&#39;)</span>
+
+<span class="sd">        &gt;&gt;&gt; str2ebc(&#39;ABC&#39;)</span>
+<span class="sd">        b&#39;\xc1\xc2\xc3&#39;</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">istr</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">bytes</span><span class="p">:</span>
+            <span class="n">tt</span> <span class="o">=</span> <span class="n">ttdic</span><span class="p">[(</span><span class="n">senco</span><span class="p">,</span><span class="n">tenco</span><span class="p">)]</span>
+            <span class="k">return</span> <span class="nb">bytes</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">istr</span><span class="p">,</span><span class="n">tt</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">istr</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">bytearray</span><span class="p">:</span>
+            <span class="n">tt</span> <span class="o">=</span> <span class="n">ttdic</span><span class="p">[(</span><span class="n">senco</span><span class="p">,</span><span class="n">tenco</span><span class="p">)]</span>
+            <span class="k">return</span> <span class="nb">bytearray</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">istr</span><span class="p">,</span><span class="n">tt</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">istr</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;cp</span><span class="si">%03d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">tenco</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">str2asc</span><span class="p">(</span><span class="n">istr</span><span class="p">,</span><span class="n">senco</span><span class="o">=</span><span class="mi">37</span><span class="p">,</span><span class="n">tenco</span><span class="o">=</span><span class="mi">819</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">istr</span><span class="p">)</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">bytes</span><span class="p">,</span><span class="nb">bytearray</span><span class="p">):</span>
+            <span class="n">tt</span> <span class="o">=</span> <span class="n">ttdic</span><span class="p">[(</span><span class="n">senco</span><span class="p">,</span><span class="n">tenco</span><span class="p">)]</span>
+            <span class="k">return</span> <span class="nb">bytes</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">istr</span><span class="p">,</span><span class="n">tt</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">istr</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;cp</span><span class="si">%03d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">tenco</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">ebc2str</span><span class="p">(</span><span class="n">istr</span><span class="p">,</span><span class="n">senco</span><span class="o">=</span><span class="mi">37</span><span class="p">,</span><span class="n">tenco</span><span class="o">=</span><span class="mi">819</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">istr</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;cp</span><span class="si">%03d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">senco</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="uni2str"><a class="viewcode-back" href="../../../modules.html#adapya.base.conv.uni2str">[docs]</a>    <span class="k">def</span> <span class="nf">uni2str</span><span class="p">(</span><span class="n">u</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;convert unicode string to bytes string</span>
+
+<span class="sd">        :param u: string</span>
+<span class="sd">        :returns: bytes string</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">u</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;UTF16_NATIVE&#39;</span><span class="p">)</span>  <span class="c1"># native utf-16 w/o byte-order mark (BOM)</span></div>
+
+<div class="viewcode-block" id="str2uni"><a class="viewcode-back" href="../../../modules.html#adapya.base.conv.str2uni">[docs]</a>    <span class="k">def</span> <span class="nf">str2uni</span><span class="p">(</span><span class="n">b</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Convert bytes string to unicode string.</span>
+<span class="sd">           The length of the input string s must be even otherwise</span>
+<span class="sd">           a ValueError exception is raised. &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">b</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;UTF16_NATIVE&#39;</span><span class="p">)</span>  <span class="c1"># native utf-16 w/o byte-order mark (BOM)</span></div>
+
+<div class="viewcode-block" id="swap"><a class="viewcode-back" href="../../../modules.html#adapya.base.conv.swap">[docs]</a>    <span class="k">def</span> <span class="nf">swap</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;swap string, bytes or bytesarray&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">bytes</span><span class="p">,</span><span class="nb">bytearray</span><span class="p">):</span>
+            <span class="n">ba</span><span class="o">=</span><span class="nb">bytearray</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+            <span class="n">ba</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span> <span class="c1"># operates by side-effect: does not return result</span>
+            <span class="k">return</span> <span class="n">ba</span>    <span class="c1"># ... hence separate return statement</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ss</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
+                <span class="n">ss</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">c</span><span class="p">)</span>
+            <span class="k">return</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ss</span><span class="p">)</span></div>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">doctest</span>
+    <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">()</span>
+
+<span class="c1">#  Copyright 2004-ThisYear Software AG</span>
+<span class="c1">#</span>
+<span class="c1">#  Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1">#  you may not use this file except in compliance with the License.</span>
+<span class="c1">#  You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#      http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1">#  Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1">#  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1">#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1">#  See the License for the specific language governing permissions and</span>
+<span class="c1">#  limitations under the License.</span>
+<span class="c1">#</span>
+<span class="c1">#  $Date: 2017-05-17 20:51:16 +0200 (Mi, 17 Mai 2017) $</span>
+<span class="c1">#  $Rev: 768 $</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2004-2019, software AG
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -48,7 +48,7 @@ extra = {}
 README = open(os.path.join(os.path.dirname(__file__), 'README.rst')).read()
 
 setup(  name='adapya-base',
-    version='1.0.4',
+    version='1.0.5',
     author='mmueller',
     author_email='mm@softwareag.com',
     description='adapya-base - base package for adapya',

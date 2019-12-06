@@ -3,7 +3,7 @@
 conv - Text conversion routines
 ===============================
 
-The module conv.py contains se1.0.4 conversion routines for ASCII/EBCDIC
+The module conv.py contains se1.0.5 conversion routines for ASCII/EBCDIC
 conversion and byte swapping.
 
 Character set is Latin1 per default with cp37 as EBCDIC

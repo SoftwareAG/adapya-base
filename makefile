@@ -96,6 +96,7 @@ upload:
 # XCOPY /D copies files only newer than target /S include subdir /Y no prompt for existing file
 
 docs:
-         cd C:/temp/apy/$(PACK)-$(VRL)/adapya/base
-         sphinx-build -a doc/ doc/_build/
+    cd C:/temp/apy/$(PACK)-$(VRL)/adapya/base
+    sphinx-build -a doc/ doc/_build/
+    xcopy /s /y /q doc/_build/* $(GITDIR)\$(PACK)\docs
 

@@ -102,11 +102,25 @@ Example directories::
 
 """
 
-touchtemplate=\
-"""//MMTOUCH  JOB  MM,CLASS=K,MSGCLASS=X
+touchtemplate_sample="""
+When writing text files to members of a partitioned dataset
+z/OS FTP usually setting the member creation date to the
+time of the FTP.
+
+If the modification time of the original text file is to
+be set in the member, it is possible to configure a TOUCH job
+that is submitted to the mainframe that corrects the
+dates for the processed members in the PDS.
+
+Note: the template has one variable for DSN that is replaced
+
+The template for such a job looks like the folling - adaptions
+for job card and steplib library are required:
+
+//MMTOUCH  JOB  MM,CLASS=K,MSGCLASS=X
 //*
-//          EXEC  PGM=TOUCH,REGION=0M
-//STEPLIB  DD DISP=SHR,DSN=ADABAS.DEV.PROD.LOAD
+//         EXEC  PGM=TOUCH,REGION=0M
+//STEPLIB  DD DISP=SHR,DSN=MM.UTIL.LOAD
 //SYSPRINT DD SYSOUT=X
 //PDS      DD DISP=SHR,DSN=%s
 //SYSIN    DD *
@@ -685,7 +699,7 @@ class Ftpzos():
             spoolfiles.append(sf)
         return jobstatus,spoolfiles
 
-    def touchmembers(self, pds, membertimes):
+    def touchmembers(self, pds, membertimes, touchtemplate):
         """Submit TOUCH job to set modification times in members of a
            partitioned dataset.
 
@@ -693,6 +707,9 @@ class Ftpzos():
         :param membertimes: list of (membername, modtime, uid, size) tuples
                             modtime is of datetime type or
                             of string 'yyyymmdd.HHMMSS'
+        :param touchtemplate: Touch template job skeleton
+                              (see touchtemplate_sample for further
+                              details
         """
         if len(membertimes)==0:
             return
@@ -718,7 +735,7 @@ class Ftpzos():
         f.write('//\n')  # end of job
         f.seek(0)   # rewind
         if self.test:
-            print('\nGenerated TOUCH job (not submitted)')
+            print('\nThe following generated TOUCH job is not submitted in test mode:)')
             for line in f:
                 print(line[:-1])
         else:

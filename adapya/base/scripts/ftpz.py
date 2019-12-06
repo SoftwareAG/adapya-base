@@ -11,16 +11,16 @@ epilog="""
     1. sync-up PDS mm.test.adasrc from current directory and delete
        member that do not exist in source
 
-       ftpz upsync --user xyz --pwd secret --host da3f MM.TEST.ADASRC
+       ftpz upsync --user xyz --pwd secret --host bfg1 MM.TEST.ADASRC
 
     2. update all changed members PDS mm.test.adasrc from current directory
 
-       ftpz upload --user xyz --pwd secret --host da3f MM.TEST.ADASRC
+       ftpz upload --user xyz --pwd secret --host bfg1 MM.TEST.ADASRC
 
     3. ftpz upsync -t mm.test.adasrc   # dry run without updating
 
     4. set configuration default values
-       ftpz config --user xyz --pwd secret --host da3f # set config
+       ftpz config --user xyz --pwd secret --host bfg1 # set config
        ftpz config                                     # list config
        ftpz upload MM.TEST.ADASRC                      # use config
 
@@ -83,6 +83,8 @@ from adapya.base.touch import ftouch
 from adapya.base import jconfig
 
 debug = 0
+touchtemplate = '' # Job template for TOUCH job to synch PDS member
+                   # modification times with source
 
 def syncdir(locdir,pds='',include=[],exclude=[],user=''):
     """ Synchronize PDS with local directory 'locdir' or if pds is a
@@ -334,10 +336,10 @@ def syncdir(locdir,pds='',include=[],exclude=[],user=''):
                         else:
                             raise
 
-        if not test:
-            if func in ('upload','upsync','sync'):
-                ftpt.touchmembers(quopds,memtimes) # submit TOUCH job
+        if func in ('upload','upsync','sync') and touchtemplate:
+            ftpt.touchmembers(quopds,memtimes,touchtemplate) # submit TOUCH job
 
+        if not test:
             if func in ('download','downsync','sync') and len(downloaded)>0:
                 infofile = os.path.join(root,infofilename)
                 info=ftpt.memberinfo(quopds)
@@ -376,6 +378,7 @@ def syncdir(locdir,pds='',include=[],exclude=[],user=''):
 
     # --- end of syncdir ---
 
+
 if __name__=='__main__':
 
     #infofilename = os.path.join(localdir, '.mirrorinfo')
@@ -395,6 +398,7 @@ if __name__=='__main__':
     parser.add_argument('-t','--test',action='store_true',help='dry run - list actions only')
     parser.add_argument('-v','--verbose',type=int,default=0,help='verbose output (1 to 3)')
     parser.add_argument('-d','--prefix',type=str,default=None,help='dataset prefix')
+    parser.add_argument('-j','--touchfname',type=str,default='',help='file name for touch job template')
     parser.add_argument('-x','--exclude',type=str.upper,nargs='*',default=[],
         help='list of libraries/members to exlude from processing')
     parser.add_argument('-i','--include',type=str.upper,nargs='*',default=[],
@@ -417,23 +421,24 @@ if __name__=='__main__':
     args = parser.parse_args()
 
     func, host, user, pwd, test, verbose, pds, ext, pfx, \
-        exclude, include, site, ignerr, keepsame = \
+        exclude, include, site, ignerr, keepsame, touchfname = \
         args.func, args.host, args.user, args.pwd, args.test, \
         args.verbose, args.pds, args.ext, args.prefix, \
         args.exclude, args.include, args.site, args.ignerr, \
-        args.keepsame
+        args.keepsame, args.touchfname
 
     if ext and not ext.startswith('.'):
         ext='.'+ext
 
 
-    cfg = jconfig.getparms('ftpz', 0, host=host, user=user, pwd=pwd, pfx=pfx, site=site)
+    cfg = jconfig.getparms('ftpz', 0, host=host, user=user, pwd=pwd, pfx=pfx,
+                        site=site, touchfname=touchfname)
 
     if func=='config':   # display or change configuration
-        if not (host or user or pwd or pfx or site) :
+        if not (host or user or pwd or pfx or site or touchfname) :
             print(".ztools ftpz configuration defaults are set as follows:")
             for k, t in cfg.items():
-                if k not in ('host', 'user', 'pwd', 'pfx', 'site'):
+                if k not in ('host', 'user', 'pwd', 'pfx', 'site', 'touchfname'):
                     continue # skip any other parameters
                 if k == 'pwd':
                     t = t if debug else '*password*'
@@ -446,8 +451,8 @@ if __name__=='__main__':
                 user = '' if user=="''" else user if user else None,
                 pwd  = '' if pwd=="''" else pwd if pwd else None,
                 pfx  = '' if pfx=="''" else pfx if pfx else None,
-                site = '' if site=="''" else site if site else None)
-
+                site = '' if site=="''" else site if site else None,
+                touchfname = '' if touchfname=="''" else touchfname if touchfname else None)
         sys.exit()
 
     # from here on all functions need host/user/pwd parameters
@@ -467,6 +472,15 @@ if __name__=='__main__':
         site=cfg.get('site','')
     if pfx == None:
         pfx=cfg.get('pds_prefix',None)
+    if touchfname == '':
+        touchfname=cfg.get('touchfname','')
+
+    if touchfname:
+        tfn = os.path.expandvars(touchfname)
+        if verbose > 0:
+            print('Reading template %s for touch job' % tfn)
+        with open(tfn) as f:
+            touchtemplate = f.read()
 
     no_dsnprefix = True if pds and not pds[-1]=='.' else False
 

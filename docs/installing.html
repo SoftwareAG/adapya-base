@@ -1,0 +1,380 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Installation &mdash; adapya-base 1.0.5 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="_static/SAG2015.ico"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Using adapya-base" href="users_guide.html" />
+    <link rel="prev" title="Overview" href="overview.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> adapya-base
+          
+
+          
+            
+            <img src="_static/SAG2015.ico" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0.5
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#installation-with-package-installer">Installation with Package Installer</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#additional-z-os-installation-notes">Additional z/OS Installation Notes</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pythonpath-installation">PYTHONPATH Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#additional-windows-installation-notes">Additional Windows Installation Notes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#simplifying-execution-of-python-scripts">Simplifying Execution of Python Scripts</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#unix-linux-pythonpath-installation">Unix/Linux PYTHONPATH Installation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="users_guide.html">Using adapya-base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts.html">Scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Package Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="indices.html">Indices</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">adapya-base</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Installation</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/installing.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
+<p>Before installing adapya ensure the following:</p>
+<ul>
+<li><p>Python is available on the platform.</p>
+<p>adapya supports the Python versions 2.7 or 3.5 and higher</p>
+<p>If you have no Python on the system you may install Python
+V2.7 or V3.6.  The Python installer can be downloaded from</p>
+<p><a class="reference external" href="http://www.python.org/download/">http://www.python.org/download/</a></p>
+</li>
+<li><p>the <strong>ctypes</strong> package has been ported (usually installed with Python
+on Windows, Linux and Rocket Python on z/OS from version 2.7.12)</p>
+<p>On some platforms this may not be available because of issues with the
+underlying forreign function package that does not support the
+hardware.</p>
+</li>
+<li><p>Sudo rights simplify standard installation (Unix/Linux).</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Users starting with Python are advised to read the Python
+Tutorial available with function key F1 in the IDLE Python GUI or at
+<a class="reference external" href="https://docs.python.org/3/tutorial/index.html">https://docs.python.org/3/tutorial/index.html</a></p>
+</div>
+</div>
+<div class="section" id="installation-with-package-installer">
+<h2>Installation with Package Installer<a class="headerlink" href="#installation-with-package-installer" title="Permalink to this headline">¶</a></h2>
+<p>The Python package installer offers the most convenient method of
+installing packages.</p>
+<p>From Python package index web site:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">pip</span> <span class="n">install</span> <span class="n">adapya</span><span class="o">-</span><span class="n">base</span>
+</pre></div>
+</div>
+<p>From zip file (similarly for tar file):</p>
+<blockquote>
+<div><p>&gt; pip install adapya-base-1.0.5.zip</p>
+</div></blockquote>
+<div class="section" id="additional-z-os-installation-notes">
+<h3>Additional z/OS Installation Notes<a class="headerlink" href="#additional-z-os-installation-notes" title="Permalink to this headline">¶</a></h3>
+<p>Rocket Software has released Python versions 2.7 and 3.6 for z/OS
+to run unter Unix System Services.</p>
+<p>For installing the package under one of those versions perform the following steps:</p>
+<blockquote>
+<div><ul>
+<li><p>FTP transfer the zip file in binary mode</p></li>
+<li><p>execute pip with the following parameters (in one line):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">U</span> <span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">index</span> <span class="o">--</span><span class="n">disable</span><span class="o">-</span><span class="n">pip</span><span class="o">-</span><span class="n">version</span><span class="o">-</span><span class="n">check</span> <span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">binary</span> <span class="nb">all</span> <span class="n">adapya</span><span class="o">-</span><span class="n">base</span><span class="o">-</span><span class="mf">1.0</span><span class="o">.</span><span class="mf">5.</span><span class="n">zip</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="pythonpath-installation">
+<h2>PYTHONPATH Installation<a class="headerlink" href="#pythonpath-installation" title="Permalink to this headline">¶</a></h2>
+<p>Alternatively, the PYTHONPATH installation allows for temporary
+package installation by adding the location of the package to the
+PYTHONPATH environment variable. As location may serve the directory
+where the package was extracted to or the package zip file itself.</p>
+<p>When the Python interpreter is started it evaluates the environment
+variable <strong>PYTHONPATH</strong> and adds any directories listed to its search
+path for modules.</p>
+<p>For example, on Windows the following steps would do a PYTHONPATH installation:</p>
+<ul>
+<li><p>The zip file adapya-base-1.0.5.zip contains a directory adapya/base/*</p></li>
+<li><p>Unzip adapya-base-1.0.5.zip to a convenient location e.g.:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">C</span><span class="p">:</span><span class="o">/</span><span class="n">ADA</span><span class="o">/</span><span class="n">Python</span>
+</pre></div>
+</div>
+<p>maintaining the subdirectory structure</p>
+</li>
+<li><p>Set/check the following system variables</p>
+<p>On Windows (Win-key + PAUSE-key) open the System Control / select
+Extended Control / button Environment Variable:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">REM</span> <span class="n">adapya</span><span class="o">-</span><span class="n">base</span> <span class="n">Python</span> <span class="n">directory</span>
+<span class="o">&gt;</span> <span class="nb">set</span> <span class="n">PYB</span><span class="o">=</span><span class="n">C</span><span class="p">:</span>\<span class="n">ada</span>\<span class="n">python</span>\<span class="n">adapya</span><span class="o">-</span><span class="n">base</span><span class="o">-</span><span class="mf">1.0</span><span class="o">.</span><span class="mi">5</span>
+<span class="o">&gt;</span> <span class="nb">set</span> <span class="n">PYTHONPATH</span><span class="o">=%</span><span class="n">PYB</span><span class="o">%</span><span class="p">;</span><span class="o">%</span><span class="n">PYTHONPATH</span><span class="o">%</span>
+</pre></div>
+</div>
+</li>
+<li><p>Open a cmd window and go to Adabas demo files directory:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">cd</span> <span class="o">%</span><span class="n">PYB</span><span class="o">%/</span><span class="n">adapya</span><span class="o">/</span><span class="n">base</span>
+</pre></div>
+</div>
+</li>
+<li><p>Check successful installation with dump.py to dump contents of file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">python</span> <span class="n">dump</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">f</span> <span class="n">future</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<div class="section" id="additional-windows-installation-notes">
+<h2>Additional Windows Installation Notes<a class="headerlink" href="#additional-windows-installation-notes" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="simplifying-execution-of-python-scripts">
+<h3>Simplifying Execution of Python Scripts<a class="headerlink" href="#simplifying-execution-of-python-scripts" title="Permalink to this headline">¶</a></h3>
+<p>The option to register Python files can be selected during the Python
+installation. This binds certain Python file types and associations to the
+Python executable being installed (or to the Python launcher py.exe).</p>
+<p>For example for .py the following may have been set:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ftype</span> <span class="n">Python</span><span class="o">.</span><span class="n">File</span><span class="o">=</span><span class="s2">&quot;C:\Windows\py.exe&quot;</span> <span class="s2">&quot;%L&quot;</span> <span class="o">%*</span>
+<span class="n">ftype</span> <span class="n">Python</span><span class="o">.</span><span class="n">ArchiveFile</span><span class="o">=</span><span class="s2">&quot;C:\Windows\py.exe&quot;</span> <span class="s2">&quot;%L&quot;</span> <span class="o">%*</span>
+<span class="n">ftype</span> <span class="n">Python</span><span class="o">.</span><span class="n">CompiledFile</span><span class="o">=</span><span class="s2">&quot;C:\Windows\py.exe&quot;</span> <span class="s2">&quot;%L&quot;</span> <span class="o">%*</span>
+<span class="n">ftype</span> <span class="n">Python</span><span class="o">.</span><span class="n">NoConArchiveFile</span><span class="o">=</span><span class="s2">&quot;C:\Windows\pyw.exe&quot;</span> <span class="s2">&quot;%L&quot;</span> <span class="o">%*</span>
+<span class="n">ftype</span> <span class="n">Python</span><span class="o">.</span><span class="n">NoConFile</span><span class="o">=</span><span class="s2">&quot;C:\Windows\pyw.exe&quot;</span> <span class="s2">&quot;%L&quot;</span> <span class="o">%*</span>
+
+<span class="n">assoc</span> <span class="o">.</span><span class="n">py</span><span class="o">=</span><span class="n">Python</span><span class="o">.</span><span class="n">File</span>
+<span class="n">assoc</span> <span class="o">.</span><span class="n">pyc</span><span class="o">=</span><span class="n">Python</span><span class="o">.</span><span class="n">CompiledFile</span>
+<span class="n">assoc</span> <span class="o">.</span><span class="n">pyo</span><span class="o">=</span><span class="n">Python</span><span class="o">.</span><span class="n">CompiledFile</span>
+<span class="n">assoc</span> <span class="o">.</span><span class="n">pyw</span><span class="o">=</span><span class="n">Python</span><span class="o">.</span><span class="n">NoConFile</span>
+<span class="n">assoc</span> <span class="o">.</span><span class="n">pyz</span><span class="o">=</span><span class="n">Python</span><span class="o">.</span><span class="n">ArchiveFile</span>
+<span class="n">assoc</span> <span class="o">.</span><span class="n">pyzw</span><span class="o">=</span><span class="n">Python</span><span class="o">.</span><span class="n">NoConArchiveFile</span>
+</pre></div>
+</div>
+<p>If you add <strong>.py</strong> and the corresponding compiled extensions
+to the PATHEXT variable it is possible to run a script without
+writing the extension</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">set</span> <span class="n">PATHEXT</span><span class="o">=.</span><span class="n">py</span><span class="p">;</span><span class="o">.</span><span class="n">pyc</span><span class="p">;</span><span class="o">.</span><span class="n">pyo</span><span class="p">;</span><span class="o">%</span><span class="n">PATHEXT</span><span class="o">%</span>
+<span class="n">dump</span> <span class="o">-</span><span class="n">h</span>
+</pre></div>
+</div>
+<p>rather than typing:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">dump</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">h</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="unix-linux-pythonpath-installation">
+<h2>Unix/Linux PYTHONPATH Installation<a class="headerlink" href="#unix-linux-pythonpath-installation" title="Permalink to this headline">¶</a></h2>
+<p>The PYTHONPATH environment variable defines an extra search path for
+python modules. If the path to the Adabas Python directory is added to
+the variable it is included in the search:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>cd /FS/disk01/pya            # root directory
+tar xf adapya-base-1.0.5.tar # unpack to adapya-base-v.r.l
+setenv PYA &quot;/FS/disk01/pya&quot;
+setenv PYTHONPATH $PYA&#39;:&#39;$PYTHONPATH # add PYA to PYTHONPATH
+cd $PYA/adapya/base # go to directory
+python dump.py -h
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If your local internet is protected by a http proxy you may need to set
+the HTTP_PROXY environment variable before running easy_install (CYGWIN):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SET</span> <span class="n">HTTP_PROXY</span><span class="o">=</span><span class="n">http</span><span class="p">:</span><span class="o">//&lt;</span><span class="n">httpprox</span><span class="o">.</span><span class="n">your</span><span class="o">-</span><span class="n">local</span><span class="o">.</span><span class="n">net</span><span class="o">&gt;</span><span class="p">:</span><span class="o">&lt;</span><span class="n">httpprox</span><span class="o">-</span><span class="n">port</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>Not setting it may result in timing out operations.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="users_guide.html" class="btn btn-neutral float-right" title="Using adapya-base" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="overview.html" class="btn btn-neutral float-left" title="Overview" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2004-2019, software AG
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

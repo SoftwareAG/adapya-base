@@ -4,7 +4,7 @@
 adapya.base
 -----------
 
-The adapya.base package contains se1.0.4 modules that are used
+The adapya.base package contains se1.0.5 modules that are used
 in adapya:
 
 - conv: simple text codepage conversion functions
@@ -25,8 +25,8 @@ __all__=["conv","datamap","defs","dtconv","dump","ecscodec","ftptoolz",
         "future","jconfig","recipes","recordio","stck","touch","xtea",
         "zos"]
 
-__version__ = '1.0.4'
-if __version__ == '1.0.4':
+__version__ = '1.0.5'
+if __version__ == '1.0.5':
     _svndate='$Date: 2019-03-26 18:20:13 +0100 (Tue, 26 Mar 2019) $'
     _svnrev='$Rev: 911 $'
     __version__ = 'Dev ' +  _svnrev.strip('$') + \

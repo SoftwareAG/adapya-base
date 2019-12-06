@@ -1,0 +1,554 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Scripts &mdash; adapya-base 1.0.5 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="_static/SAG2015.ico"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Package Reference" href="modules.html" />
+    <link rel="prev" title="Using adapya-base" href="users_guide.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> adapya-base
+          
+
+          
+            
+            <img src="_static/SAG2015.ico" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0.5
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installing.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="users_guide.html">Using adapya-base</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Scripts</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#ftpz-py-synchronize-pds-with-local-files-in-folders">ftpz.py - synchronize PDS with local files in folders</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#getfilez-py-transfer-single-file-and-optionally-dump-records">getfilez.py - transfer single file and optionally dump records</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#smfreaderz-py-read-and-print-smf30-records">smfreaderz.py - read and print SMF30 records</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Package Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="indices.html">Indices</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">adapya-base</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Scripts</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/scripts.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="scripts">
+<h1>Scripts<a class="headerlink" href="#scripts" title="Permalink to this headline">¶</a></h1>
+<p>There are some scripts in adapya.base.scripts that can be run on the command line.
+Usually they accept Unix style parameters. A help page is shown with the help option.</p>
+<ul class="simple">
+<li><p>ftpz.py - synchronize partitioned datasets with local folders</p></li>
+<li><p>getfilez.py - transfer single file and dump records</p></li>
+<li><p>smfreaderz.py - read and interpret SMF30 records</p></li>
+</ul>
+<div class="section" id="ftpz-py-synchronize-pds-with-local-files-in-folders">
+<h2>ftpz.py - synchronize PDS with local files in folders<a class="headerlink" href="#ftpz-py-synchronize-pds-with-local-files-in-folders" title="Permalink to this headline">¶</a></h2>
+<p>ftpz.py synchronizes remote partitioned datasets on z/OS with
+local files in folders.</p>
+<p>The syncronization depends on the modification time stamps
+in the file system and the PDS directory</p>
+<p>Usage: ftpz.py [options]:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">k</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">e</span> <span class="p">[</span><span class="n">EXT</span><span class="p">]]</span> <span class="p">[</span><span class="o">-</span><span class="n">n</span> <span class="n">HOST</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">p</span> <span class="n">PWD</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">s</span> <span class="n">SITE</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">u</span> <span class="n">USER</span><span class="p">]</span>
+<span class="p">[</span><span class="o">-</span><span class="n">r</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">t</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">v</span> <span class="n">VERBOSE</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">d</span> <span class="n">PREFIX</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">x</span> <span class="p">[</span><span class="n">EXCLUDE</span> <span class="p">[</span><span class="n">EXCLUDE</span> <span class="o">...</span><span class="p">]]]</span>
+<span class="p">[</span><span class="o">-</span><span class="n">i</span> <span class="p">[</span><span class="n">INCLUDE</span> <span class="p">[</span><span class="n">INCLUDE</span> <span class="o">...</span><span class="p">]]]</span>
+<span class="p">{</span><span class="n">upsync</span><span class="p">,</span><span class="n">upload</span><span class="p">,</span><span class="n">download</span><span class="p">,</span><span class="n">downsync</span><span class="p">,</span><span class="n">config</span><span class="p">}</span> <span class="p">[</span><span class="n">pds</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Positional arguments:</p>
+<blockquote>
+<div><p>{upsync,upload,download,downsync,config}:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>upsync: upload changed members to partioned dataset (PDS) and</dt><dd><p>delete members not existing in source</p>
+</dd>
+</dl>
+</li>
+<li><p>upload: upload changed files to partioned datasets (PDS)</p></li>
+<li><p>download: download changed files from partioned datasets (PDS)</p></li>
+<li><dl class="simple">
+<dt>downsync: download changed members from partioned dataset (PDS)</dt><dd><p>and delete members not existing in PDS</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>config: display or set configuration pds -</dt><dd><p>Partitioned Dataset name w/o quotes. With ending
+period: parameter is used as high-level qualifier</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+<p>Optional arguments:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">-</span><span class="n">h</span><span class="p">,</span> <span class="o">--</span><span class="n">help</span>            <span class="n">show</span> <span class="n">this</span> <span class="n">help</span> <span class="n">message</span> <span class="ow">and</span> <span class="n">exit</span>
+<span class="o">-</span><span class="n">k</span><span class="p">,</span> <span class="o">--</span><span class="n">keepsame</span>        <span class="n">On</span> <span class="n">download</span><span class="o">/</span><span class="n">sync</span> <span class="n">do</span> <span class="ow">not</span> <span class="n">overwrite</span> <span class="n">old</span> <span class="n">file</span> <span class="k">if</span> <span class="n">contents</span>
+                      <span class="n">same</span> <span class="k">as</span> <span class="n">new</span> <span class="n">file</span>
+<span class="o">-</span><span class="n">e</span> <span class="p">[</span><span class="n">EXT</span><span class="p">],</span> <span class="o">--</span><span class="n">ext</span> <span class="p">[</span><span class="n">EXT</span><span class="p">]</span>
+                      <span class="n">extension</span> <span class="n">to</span> <span class="n">process</span> <span class="p">(</span><span class="n">default</span> <span class="ow">is</span> <span class="o">.</span><span class="n">s</span><span class="p">)</span> <span class="n">e</span><span class="o">.</span><span class="n">g</span><span class="o">.</span> <span class="o">-</span><span class="n">e</span> <span class="o">.</span><span class="n">c</span> <span class="o">-</span><span class="n">e</span>
+                      <span class="n">without</span> <span class="n">argument</span><span class="p">:</span> <span class="n">no</span> <span class="n">extension</span>
+<span class="o">-</span><span class="n">n</span> <span class="n">HOST</span><span class="p">,</span> <span class="o">--</span><span class="n">host</span> <span class="n">HOST</span>  <span class="n">ftp</span> <span class="n">z</span><span class="o">/</span><span class="n">OS</span> <span class="n">host</span> <span class="n">name</span>
+<span class="o">-</span><span class="n">p</span> <span class="n">PWD</span><span class="p">,</span> <span class="o">--</span><span class="n">pwd</span> <span class="n">PWD</span>     <span class="n">ftp</span> <span class="n">z</span><span class="o">/</span><span class="n">OS</span> <span class="n">user</span> <span class="nb">id</span>
+<span class="o">-</span><span class="n">s</span> <span class="n">SITE</span><span class="p">,</span> <span class="o">--</span><span class="n">site</span> <span class="n">SITE</span>  <span class="n">Set</span> <span class="n">ftp</span> <span class="n">server</span> <span class="n">options</span> <span class="n">per</span> <span class="n">quote</span> <span class="n">site</span>
+<span class="o">-</span><span class="n">u</span> <span class="n">USER</span><span class="p">,</span> <span class="o">--</span><span class="n">user</span> <span class="n">USER</span>  <span class="n">ftp</span> <span class="n">z</span><span class="o">/</span><span class="n">OS</span> <span class="n">user</span> <span class="n">password</span>
+<span class="o">-</span><span class="n">r</span><span class="p">,</span> <span class="o">--</span><span class="n">ignerr</span>          <span class="n">ignore</span> <span class="n">ftp</span> <span class="n">member</span> <span class="n">access</span> <span class="n">errors</span>
+<span class="o">-</span><span class="n">t</span><span class="p">,</span> <span class="o">--</span><span class="n">test</span>            <span class="n">dry</span> <span class="n">run</span> <span class="o">-</span> <span class="nb">list</span> <span class="n">actions</span> <span class="n">only</span>
+<span class="o">-</span><span class="n">v</span> <span class="n">VERBOSE</span><span class="p">,</span> <span class="o">--</span><span class="n">verbose</span> <span class="n">VERBOSE</span>
+                      <span class="n">verbose</span> <span class="n">output</span> <span class="p">(</span><span class="mi">1</span> <span class="n">to</span> <span class="mi">3</span><span class="p">)</span>
+<span class="o">-</span><span class="n">d</span> <span class="n">PREFIX</span><span class="p">,</span> <span class="o">--</span><span class="n">prefix</span> <span class="n">PREFIX</span>
+                      <span class="n">dataset</span> <span class="n">prefix</span>
+<span class="o">-</span><span class="n">x</span> <span class="p">[</span><span class="n">EXCLUDE</span> <span class="p">[</span><span class="n">EXCLUDE</span> <span class="o">...</span><span class="p">]],</span> <span class="o">--</span><span class="n">exclude</span> <span class="p">[</span><span class="n">EXCLUDE</span> <span class="p">[</span><span class="n">EXCLUDE</span> <span class="o">...</span><span class="p">]]</span>
+                      <span class="nb">list</span> <span class="n">of</span> <span class="n">libraries</span><span class="o">/</span><span class="n">members</span> <span class="n">to</span> <span class="n">exlude</span> <span class="kn">from</span> <span class="nn">processing</span>
+<span class="o">-</span><span class="n">i</span> <span class="p">[</span><span class="n">INCLUDE</span> <span class="p">[</span><span class="n">INCLUDE</span> <span class="o">...</span><span class="p">]],</span> <span class="o">--</span><span class="n">include</span> <span class="p">[</span><span class="n">INCLUDE</span> <span class="p">[</span><span class="n">INCLUDE</span> <span class="o">...</span><span class="p">]]</span>
+                      <span class="nb">list</span> <span class="n">of</span> <span class="n">libraries</span><span class="o">/</span><span class="n">members</span> <span class="n">to</span> <span class="n">include</span> <span class="ow">in</span> <span class="n">processing</span>
+</pre></div>
+</div>
+<p>Examples:</p>
+<ol class="arabic">
+<li><p>sync-up PDS mm.test.adasrc from current directory and delete
+member that do not exist in source:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">ftpz</span> <span class="n">upsync</span> <span class="o">--</span><span class="n">user</span> <span class="n">xyz</span> <span class="o">--</span><span class="n">pwd</span> <span class="n">secret</span> <span class="o">--</span><span class="n">host</span> <span class="n">zmax</span> <span class="n">MM</span><span class="o">.</span><span class="n">TEST</span><span class="o">.</span><span class="n">ADASRC</span>
+</pre></div>
+</div>
+</li>
+<li><p>update all changed members PDS mm.test.adasrc from current directory:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">ftpz</span> <span class="n">upload</span> <span class="o">--</span><span class="n">user</span> <span class="n">xyz</span> <span class="o">--</span><span class="n">pwd</span> <span class="n">secret</span> <span class="o">--</span><span class="n">host</span> <span class="n">zmax</span> <span class="n">MM</span><span class="o">.</span><span class="n">TEST</span><span class="o">.</span><span class="n">ADASRC</span>
+</pre></div>
+</div>
+</li>
+<li><p>ftpz upsync -t mm.test.adasrc   # dry run without updating</p></li>
+<li><p>set configuration default values:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">ftpz</span> <span class="n">config</span> <span class="o">--</span><span class="n">user</span> <span class="n">xyz</span> <span class="o">--</span><span class="n">pwd</span> <span class="n">secret</span> <span class="o">--</span><span class="n">host</span> <span class="n">zmax</span> <span class="c1"># set config</span>
+<span class="o">&gt;</span> <span class="n">ftpz</span> <span class="n">config</span>                                     <span class="c1"># list config</span>
+
+<span class="o">&gt;</span> <span class="n">ftpz</span> <span class="n">upload</span> <span class="n">MM</span><span class="o">.</span><span class="n">TEST</span><span class="o">.</span><span class="n">ADASRC</span>                      <span class="c1"># use config</span>
+</pre></div>
+</div>
+</li>
+</ol>
+<p>When a configuration file is set up with the most common parameters in use -
+(user, host and password (pwd)) these do not have to be typed
+on each script execution. The password is encrypted so that it is not
+plainly readable on the command line. See example 2.</p>
+<ol class="arabic" start="5">
+<li><p>download</p>
+<p>Download all missing or changed members of PDS mm.test.adasrc to
+current directory:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">ftpz</span> <span class="n">download</span> <span class="n">MM</span><span class="o">.</span><span class="n">TEST</span><span class="o">.</span><span class="n">ADASRC</span>
+</pre></div>
+</div>
+</li>
+<li><p>downsync</p>
+<p>Same as ‘download’ and in addition delete members in directory that
+are missing in PDS:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">ftpz</span> <span class="n">downsync</span> <span class="n">MM</span><span class="o">.</span><span class="n">TEST</span><span class="o">.</span><span class="n">ADASRC</span>
+</pre></div>
+</div>
+</li>
+<li><p>download all changed members for all PDS starting with high-level quailfier (HLQ).</p>
+<p>The current directory is used as the base matching its subdirectories name with
+partitioned datasets HLQ.name. Optionally exclude or include parameters can
+specifiy a list of libraries to exclude or include separated by space:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">ftpz</span> <span class="n">download</span> <span class="n">mm</span><span class="o">.</span><span class="n">test</span><span class="o">.</span> <span class="o">--</span><span class="n">exclude</span> <span class="n">unwanted</span> <span class="n">abandond</span>
+</pre></div>
+</div>
+<p>will process pds mm.test.source and mm.test.macros but
+exclude mm.test.unwanted and mm.test.abandond</p>
+</li>
+<li><p>download specific missing or changed members ‘FOO’ and ‘BAR’ of a PDS as
+foo.s and bar.s in current directory:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">ftpz</span> <span class="n">download</span> <span class="n">mm</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">source</span> <span class="o">--</span><span class="n">include</span> <span class="n">foo</span> <span class="n">bar</span>
+</pre></div>
+</div>
+</li>
+<li><p>download to use extension .c and special translation table for
+ibm-1047 to ibm-819 with EBCDIC LF = 0x15</p>
+<blockquote>
+<div><p>&gt; ftpz download mm.c.source -e .c -s sbdataconn=MM.OEMVS31.TCPXLBIN</p>
+</div></blockquote>
+</li>
+</ol>
+</div>
+<div class="section" id="getfilez-py-transfer-single-file-and-optionally-dump-records">
+<h2>getfilez.py - transfer single file and optionally dump records<a class="headerlink" href="#getfilez-py-transfer-single-file-and-optionally-dump-records" title="Permalink to this headline">¶</a></h2>
+<p>Read specific dataset or PDS member from z/OS per FTP
+converted to ASCII or binary.</p>
+<p>Datasets may be variable blocked sequential dataset as binary with
+RDW record prefix.</p>
+<p>Usage: getfilez [options]</p>
+<p>The records of the local file can be dumped setting the –verbose switch 4
+and a selected with –numrec and –skiprec parameters (example 3 below).</p>
+<p>Options:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>-a  --ascii         transfer with EBCDIC to ASCII conversion
+-b  --binary        binary transfer (variable blocked) with RDW prefix
+-d  --dsn           remote sequential dataset name
+-e  --ext           extension (default .s) for member names if no
+                    fname specified
+-f  --fname         local file name (optional)
+-c, --config        set/show configuration
+
+-n  --numrec        with verbose &amp; 4: number of records to print
+-p, --pwd           &lt;password&gt;  FTP ser1.0.5ogin password (*)
+-u, --user          &lt;userid&gt;                              (*)
+
+-r, --recform       specifies the record structure:
+                    &#39;RDW&#39; variable records inlcude Record
+                          Descriptor Word which is skipped
+                    &#39;RDW+&#39; same as RDW but also return RDW
+                    &#39;BDW&#39; data includes Block Descriptor Word
+                          which is skipped (RECFM=U)
+                    &#39;BDW+&#39; same as BDW, bu also return record with RDW
+                    &#39;EXCL4&#39; 4 byte excl. length prefix
+-s  --skiprec       with verbose &amp; 4: number of records to skip
+-v, --verbose       0: (default), 1: log ftp, 2: detailed ftp,
+                    4: dump records
+-x, --xlate         full dataset name of the hlq.name.TCPXLBIN translate
+                    table on mainframe for EBCDIC to ASCII conversion
+                    using the &quot;site SBDATACON=&lt;xlate&gt;
+-h, --host          &lt;host name&gt; of IBM FTP server         (*)
+-?, --help
+</pre></div>
+</div>
+<p>Defaults marked with (*) are taken from configuration (-c)
+The configuration values are stored ciphered in file ~/.toolz</p>
+<p>Examples:</p>
+<ol class="arabic">
+<li><p>set configuration user, password:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">getfilez</span> <span class="o">--</span><span class="n">config</span> <span class="o">--</span><span class="n">user</span> <span class="n">hugo</span> <span class="o">--</span><span class="n">pwd</span> <span class="n">secret</span>
+</pre></div>
+</div>
+</li>
+<li><p>read remote dataset with verbose FTP operations, user and password
+are taken from configuration. File is processed binary and RDW record
+headers are preserved:</p>
+<blockquote>
+<div><p>&gt; getfilez -bd mm.db8.uld1 -r RDW -h da3f -v2</p>
+</div></blockquote>
+</li>
+<li><p>dump VB records in local file limited by skiprec and numrec:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">getfilez</span> <span class="o">-</span><span class="n">f</span> <span class="n">mm</span><span class="o">.</span><span class="n">db8</span><span class="o">.</span><span class="n">uld1</span> <span class="o">-</span><span class="n">r</span> <span class="n">RDW</span> <span class="o">-</span><span class="n">v4</span> <span class="o">-</span><span class="n">n</span> <span class="mi">1000</span> <span class="o">-</span><span class="n">s</span> <span class="mi">1222000</span>
+</pre></div>
+</div>
+</li>
+<li><p>copy member EPILOG from PDS to local file epilog.s and convert to ASCII:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">getfilez</span> <span class="o">-</span><span class="n">ad</span> <span class="n">mm</span><span class="o">.</span><span class="n">pds</span><span class="p">(</span><span class="n">epilog</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</div>
+<div class="section" id="smfreaderz-py-read-and-print-smf30-records">
+<h2>smfreaderz.py - read and print SMF30 records<a class="headerlink" href="#smfreaderz-py-read-and-print-smf30-records" title="Permalink to this headline">¶</a></h2>
+<p>Usage: smfreaderz [options]:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>options:
+
+    -d  --dsn      &lt;smf dataset name&gt;  remote SMF file
+    -f  --file     &lt;file&gt; local SMF file
+    -b  --bfile    &lt;file&gt; local SMF file VB blocked with BDW
+
+    -k, --skiprec  &lt;int&gt;   number of records to skip
+    -m, --maxrec   &lt;int&gt;  maximum number of records
+    -p, --pwd      &lt;password&gt;  FTP ser1.0.5ogin password (*)
+    -u, --user     &lt;userid&gt; FTP ser1.0.5ogin userid      (*)
+    -h, --host     &lt;host name&gt; of IBM FTP server         (*)
+
+    -s, --select   &lt;record selection criteria&gt; see below (**)
+
+    -c, --config   Set/show configuration
+    -v, --verbose  level of printed information (default 2)
+    -?, --help
+
+(**) record selection criteria  kw1=val1[,kw2=val2]
+     enclose hole string with &quot; if it contains blanks
+     valid keywords: job, id, user, group, prog
+     Criteria must be all fulfilled to select a record
+     Example: -s job=*MM*,group=RND,id=J*,prog=*ASM
+
+(***) verbose level, composable: 1 - stats SMF records
+        2 - detailed print selected SMF records, 4 - dump records,
+        8 - debug
+
+
+Defaults marked with (*) are taken from configuration.
+The configuration for user specific parameters can be stored
+with the --config option.
+
+The reader can transfer the file (--dsn) per FTP from a remote z/OS
+with the RDW option or can access the file locally if already
+transfered (--file). On z/OS the --bfile option may be used.
+
+Option -b/--bfile if file includes block descriptor word (BDW)
+e.g. when running on z/OS with DCB=(RECFM=U) override on DD stmt
+
+
+Examples:
+
+1. set configuration user, password
+    smfreaderz --config --user hugo --pwd secret
+
+2. read remote SMF dataset and print
+    smfreaderz -d cc.sysa.smf -h sysa
+</pre></div>
+</div>
+<p>The following command (on Windows cmd) will select SMF30 records
+with program name ADARUN from a SMF system dataset:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">smfreaderz</span> <span class="o">-</span><span class="n">v3</span> <span class="o">-</span><span class="n">s</span> <span class="n">JOB</span><span class="o">=</span><span class="n">MM10026</span> <span class="o">-</span><span class="n">d</span> <span class="n">ZMAX</span><span class="o">.</span><span class="n">SMFDAY</span><span class="o">.</span><span class="n">G3037V00</span>
+</pre></div>
+</div>
+<p>Record selected by condition [‘ JOB=MM10026’]:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>--- Record 181197: SMF30 ---
+
+Product or Subsystem Section
+SMF30 sub type         = Step total
+Record version number  = &#39;05&#39;
+Subsystem product name = &#39;SMF&#39;
+MVS product level      = &#39;SP7.2.1&#39;
+System name            = &#39;ZMAX&#39;
+Sysplex name           = &#39;MAXPLEX&#39;
+
+
+Job/Session Id Section
+Job/session name             = &#39;MM10026&#39;
+Program name                 = &#39;ADARUN&#39;
+Step name                    = &#39;ADANUC&#39;
+JES job id                   = &#39;S0207297&#39;
+Step number                  = 1
+Device allocation start time = 14:35:54.95
+Problem program start time   = 14:35:55.23
+Time initiator selected step = 14:35:54.95
+Date initiator selected step = 2018.079
+Time reader found job card   = 14:35:54.79
+Date reader found job card   = 2018.079
+Time reader found end of job = 14:35:54.82
+Date reader found end of job = 2018.079
+RACF group id                = &#39;MFRAME&#39;
+RACF user id                 = &#39;RACFSTC&#39;
+Step name invoking procedure = &#39;STARTING&#39;
+Job class                    = &#39;STC&#39;
+Interval start time          = 2018-03-20 14:35:54.955237.078
+Interval end time            = 2018-03-20 14:56:26.669574.079
+Address space id             = X&#39;012E&#39;
+
+
+CPU accounting section
+Timer Flag1                                  = X&#39;80&#39;
+Step CPU time under TCB                      = 00:00:45.18
+Step CPU time under SRB                      = 00:00:12.24
+Initiator CPU time under TCB                 = 00:00:00.30
+CPU time I/O Interrupts                      = 00:00:06.26
+Step dependent enclave CPU time              = 00:00:44.62
+Time on zIIP                                 = 00:00:42.66
+Dependent enclave time on zIIP               = 00:00:42.66
+zIIP time on CP                              = 00:00:03.06
+Dependent enclave zIIP time on CP            = 00:00:03.06
+Dependent enclave zIIP time on CP normalized = 00:07:51.38
+CPU TCB time for step init                   = 00:00:00.24
+Highest Task Program name                    = &#39;IEESB605&#39;
+
+Performance section
+zIIP normalization factor = 1.98
+</pre></div>
+</div>
+<p>To run this in z/OS batch the dataset must be referenced via DD name ‘SMF’:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">//</span><span class="n">MMSMF30</span>  <span class="n">JOB</span> <span class="n">MM</span><span class="p">,</span><span class="n">CLASS</span><span class="o">=</span><span class="n">G</span><span class="p">,</span><span class="n">MSGCLASS</span><span class="o">=</span><span class="n">X</span><span class="p">,</span><span class="n">LINES</span><span class="o">=</span><span class="mi">100</span>
+<span class="o">//*</span>
+<span class="o">//*</span> <span class="n">smfreaderz</span><span class="o">.</span><span class="n">py</span> <span class="n">reads</span> <span class="n">SMF</span> <span class="n">files</span> <span class="kn">from</span> <span class="nn">DD</span><span class="p">:</span><span class="n">SMF</span>
+<span class="o">//*</span> <span class="o">-</span><span class="n">h</span> <span class="n">option</span> <span class="n">will</span> <span class="nb">print</span> <span class="n">usage</span> <span class="o">/</span> <span class="n">description</span>
+<span class="o">//*</span>
+<span class="o">//</span><span class="n">BPX</span>      <span class="n">EXEC</span> <span class="n">PGM</span><span class="o">=</span><span class="n">BPXBATSL</span>
+<span class="o">//</span><span class="n">SMF</span> <span class="n">DD</span> <span class="n">DISP</span><span class="o">=</span><span class="n">SHR</span><span class="p">,</span><span class="n">DSN</span><span class="o">=</span><span class="n">OPS</span><span class="o">.</span><span class="n">ZMAX</span><span class="o">.</span><span class="n">SMFDAY</span><span class="o">.</span><span class="n">G3037V00</span><span class="p">,</span><span class="n">DCB</span><span class="o">=</span><span class="p">(</span><span class="n">RECFM</span><span class="o">=</span><span class="n">U</span><span class="p">)</span>
+<span class="o">//</span><span class="n">STDPARM</span>  <span class="n">DD</span> <span class="o">*</span>
+<span class="n">PGM</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">mm</span><span class="o">/</span><span class="n">py27</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">python</span>
+   <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">mm</span><span class="o">/</span><span class="n">apy</span><span class="o">/</span><span class="n">smfreaderz</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">b</span> <span class="n">dd</span><span class="p">:</span><span class="n">SMF</span> <span class="o">-</span><span class="n">v3</span>
+   <span class="o">-</span><span class="n">s</span> <span class="n">JOB</span><span class="o">=</span><span class="n">MM10026</span>
+<span class="o">/*</span>
+<span class="o">//</span><span class="n">STDOUT</span>   <span class="n">DD</span> <span class="n">SYSOUT</span><span class="o">=*</span>
+<span class="o">//</span><span class="n">STDERR</span>   <span class="n">DD</span> <span class="n">SYSOUT</span><span class="o">=*</span>
+<span class="o">//</span><span class="n">STDENV</span>   <span class="n">DD</span> <span class="n">PATH</span><span class="o">=</span><span class="s1">&#39;/usr/mm/apy/batsl.env&#39;</span><span class="p">,</span><span class="n">PATHOPTS</span><span class="o">=</span><span class="n">ORDONLY</span>
+<span class="o">//</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="modules.html" class="btn btn-neutral float-right" title="Package Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="users_guide.html" class="btn btn-neutral float-left" title="Using adapya-base" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2004-2019, software AG
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
