@@ -1,0 +1,494 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>adapya.base.stck &mdash; adapya-base 1.3.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+    <link rel="shortcut icon" href="../../../_static/SAG2015.ico"/>
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> adapya-base
+          
+
+          
+            
+            <img src="../../../_static/SAG2015.ico" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.3.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installing.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide.html">Using adapya-base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../scripts.html">Scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">Package Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../indices.html">Indices</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">adapya-base</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>adapya.base.stck</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for adapya.base.stck</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">stck - STCK timestamp format conversion routines</span>
+<span class="sd">================================================</span>
+
+<span class="sd">The module stck.py contains functions for converting timestamp</span>
+<span class="sd">values in STCK format (used on IBM mainframe computers).</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="n">__date__</span><span class="o">=</span><span class="s1">&#39;$Date: 2023-12-01 00:54:33 +0100 (Fri, 01 Dec 2023) $&#39;</span>
+<span class="n">__revision__</span><span class="o">=</span><span class="s1">&#39;$Rev: 1072 $&#39;</span>
+
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span><span class="p">,</span> <span class="n">tzinfo</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">adapya.base.dtconv</span> <span class="kn">import</span> <span class="n">utc2sec</span><span class="p">,</span><span class="n">sec2utc</span><span class="p">,</span><span class="n">UTC1900</span>
+
+<span class="n">sec1970</span><span class="o">=</span><span class="mi">2208988800</span>  <span class="c1"># 2208988800L (w/o leap secs)</span>
+<span class="n">secyear</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="mi">365</span><span class="o">*</span><span class="mi">24</span><span class="o">*</span><span class="mi">3600</span><span class="p">)</span>
+
+<span class="n">SECS1900</span> <span class="o">=</span> <span class="n">utc2sec</span><span class="p">(</span><span class="o">*</span><span class="n">UTC1900</span><span class="p">)</span>
+
+<span class="c1"># needs review after December 31, 2023, last leap second added Dec31 2016</span>
+<span class="n">leapnow</span><span class="o">=</span><span class="mi">27</span>      <span class="c1"># last updated: Oct 2017</span>
+<span class="n">leapseconds</span> <span class="o">=</span> <span class="p">(</span> <span class="c1"># last updated: Oct 2017</span>
+    <span class="p">(</span><span class="n">datetime</span><span class="p">(</span><span class="mi">1972</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>  <span class="mi">1</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">datetime</span><span class="p">(</span><span class="mi">1973</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>  <span class="mi">2</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">datetime</span><span class="p">(</span><span class="mi">1974</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>  <span class="mi">3</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">datetime</span><span class="p">(</span><span class="mi">1975</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>  <span class="mi">4</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">datetime</span><span class="p">(</span><span class="mi">1976</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>  <span class="mi">5</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">datetime</span><span class="p">(</span><span class="mi">1977</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>  <span class="mi">6</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">datetime</span><span class="p">(</span><span class="mi">1978</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>  <span class="mi">7</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">datetime</span><span class="p">(</span><span class="mi">1979</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>  <span class="mi">8</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">datetime</span><span class="p">(</span><span class="mi">1980</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>  <span class="mi">9</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">datetime</span><span class="p">(</span><span class="mi">1981</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">10</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">datetime</span><span class="p">(</span><span class="mi">1982</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">11</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">datetime</span><span class="p">(</span><span class="mi">1983</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">12</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">datetime</span><span class="p">(</span><span class="mi">1985</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">13</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">datetime</span><span class="p">(</span><span class="mi">1988</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">14</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">datetime</span><span class="p">(</span><span class="mi">1990</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">15</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">datetime</span><span class="p">(</span><span class="mi">1991</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">16</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">datetime</span><span class="p">(</span><span class="mi">1992</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">17</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">datetime</span><span class="p">(</span><span class="mi">1993</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">18</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">datetime</span><span class="p">(</span><span class="mi">1994</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">19</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">datetime</span><span class="p">(</span><span class="mi">1996</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">20</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">datetime</span><span class="p">(</span><span class="mi">1997</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">21</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">datetime</span><span class="p">(</span><span class="mi">1999</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">22</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2006</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">23</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2009</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">24</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2012</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">25</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2015</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">26</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2017</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">27</span><span class="p">),</span>
+    <span class="p">)</span>
+
+<div class="viewcode-block" id="leap4dt"><a class="viewcode-back" href="../../../modules.html#adapya.base.stck.leap4dt">[docs]</a><span class="k">def</span> <span class="nf">leap4dt</span><span class="p">(</span><span class="n">dt</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Determine the leap seconds for a given datetime.</span>
+
+<span class="sd">    :param dt: datetime value</span>
+<span class="sd">    :returns:  leap seconds</span>
+
+<span class="sd">    &gt;&gt;&gt; leap4dt(datetime(1972, 6,30, 23,59,59))</span>
+<span class="sd">    0</span>
+<span class="sd">    &gt;&gt;&gt; leap4dt(datetime(2017, 1,1))</span>
+<span class="sd">    27</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">leapsec</span><span class="o">=</span><span class="mi">0</span>
+    <span class="k">for</span> <span class="n">leapdate</span><span class="p">,</span> <span class="n">leaps</span> <span class="ow">in</span> <span class="n">leapseconds</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">dt</span> <span class="o">&gt;=</span> <span class="n">leapdate</span><span class="p">:</span>
+            <span class="n">leapsec</span> <span class="o">=</span> <span class="n">leaps</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">break</span>
+    <span class="k">return</span> <span class="n">leapsec</span></div>
+
+
+<div class="viewcode-block" id="csec"><a class="viewcode-back" href="../../../modules.html#adapya.base.stck.csec">[docs]</a><span class="k">def</span> <span class="nf">csec</span><span class="p">(</span><span class="n">stcksec</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;returns seconds converted from stck seconds</span>
+
+<span class="sd">    &gt;&gt;&gt; csec(0xd69)</span>
+<span class="sd">    3599.761408</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">stcksec</span> <span class="o">*</span> <span class="mf">1.048576</span></div>
+
+<div class="viewcode-block" id="cstck"><a class="viewcode-back" href="../../../modules.html#adapya.base.stck.cstck">[docs]</a><span class="k">def</span> <span class="nf">cstck</span><span class="p">(</span><span class="n">stck</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; returns seconds_since_1970&#39;&#39;&#39;</span>
+    <span class="n">e</span><span class="o">=</span><span class="n">stck</span> <span class="o">*</span> <span class="mf">1.048576</span>
+    <span class="k">return</span> <span class="n">e</span><span class="o">-</span><span class="n">sec1970</span></div>
+
+<div class="viewcode-block" id="cstckd"><a class="viewcode-back" href="../../../modules.html#adapya.base.stck.cstckd">[docs]</a><span class="k">def</span> <span class="nf">cstckd</span><span class="p">(</span><span class="n">stckd</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;converts long STCK time into local time and microseconds&quot;&quot;&quot;</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">stckd</span><span class="o">&gt;&gt;</span><span class="mi">12</span>
+    <span class="n">b</span><span class="o">=</span><span class="n">a</span><span class="o">//</span><span class="mi">1000000</span> <span class="c1"># seconds</span>
+    <span class="n">c</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">a</span><span class="o">%</span><span class="mi">1000000</span><span class="p">)</span> <span class="c1"># micro sec</span>
+    <span class="n">d</span><span class="o">=</span><span class="n">b</span><span class="o">-</span><span class="n">sec1970</span><span class="o">+</span><span class="mf">0.0</span> <span class="c1"># seconds since the epoch 1970</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="sstck"><a class="viewcode-back" href="../../../modules.html#adapya.base.stck.sstck">[docs]</a><span class="k">def</span> <span class="nf">sstck</span><span class="p">(</span><span class="n">stck</span><span class="p">,</span><span class="n">gmt</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; returns ISO date time string from local stck</span>
+<span class="sd">        if gmt !=0: GMT STCK is assumed</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">stck</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s1">&#39;&#39;</span>
+    <span class="n">e</span> <span class="o">=</span> <span class="n">stck</span> <span class="o">*</span> <span class="mi">1048576</span> <span class="o">//</span> <span class="mi">10</span><span class="o">**</span><span class="mi">6</span>
+    <span class="k">if</span> <span class="n">e</span> <span class="o">&gt;=</span> <span class="n">sec1970</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">gmt</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1"> %H:%M:%S&#39;</span><span class="p">,</span>
+                         <span class="n">time</span><span class="o">.</span><span class="n">localtime</span><span class="p">(</span><span class="n">e</span><span class="o">-</span><span class="n">sec1970</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1"> %H:%M:%S&#39;</span><span class="p">,</span>
+                         <span class="n">time</span><span class="o">.</span><span class="n">gmtime</span><span class="p">(</span><span class="n">e</span><span class="o">-</span><span class="n">sec1970</span><span class="p">))</span>
+    <span class="k">elif</span> <span class="n">e</span> <span class="o">&lt;=</span> <span class="n">secyear</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">e</span><span class="p">)))</span>
+    <span class="k">else</span><span class="p">:</span> <span class="c1"># earlier than 1970: can&#39;t use negative values for time functions</span>
+        <span class="n">e2</span> <span class="o">=</span> <span class="n">SECS1900</span> <span class="o">+</span> <span class="n">e</span>  <span class="c1"># total number of seconds since 1.1.1 (UTCMIN)</span>
+        <span class="n">dt</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="o">*</span><span class="n">sec2utc</span><span class="p">(</span><span class="n">e2</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">dt</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1"> %H:%M:%S&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="sstckgmt"><a class="viewcode-back" href="../../../modules.html#adapya.base.stck.sstckgmt">[docs]</a><span class="k">def</span> <span class="nf">sstckgmt</span><span class="p">(</span><span class="n">stck</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; returns ISO date time string assuming gmt stck value&#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">sstck</span><span class="p">(</span><span class="n">stck</span><span class="p">,</span><span class="n">gmt</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="sstckd"><a class="viewcode-back" href="../../../modules.html#adapya.base.stck.sstckd">[docs]</a><span class="k">def</span> <span class="nf">sstckd</span><span class="p">(</span><span class="n">stckd</span><span class="p">,</span><span class="n">gmt</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;converts long STCK time into string</span>
+<span class="sd">    of local time and microseconds</span>
+<span class="sd">    if gmt !=0: GMT STCK is assumed</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">stckd</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s1">&#39;&#39;</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">stckd</span><span class="o">&gt;&gt;</span><span class="mi">12</span>
+    <span class="n">b</span><span class="o">=</span><span class="n">a</span><span class="o">//</span><span class="mi">1000000</span> <span class="c1"># seconds</span>
+    <span class="n">c</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">a</span><span class="o">%</span><span class="mi">1000000</span><span class="p">)</span> <span class="c1"># micro sec</span>
+    <span class="n">ns</span><span class="o">=</span><span class="nb">int</span><span class="p">((</span><span class="n">stckd</span><span class="o">&amp;</span><span class="mh">0xfff</span><span class="p">)</span><span class="o">*</span><span class="mi">1000</span><span class="o">//</span><span class="mi">4096</span><span class="p">)</span> <span class="c1"># nsec</span>
+    <span class="n">d</span><span class="o">=</span><span class="n">b</span><span class="o">-</span><span class="n">sec1970</span><span class="o">+</span><span class="mf">0.0</span> <span class="c1"># seconds since the epoch 1970</span>
+    <span class="k">if</span> <span class="n">d</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">gmt</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1"> %H:%M:%S&#39;</span><span class="p">,</span><span class="n">time</span><span class="o">.</span><span class="n">localtime</span><span class="p">(</span><span class="n">d</span><span class="p">))</span><span class="o">+</span><span class="s1">&#39;.</span><span class="si">%6.6d</span><span class="s1">.</span><span class="si">%3.3d</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">c</span><span class="p">,</span><span class="n">ns</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1"> %H:%M:%S&#39;</span><span class="p">,</span><span class="n">time</span><span class="o">.</span><span class="n">gmtime</span><span class="p">(</span><span class="n">d</span><span class="p">))</span><span class="o">+</span><span class="s1">&#39;.</span><span class="si">%6.6d</span><span class="s1">.</span><span class="si">%3.3d</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">c</span><span class="p">,</span><span class="n">ns</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">b</span> <span class="o">&lt;=</span> <span class="n">secyear</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">b</span> <span class="o">&lt;</span> <span class="mi">1000</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s1">&#39;</span><span class="si">%d</span><span class="s1">.</span><span class="si">%6.6d</span><span class="s1">.</span><span class="si">%3.3d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="n">c</span><span class="p">,</span><span class="n">ns</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">timedelta</span><span class="p">(</span><span class="n">microseconds</span><span class="o">=</span><span class="n">a</span><span class="p">))</span><span class="o">+</span><span class="s1">&#39;.</span><span class="si">%3.3d</span><span class="s1">&#39;</span><span class="o">%</span><span class="n">ns</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s1">&#39;stckd=</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">hex</span><span class="p">(</span><span class="n">stckd</span><span class="p">)</span></div>
+
+
+
+<span class="c1"># some helpers for stimet() function</span>
+<div class="viewcode-block" id="Utc"><a class="viewcode-back" href="../../../modules.html#adapya.base.stck.Utc">[docs]</a><span class="k">class</span> <span class="nc">Utc</span><span class="p">(</span><span class="n">tzinfo</span><span class="p">):</span>   <span class="c1"># helper class for simple UTC timezone display</span>
+<div class="viewcode-block" id="Utc.utcoffset"><a class="viewcode-back" href="../../../modules.html#adapya.base.stck.Utc.utcoffset">[docs]</a>    <span class="k">def</span> <span class="nf">utcoffset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">timedelta</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div>
+<div class="viewcode-block" id="Utc.tzname"><a class="viewcode-back" href="../../../modules.html#adapya.base.stck.Utc.tzname">[docs]</a>    <span class="k">def</span> <span class="nf">tzname</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;UTC&quot;</span></div>
+<div class="viewcode-block" id="Utc.dst"><a class="viewcode-back" href="../../../modules.html#adapya.base.stck.Utc.dst">[docs]</a>    <span class="k">def</span> <span class="nf">dst</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">timedelta</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div></div>
+<span class="n">UTC</span> <span class="o">=</span> <span class="n">Utc</span><span class="p">()</span>
+<span class="n">dt1970</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">UTC</span><span class="p">)</span>
+<span class="n">fmt</span> <span class="o">=</span> <span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1"> %H:%M:%S %Z (%z)&#39;</span>
+
+<div class="viewcode-block" id="stimet"><a class="viewcode-back" href="../../../modules.html#adapya.base.stck.stimet">[docs]</a><span class="k">def</span> <span class="nf">stimet</span><span class="p">(</span><span class="n">timet</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Convert time_t value into datetime string, allows negative values.</span>
+<span class="sd">       Supports datetimes between 1900-01-01 and 9999-12-31</span>
+
+<span class="sd">    &gt;&gt;&gt; stimet(-(70*365+17)*24*3600)</span>
+<span class="sd">    &#39;1900-01-01 00:00:00 UTC (+0000)&#39;</span>
+
+<span class="sd">    &gt;&gt;&gt; stimet((8035*365+121)*24*3600+23*3600+3599)</span>
+<span class="sd">    &#39;9999-12-31 23:59:59 UTC (+0000)&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dt</span><span class="o">=</span><span class="n">dt1970</span><span class="o">+</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">timet</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dt</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">fmt</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">stckdnow</span><span class="p">(</span><span class="n">leapsec</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">utc2stckd</span><span class="p">(</span><span class="n">leapsec</span><span class="o">=</span><span class="n">leapsec</span><span class="p">)</span>
+
+<div class="viewcode-block" id="utc2stckd"><a class="viewcode-back" href="../../../modules.html#adapya.base.stck.utc2stckd">[docs]</a><span class="k">def</span> <span class="nf">utc2stckd</span><span class="p">(</span><span class="n">dt</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">(),</span><span class="n">leapsec</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; convert a datetime to STCK format</span>
+
+<span class="sd">        :param dt: datetime value to convert to STCK (detault now)</span>
+<span class="sd">        :param leapsec: if True add in leap seconds relevant for</span>
+<span class="sd">            the datetime dt</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">adapya.base.dtconv</span> <span class="kn">import</span> <span class="n">utc2micro</span><span class="p">,</span><span class="n">UTC1900</span>
+
+    <span class="n">leap</span> <span class="o">=</span>  <span class="mi">10</span><span class="o">**</span><span class="mi">6</span> <span class="o">*</span> <span class="n">leap4dt</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span> <span class="k">if</span> <span class="n">leapsec</span> <span class="k">else</span> <span class="mi">0</span>
+
+    <span class="n">microsecs</span> <span class="o">=</span> <span class="n">utc2micro</span><span class="p">(</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span><span class="p">,</span><span class="n">dt</span><span class="o">.</span><span class="n">month</span><span class="p">,</span><span class="n">dt</span><span class="o">.</span><span class="n">day</span><span class="p">,</span><span class="n">dt</span><span class="o">.</span><span class="n">hour</span><span class="p">,</span><span class="n">dt</span><span class="o">.</span><span class="n">minute</span><span class="p">,</span>
+             <span class="n">dt</span><span class="o">.</span><span class="n">second</span><span class="p">,</span><span class="n">dt</span><span class="o">.</span><span class="n">microsecond</span><span class="p">)</span> <span class="o">-</span> <span class="n">utc2micro</span><span class="p">(</span><span class="o">*</span><span class="n">UTC1900</span><span class="p">)</span> \
+             <span class="o">+</span> <span class="n">leap</span>
+    <span class="k">return</span> <span class="n">microsecs</span><span class="o">*</span><span class="mi">2</span><span class="o">**</span><span class="mi">12</span></div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span><span class="o">==</span><span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+
+    <span class="kn">import</span> <span class="nn">getopt</span><span class="o">,</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">struct</span>
+
+
+    <span class="k">def</span> <span class="nf">usage</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span>
+<span class="sd">&quot;&quot;&quot;stck.py - Convert STCK values</span>
+
+<span class="sd"> Usage: python stck.py  [&lt;options&gt;] &lt;stck-hex-value&gt;</span>
+
+<span class="sd"> Options:</span>
+
+<span class="sd">    -h, --help              display this help</span>
+<span class="sd">    -g, --gmt               display GMT/UTC+0 time rather than local time</span>
+<span class="sd">    -n, --now               display STCK value of NOW</span>
+
+<span class="sd"> Example (short parameter form):</span>
+<span class="sd">    python stck.py DD69B653         - converts STCK value to date and time</span>
+
+<span class="sd">&quot;&quot;&quot;</span><span class="p">)</span>
+        <span class="k">return</span>  <span class="c1"># from usage()</span>
+
+    <span class="n">gmt</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">now</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">off</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="n">stckv</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1"># main logic</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">opts</span><span class="p">,</span> <span class="n">args</span> <span class="o">=</span> <span class="n">getopt</span><span class="o">.</span><span class="n">getopt</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span>
+          <span class="s1">&#39;hgnv:x:&#39;</span><span class="p">,</span>
+          <span class="p">[</span><span class="s1">&#39;help&#39;</span><span class="p">,</span><span class="s1">&#39;gmt&#39;</span><span class="p">,</span><span class="s1">&#39;now&#39;</span><span class="p">,</span><span class="s1">&#39;verbose=&#39;</span><span class="p">,</span><span class="s1">&#39;off=&#39;</span><span class="p">])</span>
+
+        <span class="k">for</span> <span class="n">opt</span><span class="p">,</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">opts</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">opt</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;-h&#39;</span><span class="p">,</span> <span class="s1">&#39;--help&#39;</span><span class="p">,</span> <span class="s1">&#39;--verbose&#39;</span><span class="p">):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">opts</span><span class="p">)</span>
+                <span class="n">usage</span><span class="p">()</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="n">opt</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;-g&#39;</span><span class="p">,</span> <span class="s1">&#39;--gmt&#39;</span><span class="p">):</span>
+                <span class="n">gmt</span><span class="o">=</span><span class="mi">1</span>
+            <span class="k">elif</span> <span class="n">opt</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;-n&#39;</span><span class="p">,</span> <span class="s1">&#39;--now&#39;</span><span class="p">):</span>
+                <span class="n">now</span><span class="o">=</span><span class="mi">1</span>
+            <span class="k">elif</span> <span class="n">opt</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;-x&#39;</span><span class="p">,</span> <span class="s1">&#39;--off&#39;</span><span class="p">):</span>
+                <span class="n">t</span> <span class="o">=</span> <span class="nb">bytes</span><span class="o">.</span><span class="n">fromhex</span><span class="p">((</span><span class="n">arg</span><span class="o">+</span><span class="s1">&#39;0000000000000000&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="mi">16</span><span class="p">])</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+                <span class="n">off</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;!Q&#39;</span><span class="p">,</span><span class="n">t</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+         <span class="k">if</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="o">.</span><span class="n">fromhex</span><span class="p">((</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;0000000000000000&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="mi">16</span><span class="p">])</span>
+            <span class="n">stckv</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;!Q&#39;</span><span class="p">,</span><span class="n">t</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">stckv</span> <span class="o">^=</span> <span class="n">off</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%8X</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">stckv</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Date and time for STCK </span><span class="si">%8X</span><span class="s1"> is </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">stckv</span><span class="p">,</span> <span class="n">sstckd</span><span class="p">(</span><span class="n">stckv</span><span class="p">,</span><span class="n">gmt</span><span class="o">=</span><span class="n">gmt</span><span class="p">)))</span>
+         <span class="k">else</span><span class="p">:</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="nb">bytes</span><span class="o">.</span><span class="n">fromhex</span><span class="p">((</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;0000000000000000&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="mi">8</span><span class="p">])</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+            <span class="n">stckv</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;!L&#39;</span><span class="p">,</span><span class="n">t</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%4X</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">stckv</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Date and time for STCK </span><span class="si">%4X</span><span class="s1"> is </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">stckv</span><span class="p">,</span> <span class="n">sstck</span><span class="p">(</span><span class="n">stckv</span><span class="p">,</span><span class="n">gmt</span><span class="o">=</span><span class="n">gmt</span><span class="p">)))</span>
+
+    <span class="k">except</span> <span class="n">getopt</span><span class="o">.</span><span class="n">GetoptError</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Invalid parameters&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span>
+        <span class="n">usage</span><span class="p">()</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+    <span class="k">if</span> <span class="n">now</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;STCK value is now: </span><span class="si">%0X</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">stckdnow</span><span class="p">())</span>
+
+
+<span class="c1">#  Copyright 2004-ThisYear Software AG</span>
+<span class="c1">#</span>
+<span class="c1">#  Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1">#  you may not use this file except in compliance with the License.</span>
+<span class="c1">#  You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#      http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1">#  Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1">#  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1">#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1">#  See the License for the specific language governing permissions and</span>
+<span class="c1">#  limitations under the License.</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2004-2023, software AG.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

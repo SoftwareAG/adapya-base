@@ -1,0 +1,440 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Using adapya-base &mdash; adapya-base 1.3.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+    <link rel="shortcut icon" href="_static/SAG2015.ico"/>
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Scripts" href="scripts.html" />
+    <link rel="prev" title="Installation" href="installing.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> adapya-base
+          
+
+          
+            
+            <img src="_static/SAG2015.ico" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.3.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installing.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Using adapya-base</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#read-write-buffers-with-abuf">Read/Write Buffers with Abuf</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#working-with-structures-with-datamap">Working with Structures with Datamap</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#datamap-data-types">Datamap Data Types</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#basic-usage-example">Basic Usage example</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#example-showing-the-different-data-types">Example showing the different data types</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#defining-multiple-fields">Defining Multiple fields</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#defining-periodic-group">Defining Periodic Group</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="scripts.html">Scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Package Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="indices.html">Indices</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">adapya-base</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Using adapya-base</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/users_guide.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="using-adapya-base">
+<h1>Using adapya-base<a class="headerlink" href="#using-adapya-base" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="read-write-buffers-with-abuf">
+<h2>Read/Write Buffers with Abuf<a class="headerlink" href="#read-write-buffers-with-abuf" title="Permalink to this headline">¶</a></h2>
+<p>Implemented in <cite>adapya.base.defs</cite></p>
+<p>Read/write buffers are not directly available in Python only indirectly
+with I/O routines.</p>
+<p>The adapya.base.defs.Abuf class implements read/write buffers. They are used for the Adabas
+control block and other buffers.:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">adapya.base.defs</span> <span class="kn">import</span> <span class="n">Abuf</span> <span class="c1"># Access Abuf class</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">=</span><span class="n">Abuf</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span> <span class="c1"># Allocate buffer of 8 bytes</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">value</span><span class="o">=</span><span class="sa">b</span><span class="s1">&#39;Bell&#39;</span> <span class="c1"># store &#39;Bell&#39; into buffer a</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">raw</span> <span class="c1"># show contents of a</span>
+<span class="go">b&#39;bell\x00\x00\x00\x00&#39;</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">8</span><span class="p">]</span>   <span class="c1"># same in slice notation</span>
+<span class="go">b&#39;bell\x00\x00\x00\x00&#39;</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">4</span><span class="p">]</span>  <span class="c1"># extract part of buffer</span>
+<span class="go">b&#39;bell&#39;</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span><span class="sa">b</span><span class="s1">&#39;W&#39;</span> <span class="c1"># modify buffer at offset 0</span>
+<span class="go">b&#39;Well\x00\x00\x00\x00&#39;</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span> <span class="c1"># read() 5 bytes of the buffer</span>
+<span class="go">b&#39;Well\x00&#39;</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span> <span class="c1"># read() next bytes (only 3 left)</span>
+<span class="go">b&#39;\x00\x00\x00&#39;</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">tell</span><span class="p">()</span> <span class="c1"># inquire position</span>
+<span class="go">8</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="c1"># position to start of buffer</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;Sun&#39;</span><span class="p">)</span> <span class="c1"># write first 3 characters</span>
+<span class="go">b&#39;Sunl\x00\x00\x00\x00&#39;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="working-with-structures-with-datamap">
+<h2>Working with Structures with Datamap<a class="headerlink" href="#working-with-structures-with-datamap" title="Permalink to this headline">¶</a></h2>
+<p>Implemented in <cite>adapya.base.datamap</cite></p>
+<p>The datamap module defines the Datamap class that allows to define
+structure within a byte buffer. This is similar to a DSECT or C struct.
+This is being used for setting up the Adabas control block and the other
+buffers like record buffer or value buffer.</p>
+<div class="section" id="datamap-data-types">
+<h3>Datamap Data Types<a class="headerlink" href="#datamap-data-types" title="Permalink to this headline">¶</a></h3>
+<p>The following data types require a name and a length:</p>
+<dl class="simple">
+<dt>String</dt><dd><p>alpha numeric string</p>
+</dd>
+<dt>Unicode</dt><dd><p>Unicode string (in UTF-16, each character takes 2 bytes)</p>
+</dd>
+<dt>Bytes</dt><dd><p>similar to String but hexadecimal contents</p>
+</dd>
+<dt>Packed</dt><dd><p>integer mapped to P format</p>
+</dd>
+<dt>Unpacked</dt><dd><p>integer mapped to U format</p>
+</dd>
+</dl>
+<p>The other data types take only the name:</p>
+<dl class="simple">
+<dt>Char</dt><dd><p>1 byte character</p>
+</dd>
+<dt>Int1/2/4/8</dt><dd><p>signed integer of 1, 2, 4 or 8 bytes</p>
+</dd>
+<dt>Uint1/2/4/8</dt><dd><p>unsigned integer of 1, 2, 4 or 8 bytes</p>
+</dd>
+<dt>Float</dt><dd><p>single precision float (IEEE format)</p>
+</dd>
+<dt>Double</dt><dd><p>double precision float (IEEE format)</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="basic-usage-example">
+<h3>Basic Usage example<a class="headerlink" href="#basic-usage-example" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">adapya.base.defs</span> <span class="kn">import</span> <span class="n">Abuf</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">adapya.base.datamap</span> <span class="kn">import</span> <span class="n">Datamap</span><span class="p">,</span> <span class="n">String</span><span class="p">,</span> <span class="n">Int2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dm</span><span class="o">=</span><span class="n">Datamap</span><span class="p">(</span><span class="s1">&#39;mymap&#39;</span><span class="p">,</span>
+<span class="go">        String(&#39;name&#39;,6),  # List of field definitions. Its order</span>
+<span class="go">        Int2(&#39;age&#39;)) # defines the position in the buffer</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dm</span><span class="o">.</span><span class="n">getsize</span><span class="p">()</span> <span class="c1"># query the size of the datamap dm</span>
+<span class="go">8</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">=</span><span class="n">Abuf</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dm</span><span class="o">.</span><span class="n">buffer</span><span class="o">=</span><span class="n">a</span>  <span class="c1"># use buffer a with datamap dm</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dm</span><span class="o">.</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;Bell&#39;</span> <span class="c1"># assign name</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dm</span><span class="o">.</span><span class="n">age</span><span class="o">=</span><span class="mi">64</span> <span class="c1"># assign age</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dm</span><span class="o">.</span><span class="n">dprint</span><span class="p">()</span>  <span class="c1"># print out all values of datamap dm</span>
+<span class="go">mymap</span>
+<span class="go">name = &quot;Bell&quot;</span>
+<span class="go">age = 64</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dm</span><span class="o">.</span><span class="n">age</span>  <span class="c1"># individual attribute access</span>
+<span class="go">64</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dm</span><span class="o">.</span><span class="n">name</span>
+<span class="go">&#39;Bell&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dm</span><span class="o">.</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;12345678&#39;</span> <span class="c1"># silent truncation (field size defined = 6)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dm</span><span class="o">.</span><span class="n">name</span>
+<span class="go">&#39;123456&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dm</span><span class="o">.</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;1234 &#39;</span> <span class="c1"># silent blank truncation on return</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dm</span><span class="o">.</span><span class="n">name</span>
+<span class="go">&#39;1234&#39;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="example-showing-the-different-data-types">
+<h3>Example showing the different data types<a class="headerlink" href="#example-showing-the-different-data-types" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">adapya.base.datamap</span> <span class="kn">import</span> <span class="n">Datamap</span><span class="p">,</span> <span class="n">String</span><span class="p">,</span> <span class="n">Unicode</span><span class="p">,</span> <span class="n">Utf8</span><span class="p">,</span> <span class="n">Bytes</span><span class="p">,</span>
+    <span class="n">Char</span><span class="p">,</span> <span class="n">Int1</span><span class="p">,</span> <span class="n">Uint1</span><span class="p">,</span> <span class="n">Int2</span><span class="p">,</span> <span class="n">Uint2</span><span class="p">,</span> <span class="n">Int4</span><span class="p">,</span> <span class="n">Uint4</span><span class="p">,</span> <span class="n">Int8</span><span class="p">,</span> <span class="n">Uint8</span><span class="p">,</span>
+    <span class="n">Float</span><span class="p">,</span> <span class="n">Double</span><span class="p">,</span> <span class="n">Unpacked</span>
+
+<span class="n">p</span> <span class="o">=</span> <span class="n">Datamap</span><span class="p">(</span> <span class="s1">&#39;test_all_formats&#39;</span><span class="p">,</span>
+       <span class="n">String</span><span class="p">(</span> <span class="s1">&#39;str8&#39;</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span>
+       <span class="n">Unicode</span><span class="p">(</span><span class="s1">&#39;uni4&#39;</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="c1"># unicode 4 chars = 8 bytes</span>
+       <span class="n">Utf8</span><span class="p">(</span> <span class="s1">&#39;utf8&#39;</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span>
+       <span class="n">Bytes</span><span class="p">(</span> <span class="s1">&#39;byt4&#39;</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
+       <span class="n">Char</span><span class="p">(</span> <span class="s1">&#39;cha1&#39;</span><span class="p">),</span>
+       <span class="n">Int1</span><span class="p">(</span> <span class="s1">&#39;int1&#39;</span><span class="p">),</span>
+       <span class="n">Uint1</span><span class="p">(</span> <span class="s1">&#39;uin1&#39;</span><span class="p">),</span>
+       <span class="n">Int2</span><span class="p">(</span> <span class="s1">&#39;int2&#39;</span><span class="p">),</span>
+       <span class="n">Uint2</span><span class="p">(</span> <span class="s1">&#39;uin2&#39;</span><span class="p">),</span>
+       <span class="n">Int4</span><span class="p">(</span> <span class="s1">&#39;int4&#39;</span><span class="p">),</span>
+       <span class="n">Uint4</span><span class="p">(</span> <span class="s1">&#39;uin4&#39;</span><span class="p">,</span> <span class="n">opt</span><span class="o">=</span><span class="n">T_STCK</span><span class="p">),</span> <span class="c1"># Uint4 STCK</span>
+       <span class="n">Int8</span><span class="p">(</span> <span class="s1">&#39;int8&#39;</span><span class="p">),</span>
+       <span class="n">Uint8</span><span class="p">(</span> <span class="s1">&#39;uin8&#39;</span><span class="p">,</span> <span class="n">opt</span><span class="o">=</span><span class="n">T_STCK</span><span class="p">),</span> <span class="c1"># Uint8 STCK</span>
+       <span class="n">Float</span><span class="p">(</span> <span class="s1">&#39;flo4&#39;</span><span class="p">),</span>
+       <span class="n">Double</span><span class="p">(</span> <span class="s1">&#39;dou8&#39;</span><span class="p">),</span>
+       <span class="n">Unpacked</span><span class="p">(</span> <span class="s1">&#39;dati&#39;</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="s1">&#39;DATETIME&#39;</span><span class="p">),</span> <span class="c1"># Python datetime object</span>
+       <span class="p">)</span>
+</pre></div>
+</div>
+<p>With Uint4 and Uint8 the additional option T_STCK indicates that the
+value is a timestamp value in mainframe STCK format. This is evaluated
+with the dprint() function to print the timestamp in readable ISO
+format.</p>
+<p>An <em>Unpacked</em> field defined with the dt option (value ‘DATETIME’ or
+‘TIMESTAMP’) work with Python datetime() objects:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p</span><span class="o">.</span><span class="n">dati</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">p</span><span class="o">.</span><span class="n">dati</span>
+<span class="go">2010-05-01 11:55:00</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">_</span><span class="p">,</span><span class="n">pos</span><span class="p">,</span><span class="n">ln</span><span class="p">,</span><span class="n">_</span><span class="p">,</span><span class="n">_</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">keydict</span><span class="p">[</span><span class="s1">&#39;dati&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p</span><span class="o">.</span><span class="n">buffer</span><span class="p">[</span><span class="n">pos</span><span class="p">:</span><span class="n">pos</span><span class="o">+</span><span class="n">ln</span><span class="p">]</span>
+<span class="go">&#39;20100501115500&#39;</span>
+</pre></div>
+</div>
+<p>Note that a datetime value of zero corresponds to the Python <strong>None</strong>
+type:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">p</span><span class="o">.</span><span class="n">dati</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">p</span><span class="o">.</span><span class="n">dati</span>
+<span class="go">None</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p</span><span class="o">.</span><span class="n">buffer</span><span class="p">[</span><span class="n">pos</span><span class="p">:</span><span class="n">pos</span><span class="o">+</span><span class="n">ln</span><span class="p">]</span>
+<span class="go">&#39;00000000000000&#39;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="defining-multiple-fields">
+<h3>Defining Multiple fields<a class="headerlink" href="#defining-multiple-fields" title="Permalink to this headline">¶</a></h3>
+<p>If the keyword <strong>occurs</strong> is added to the end of the field definition
+it becomes a multiple value field.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The field access does not return the field value but an iterator
+over the occurrences values - see m.languages as in the example below:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">adabas.datamap</span> <span class="kn">import</span> <span class="n">Datamap</span><span class="p">,</span> <span class="n">String</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">adabas</span> <span class="kn">import</span> <span class="n">Abuf</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">Datamap</span><span class="p">(</span><span class="s1">&#39;mulitple_demo&#39;</span><span class="p">,</span> <span class="n">String</span><span class="p">(</span><span class="s1">&#39;languages&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">occurs</span><span class="o">=</span><span class="mi">5</span><span class="p">),</span>
+<span class="go">            buffer=Abuf(100))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span><span class="o">.</span><span class="n">languages</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;ENG&#39;</span><span class="p">,</span><span class="s1">&#39;FRA&#39;</span><span class="p">,</span><span class="s1">&#39;GER&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span><span class="o">.</span><span class="n">languages</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+<span class="go">&#39;GER&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span><span class="o">.</span><span class="n">languages</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;RUS&#39;</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">lang</span> <span class="ow">in</span> <span class="n">m</span><span class="o">.</span><span class="n">languages</span><span class="p">:</span>
+<span class="go">      print lang</span>
+<span class="go">ENG</span>
+<span class="go">FRA</span>
+<span class="go">RUS</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="defining-periodic-group">
+<h3>Defining Periodic Group<a class="headerlink" href="#defining-periodic-group" title="Permalink to this headline">¶</a></h3>
+<p>If the field definition within a datamap contains a periodic ()
+definition a datamap at the present location is defined.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">adapya.base.datamap</span> <span class="kn">import</span> <span class="n">Datamap</span><span class="p">,</span> <span class="n">String</span><span class="p">,</span> <span class="n">Packed</span>
+<span class="n">p</span> <span class="o">=</span> <span class="n">Datamap</span><span class="p">(</span> <span class="s1">&#39;Periodics Demo&#39;</span><span class="p">,</span>
+             <span class="o">...</span>
+             <span class="n">Periodic</span><span class="p">(</span>
+               <span class="n">Datamap</span><span class="p">(</span><span class="s1">&#39;Income&#39;</span><span class="p">,</span>
+                 <span class="n">String</span><span class="p">(</span> <span class="s1">&#39;currency&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+                 <span class="n">Packed</span><span class="p">(</span> <span class="s1">&#39;annual&#39;</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+                 <span class="p">),</span>
+               <span class="n">occurs</span><span class="o">=</span><span class="mi">8</span><span class="p">),</span>
+             <span class="o">...</span>
+             <span class="p">)</span>
+
+<span class="o">&gt;&gt;&gt;</span> <span class="nb">print</span> <span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">income</span><span class="p">)</span>
+<span class="mi">8</span>
+
+<span class="n">p</span><span class="o">.</span><span class="n">income</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">currency</span> <span class="o">=</span> <span class="s1">&#39;EUR&#39;</span>
+<span class="n">p</span><span class="o">.</span><span class="n">income</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">annual</span> <span class="o">=</span> <span class="mi">99000</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="scripts.html" class="btn btn-neutral float-right" title="Scripts" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="installing.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2004-2023, software AG.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,1004 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>adapya.base.dtconv &mdash; adapya-base 1.3.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+    <link rel="shortcut icon" href="../../../_static/SAG2015.ico"/>
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> adapya-base
+          
+
+          
+            
+            <img src="../../../_static/SAG2015.ico" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.3.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installing.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide.html">Using adapya-base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../scripts.html">Scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">Package Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../indices.html">Indices</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">adapya-base</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>adapya.base.dtconv</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for adapya.base.dtconv</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">dtconv - Date and Time conversion functions</span>
+<span class="sd">===========================================</span>
+
+<span class="sd">The module adapya.base.dtconv contains various routines to convert</span>
+<span class="sd">datetime values between various formats.</span>
+
+<span class="sd">For Gregorian to Julian date conversions and vice versa see</span>
+
+<span class="sd">    http://en.wikipedia.org/wiki/Julian_day#Calculation</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>          <span class="c1"># PY3</span>
+
+<span class="kn">import</span> <span class="nn">time</span>                     <span class="c1"># for clock_time()</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+
+<span class="c1"># 0001-01-01 in Julian days is actually 1721425.5</span>
+<span class="c1"># because the Julian calendar started at noon. For convenience of</span>
+<span class="c1"># calculation we start 12 hours earlier at midnight:</span>
+<span class="n">RATADIE</span> <span class="o">=</span> <span class="mi">1721426</span>
+<span class="n">DAYSECS</span> <span class="o">=</span> <span class="mi">86400</span>                 <span class="c1"># seconds in a day</span>
+<span class="n">SECS1970</span> <span class="o">=</span> <span class="mi">719162</span> <span class="o">*</span> <span class="n">DAYSECS</span>     <span class="c1"># seconds since epoch 0001-01-01 to 1970-01-01</span>
+
+<span class="n">UTC1900</span><span class="o">=</span><span class="p">(</span><span class="mi">1900</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">UTC1970</span><span class="o">=</span><span class="p">(</span><span class="mi">1970</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">UTC1582</span><span class="o">=</span><span class="p">(</span><span class="mi">1582</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">UTCMAX</span><span class="o">=</span><span class="p">(</span><span class="mi">9999</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">31</span><span class="p">,</span><span class="mi">23</span><span class="p">,</span><span class="mi">59</span><span class="p">,</span><span class="mi">59</span><span class="p">,</span><span class="mi">999999</span><span class="p">)</span>
+<span class="n">UTCMIN</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">UTC2008SAMPLE</span><span class="o">=</span><span class="p">(</span><span class="mi">2008</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">31</span><span class="p">,</span><span class="mi">13</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mi">59</span><span class="p">,</span><span class="mi">123456</span><span class="p">)</span>
+<span class="n">MIC1970</span><span class="o">=</span><span class="mi">62135596800000000</span>       <span class="c1"># microseconds since 0001-01-01 00:00:00.000000</span>
+
+<div class="viewcode-block" id="InvalidDateException"><a class="viewcode-back" href="../../../modules.html#adapya.base.dtconv.InvalidDateException">[docs]</a><span class="k">class</span> <span class="nc">InvalidDateException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span> <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="checkdate"><a class="viewcode-back" href="../../../modules.html#adapya.base.dtconv.checkdate">[docs]</a><span class="k">def</span> <span class="nf">checkdate</span><span class="p">(</span><span class="n">year</span><span class="p">,</span><span class="n">month</span><span class="p">,</span><span class="n">day</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Check Gregorian date given as year, month, day</span>
+
+<span class="sd">    :raises InvalidDateException: if invalid input values are given</span>
+<span class="sd">            otherwise returns silently</span>
+
+<span class="sd">    Invalid date raises exception:</span>
+
+<span class="sd">    &gt;&gt;&gt; checkdate(2008,12,32)   # doctest: +IGNORE_EXCEPTION_DETAIL</span>
+<span class="sd">    Traceback (most recent call last):</span>
+<span class="sd">    InvalidDateException: day 32 not in range 1..31</span>
+
+<span class="sd">    Valid dates go trough quiet:</span>
+
+<span class="sd">    &gt;&gt;&gt; checkdate(2008,12,31)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">monthdays</span><span class="o">=</span><span class="p">(</span><span class="mi">31</span><span class="p">,</span><span class="mi">28</span><span class="p">,</span><span class="mi">31</span><span class="p">,</span><span class="mi">30</span><span class="p">,</span><span class="mi">31</span><span class="p">,</span><span class="mi">30</span><span class="p">,</span><span class="mi">31</span><span class="p">,</span><span class="mi">31</span><span class="p">,</span><span class="mi">30</span><span class="p">,</span><span class="mi">31</span><span class="p">,</span><span class="mi">30</span><span class="p">,</span><span class="mi">31</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;=</span> <span class="n">year</span> <span class="o">&lt;=</span> <span class="mi">9999</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">InvalidDateException</span><span class="p">(</span><span class="s1">&#39;year </span><span class="si">%d</span><span class="s1"> not in range 1..9999&#39;</span> <span class="o">%</span> <span class="n">year</span> <span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;=</span> <span class="n">month</span> <span class="o">&lt;=</span> <span class="mi">12</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">InvalidDateException</span><span class="p">(</span><span class="s1">&#39;month </span><span class="si">%d</span><span class="s1"> not in range 1..12&#39;</span> <span class="o">%</span> <span class="n">month</span> <span class="p">)</span>
+
+    <span class="n">maxday</span> <span class="o">=</span> <span class="n">monthdays</span><span class="p">[</span><span class="n">month</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">month</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="p">(</span>
+          <span class="c1"># leapyear divisible by 4 but not by 100 unless by 400</span>
+          <span class="p">(</span><span class="n">year</span><span class="o">%</span><span class="mi">400</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">year</span><span class="o">%</span><span class="mi">4</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">year</span><span class="o">%</span><span class="mi">100</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)):</span>
+        <span class="n">maxday</span><span class="o">+=</span><span class="mi">1</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;=</span> <span class="n">day</span> <span class="o">&lt;=</span> <span class="n">maxday</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">InvalidDateException</span><span class="p">(</span><span class="s1">&#39;day </span><span class="si">%d</span><span class="s1"> not in range 1..</span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">day</span><span class="p">,</span><span class="n">maxday</span><span class="p">)</span> <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="jul2jdn"><a class="viewcode-back" href="../../../modules.html#adapya.base.dtconv.jul2jdn">[docs]</a><span class="k">def</span> <span class="nf">jul2jdn</span><span class="p">(</span><span class="n">year</span><span class="p">,</span><span class="n">month</span><span class="p">,</span><span class="n">day</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Calculate Julian day number from julian date</span>
+
+<span class="sd">    - Earliest supported date is March 1, -4800</span>
+<span class="sd">    - 1 BC is year 0, 2 BC is -1 etc. (astronomical year numbering)</span>
+<span class="sd">    - Julian year starts at 1. March</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">year</span> <span class="o">&lt;</span> <span class="o">-</span><span class="mi">4800</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">InvalidDateException</span><span class="p">(</span><span class="s1">&#39;year </span><span class="si">%d</span><span class="s1"> outside range (-4800,9999)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">year</span><span class="p">,)</span> <span class="p">)</span>
+    <span class="k">if</span> <span class="n">year</span> <span class="o">==</span> <span class="o">-</span><span class="mi">4800</span> <span class="ow">and</span> <span class="n">month</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">InvalidDateException</span><span class="p">(</span><span class="s1">&#39;month </span><span class="si">%d</span><span class="s1"> outside range (3,12) for year </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">month</span><span class="p">,</span><span class="n">year</span><span class="p">)</span> <span class="p">)</span>
+
+    <span class="n">a</span> <span class="o">=</span> <span class="p">(</span><span class="mi">14</span><span class="o">-</span><span class="n">month</span><span class="p">)</span><span class="o">//</span><span class="mi">12</span>   <span class="c1"># Jan/Feb: a=1 else a=0</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">year</span> <span class="o">+</span> <span class="mi">4800</span> <span class="o">-</span> <span class="n">a</span>  <span class="c1"># astronomical year numbering</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">month</span> <span class="o">+</span> <span class="mi">12</span><span class="o">*</span><span class="n">a</span> <span class="o">-</span> <span class="mi">3</span> <span class="c1"># Mar=0, ... Feb=11</span>
+
+    <span class="c1"># 153 days in each 5 month cycle starting May</span>
+    <span class="n">jdn</span> <span class="o">=</span> <span class="n">day</span> <span class="o">+</span> <span class="p">(</span><span class="mi">153</span><span class="o">*</span><span class="n">m</span><span class="o">+</span><span class="mi">2</span><span class="p">)</span><span class="o">//</span><span class="mi">5</span> <span class="o">+</span> <span class="mi">365</span><span class="o">*</span><span class="n">y</span> <span class="o">+</span> <span class="n">y</span><span class="o">//</span><span class="mi">4</span> <span class="o">-</span> <span class="mi">32083</span>
+    <span class="k">return</span> <span class="n">jdn</span></div>
+
+<div class="viewcode-block" id="greg2jdn"><a class="viewcode-back" href="../../../modules.html#adapya.base.dtconv.greg2jdn">[docs]</a><span class="k">def</span> <span class="nf">greg2jdn</span><span class="p">(</span><span class="n">year</span><span class="p">,</span><span class="n">month</span><span class="p">,</span><span class="n">day</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Calculate the Julian day number for a proleptic gregorian date:</span>
+
+<span class="sd">        November 24, 4714 BC  is Julian day 0 at noon</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="p">(</span><span class="mi">14</span><span class="o">-</span><span class="n">month</span><span class="p">)</span><span class="o">//</span><span class="mi">12</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">year</span> <span class="o">+</span> <span class="mi">4800</span> <span class="o">-</span> <span class="n">a</span>  <span class="c1"># astronomical year numbering</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">month</span> <span class="o">+</span> <span class="mi">12</span><span class="o">*</span><span class="n">a</span> <span class="o">-</span> <span class="mi">3</span>
+
+    <span class="n">jdn</span> <span class="o">=</span> <span class="n">day</span> <span class="o">+</span> <span class="p">(</span><span class="mi">153</span><span class="o">*</span><span class="n">m</span><span class="o">+</span><span class="mi">2</span><span class="p">)</span><span class="o">//</span><span class="mi">5</span> <span class="o">+</span> <span class="mi">365</span><span class="o">*</span><span class="n">y</span> <span class="o">+</span> <span class="n">y</span><span class="o">//</span><span class="mi">4</span> <span class="o">-</span> <span class="n">y</span><span class="o">//</span><span class="mi">100</span> <span class="o">+</span> <span class="n">y</span><span class="o">//</span><span class="mi">400</span> <span class="o">-</span> <span class="mi">32045</span>
+    <span class="k">return</span> <span class="n">jdn</span></div>
+
+
+<div class="viewcode-block" id="gx2utc"><a class="viewcode-back" href="../../../modules.html#adapya.base.dtconv.gx2utc">[docs]</a><span class="k">def</span> <span class="nf">gx2utc</span><span class="p">(</span><span class="n">halfhours</span><span class="p">,</span> <span class="n">microsecs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Convert intermediate timestamp of two 32 bit integers to utc form:</span>
+
+<span class="sd">       year,month,day,hour,minute,second,microsecond</span>
+
+<span class="sd">    :param halfhours: number of halfhours since the epoch 0000-01-02</span>
+<span class="sd">    :param microsecs: number of microseconds within half hour</span>
+
+<span class="sd">    &gt;&gt;&gt; gx2utc(0,0)                     # 0000-01-02 00:00:00.000000</span>
+<span class="sd">    (0, 1, 2, 0, 0, 0, 0)</span>
+
+<span class="sd">    &gt;&gt;&gt; gx2utc(175316351,1799999999)    # 9999-12-31 23:59:59.999999</span>
+<span class="sd">    (9999, 12, 31, 23, 59, 59, 999999)</span>
+
+<span class="sd">    &gt;&gt;&gt; gx2utc(34537296,0)              # 1970-01-01 00:00:00.000000</span>
+<span class="sd">    (1970, 1, 1, 0, 0, 0, 0)</span>
+
+<span class="sd">    &gt;&gt;&gt; gx2utc(35221034,1259123456)     # UTC2008SAMPLE</span>
+<span class="sd">    (2008, 12, 31, 13, 20, 59, 123456)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">y</span><span class="p">,</span><span class="n">m</span><span class="p">,</span><span class="n">d</span><span class="p">,</span><span class="n">h</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">s</span> <span class="o">=</span> <span class="n">sec2utc</span><span class="p">(</span><span class="n">halfhours</span><span class="o">*</span><span class="mi">30</span><span class="o">*</span><span class="mi">60</span> <span class="o">+</span> <span class="n">microsecs</span><span class="o">//</span><span class="mi">10</span><span class="o">**</span><span class="mi">6</span> <span class="o">-</span> <span class="mi">365</span><span class="o">*</span><span class="n">DAYSECS</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">y</span><span class="p">,</span><span class="n">m</span><span class="p">,</span><span class="n">d</span><span class="p">,</span><span class="n">h</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">s</span><span class="p">,</span> <span class="n">microsecs</span><span class="o">%</span><span class="mi">10</span><span class="o">**</span><span class="mi">6</span></div>
+
+
+<div class="viewcode-block" id="jdn2greg"><a class="viewcode-back" href="../../../modules.html#adapya.base.dtconv.jdn2greg">[docs]</a><span class="k">def</span> <span class="nf">jdn2greg</span><span class="p">(</span> <span class="n">jdn</span> <span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Calculate gregorian year, month, day from julian day number.</span>
+
+<span class="sd">    astronomical year numbering year 0 is 1 B.C., -1 is 2 B.C. etc.</span>
+
+<span class="sd">    Even though the first day in the Julian calendar correctly starts</span>
+<span class="sd">    at noon rather than on midnight here we assume it to start</span>
+<span class="sd">    at midnight (12 hours earlier)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">j</span> <span class="o">=</span> <span class="n">jdn</span> <span class="o">+</span> <span class="mi">32044</span>
+
+    <span class="n">b</span> <span class="o">=</span> <span class="p">(</span><span class="mi">4</span><span class="o">*</span><span class="n">j</span><span class="o">+</span><span class="mi">3</span><span class="p">)</span><span class="o">//</span><span class="mi">146097</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">j</span> <span class="o">-</span> <span class="p">(</span><span class="n">b</span><span class="o">*</span><span class="mi">146097</span><span class="p">)</span><span class="o">//</span><span class="mi">4</span>
+
+    <span class="n">d</span> <span class="o">=</span> <span class="p">(</span><span class="mi">4</span><span class="o">*</span><span class="n">c</span><span class="o">+</span><span class="mi">3</span><span class="p">)</span><span class="o">//</span><span class="mi">1461</span>
+    <span class="n">e</span> <span class="o">=</span> <span class="n">c</span> <span class="o">-</span> <span class="p">(</span><span class="mi">1461</span><span class="o">*</span><span class="n">d</span><span class="p">)</span><span class="o">//</span><span class="mi">4</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="p">(</span><span class="mi">5</span><span class="o">*</span><span class="n">e</span><span class="o">+</span><span class="mi">2</span><span class="p">)</span><span class="o">//</span><span class="mi">153</span>
+
+    <span class="n">day</span>   <span class="o">=</span> <span class="n">e</span> <span class="o">-</span> <span class="p">(</span><span class="mi">153</span><span class="o">*</span><span class="n">m</span><span class="o">+</span><span class="mi">2</span><span class="p">)</span><span class="o">//</span><span class="mi">5</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">month</span> <span class="o">=</span> <span class="n">m</span> <span class="o">+</span> <span class="mi">3</span> <span class="o">-</span> <span class="mi">12</span><span class="o">*</span><span class="p">(</span><span class="n">m</span><span class="o">//</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">year</span>  <span class="o">=</span> <span class="n">b</span><span class="o">*</span><span class="mi">100</span> <span class="o">+</span> <span class="n">d</span> <span class="o">-</span> <span class="mi">4800</span> <span class="o">+</span> <span class="n">m</span><span class="o">//</span><span class="mi">10</span>
+
+    <span class="k">return</span> <span class="n">year</span><span class="p">,</span><span class="n">month</span><span class="p">,</span><span class="n">day</span></div>
+
+
+<div class="viewcode-block" id="jdn2jul"><a class="viewcode-back" href="../../../modules.html#adapya.base.dtconv.jdn2jul">[docs]</a><span class="k">def</span> <span class="nf">jdn2jul</span><span class="p">(</span> <span class="n">jdn</span> <span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Calculate julian year, month, day from julian day number</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">jdn</span> <span class="o">+</span> <span class="mi">32082</span>
+
+    <span class="n">d</span> <span class="o">=</span> <span class="p">(</span><span class="mi">4</span><span class="o">*</span><span class="n">c</span><span class="o">+</span><span class="mi">3</span><span class="p">)</span><span class="o">//</span><span class="mi">1461</span>
+    <span class="n">e</span> <span class="o">=</span> <span class="n">c</span> <span class="o">-</span> <span class="p">(</span><span class="mi">1461</span><span class="o">*</span><span class="n">d</span><span class="p">)</span><span class="o">//</span><span class="mi">4</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="p">(</span><span class="mi">5</span><span class="o">*</span><span class="n">e</span><span class="o">+</span><span class="mi">2</span><span class="p">)</span><span class="o">//</span><span class="mi">153</span>
+
+    <span class="n">day</span>   <span class="o">=</span> <span class="n">e</span> <span class="o">-</span> <span class="p">(</span><span class="mi">153</span><span class="o">*</span><span class="n">m</span><span class="o">+</span><span class="mi">2</span><span class="p">)</span><span class="o">//</span><span class="mi">5</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">month</span> <span class="o">=</span> <span class="n">m</span> <span class="o">+</span> <span class="mi">3</span> <span class="o">-</span> <span class="mi">12</span><span class="o">*</span><span class="p">(</span><span class="n">m</span><span class="o">//</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">year</span>  <span class="o">=</span> <span class="n">b</span><span class="o">*</span><span class="mi">100</span> <span class="o">+</span> <span class="n">d</span> <span class="o">-</span> <span class="mi">4800</span> <span class="o">+</span> <span class="n">m</span><span class="o">//</span><span class="mi">10</span>
+
+    <span class="k">return</span> <span class="n">year</span><span class="p">,</span><span class="n">month</span><span class="p">,</span><span class="n">day</span></div>
+
+
+<div class="viewcode-block" id="micro2nattime"><a class="viewcode-back" href="../../../modules.html#adapya.base.dtconv.micro2nattime">[docs]</a><span class="k">def</span> <span class="nf">micro2nattime</span><span class="p">(</span><span class="n">mic</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Convert microseconds since 0001-01-01</span>
+<span class="sd">    to NATTIME Value in 10th of second precision</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span>  <span class="n">mic</span><span class="o">//</span><span class="mi">10</span><span class="o">**</span><span class="mi">5</span> <span class="o">+</span> <span class="mi">365</span><span class="o">*</span><span class="n">DAYSECS</span><span class="o">*</span><span class="mi">10</span></div>
+
+
+<div class="viewcode-block" id="micro2utc"><a class="viewcode-back" href="../../../modules.html#adapya.base.dtconv.micro2utc">[docs]</a><span class="k">def</span> <span class="nf">micro2utc</span><span class="p">(</span><span class="n">microsecs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Convert seconds since epoch value to list composed of::</span>
+
+<span class="sd">       year,month,day,hour,minute,second,microsecond</span>
+
+<span class="sd">    :param microsec: number of microseconds since the epoch 0001-01-01</span>
+
+<span class="sd">    &gt;&gt;&gt; micro2utc(0)                    # 0001-01-01 00:00:00.000000</span>
+<span class="sd">    (1, 1, 1, 0, 0, 0, 0)</span>
+
+<span class="sd">    &gt;&gt;&gt; micro2utc(315537897599999999)  # 9999-12-31 23:59:59.999999</span>
+<span class="sd">    (9999, 12, 31, 23, 59, 59, 999999)</span>
+
+<span class="sd">    &gt;&gt;&gt; micro2utc(62135596800000000)   # 1970-01-01 00:00:00.000000</span>
+<span class="sd">    (1970, 1, 1, 0, 0, 0, 0)</span>
+
+<span class="sd">    &gt;&gt;&gt; micro2utc(63366326459123456)   # UTC2008SAMPLE</span>
+<span class="sd">    (2008, 12, 31, 13, 20, 59, 123456)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">microsec</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">microsecs</span><span class="p">)</span> <span class="o">%</span> <span class="mi">10</span><span class="o">**</span><span class="mi">6</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">microsecs</span><span class="p">)</span><span class="o">//</span><span class="mi">10</span><span class="o">**</span><span class="mi">6</span>
+    <span class="n">second</span> <span class="o">=</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">60</span>
+    <span class="n">i</span> <span class="o">//=</span> <span class="mi">60</span>
+    <span class="n">minute</span> <span class="o">=</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">60</span>
+    <span class="n">i</span> <span class="o">//=</span> <span class="mi">60</span>
+    <span class="n">hour</span> <span class="o">=</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">24</span>
+    <span class="n">i</span> <span class="o">//=</span> <span class="mi">24</span>
+    <span class="n">year</span><span class="p">,</span> <span class="n">month</span><span class="p">,</span> <span class="n">day</span> <span class="o">=</span> <span class="n">jdn2greg</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="n">RATADIE</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">year</span><span class="p">),</span><span class="nb">int</span><span class="p">(</span><span class="n">month</span><span class="p">),</span><span class="nb">int</span><span class="p">(</span><span class="n">day</span><span class="p">),</span><span class="nb">int</span><span class="p">(</span><span class="n">hour</span><span class="p">),</span> \
+            <span class="nb">int</span><span class="p">(</span><span class="n">minute</span><span class="p">),</span><span class="nb">int</span><span class="p">(</span><span class="n">second</span><span class="p">),</span><span class="nb">int</span><span class="p">(</span><span class="n">microsec</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="nattime2utc"><a class="viewcode-back" href="../../../modules.html#adapya.base.dtconv.nattime2utc">[docs]</a><span class="k">def</span> <span class="nf">nattime2utc</span><span class="p">(</span><span class="n">nt</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; convert NATTIME Value in 10th of second precision to</span>
+<span class="sd">        DATETIME value</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">y</span><span class="p">,</span><span class="n">m</span><span class="p">,</span><span class="n">d</span><span class="p">,</span><span class="n">h</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">s</span> <span class="o">=</span> <span class="n">sec2utc</span><span class="p">(</span><span class="n">nt</span><span class="o">//</span><span class="mi">10</span> <span class="o">-</span> <span class="mi">365</span><span class="o">*</span><span class="n">DAYSECS</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">y</span><span class="p">,</span><span class="n">m</span><span class="p">,</span><span class="n">d</span><span class="p">,</span><span class="n">h</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">s</span><span class="p">,</span> <span class="n">nt</span><span class="o">%</span><span class="mi">10</span> <span class="o">*</span> <span class="mi">10</span><span class="o">**</span><span class="mi">5</span></div>
+
+<div class="viewcode-block" id="nattime2micro"><a class="viewcode-back" href="../../../modules.html#adapya.base.dtconv.nattime2micro">[docs]</a><span class="k">def</span> <span class="nf">nattime2micro</span><span class="p">(</span><span class="n">nt</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; convert NATTIME Value in 10th of second precision to</span>
+<span class="sd">        microseconds since 1.1.1</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">nt</span><span class="o">*</span><span class="mi">10</span><span class="o">**</span><span class="mi">5</span> <span class="o">-</span> <span class="mi">365</span><span class="o">*</span><span class="n">DAYSECS</span><span class="o">*</span><span class="mi">10</span><span class="o">**</span><span class="mi">6</span></div>
+
+<div class="viewcode-block" id="sec2utc"><a class="viewcode-back" href="../../../modules.html#adapya.base.dtconv.sec2utc">[docs]</a><span class="k">def</span> <span class="nf">sec2utc</span><span class="p">(</span><span class="n">seconds</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Convert seconds since epoch value to tuple composed of</span>
+
+<span class="sd">        year,month,day,hour,minute,second</span>
+
+<span class="sd">    :param seconds: number of seconds since the epoch 0001-01-01</span>
+<span class="sd">                    if a float value is given:</span>
+<span class="sd">                    fraction of seconds yield microseconds</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">microsecs</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">seconds</span><span class="o">*</span><span class="mi">10</span><span class="o">**</span><span class="mi">6</span><span class="p">)</span>
+    <span class="n">year</span><span class="p">,</span><span class="n">month</span><span class="p">,</span><span class="n">day</span><span class="p">,</span><span class="n">hour</span><span class="p">,</span><span class="n">minute</span><span class="p">,</span><span class="n">second</span><span class="p">,</span><span class="n">microsec</span> <span class="o">=</span> <span class="n">micro2utc</span><span class="p">(</span><span class="n">microsecs</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">microsec</span> <span class="o">!=</span><span class="mi">0</span><span class="p">:</span>
+        <span class="n">second</span> <span class="o">+=</span> <span class="nb">float</span><span class="p">(</span><span class="n">microsec</span><span class="p">)</span><span class="o">/</span><span class="mi">10</span><span class="o">**</span><span class="mi">6</span>
+
+    <span class="k">return</span> <span class="n">year</span><span class="p">,</span><span class="n">month</span><span class="p">,</span><span class="n">day</span><span class="p">,</span><span class="n">hour</span><span class="p">,</span><span class="n">minute</span><span class="p">,</span><span class="n">second</span></div>
+
+<div class="viewcode-block" id="sec2interval"><a class="viewcode-back" href="../../../modules.html#adapya.base.dtconv.sec2interval">[docs]</a><span class="k">def</span> <span class="nf">sec2interval</span><span class="p">(</span><span class="n">seconds</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Convert seconds to tuple of day, hour, minute and second</span>
+
+<span class="sd">    :param seconds: integer</span>
+<span class="sd">    :returns: tuple day, hour, minute, second</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">seconds</span><span class="p">)</span>
+    <span class="n">second</span> <span class="o">=</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">60</span>
+    <span class="n">i</span> <span class="o">//=</span> <span class="mi">60</span>
+    <span class="n">minute</span> <span class="o">=</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">60</span>
+    <span class="n">i</span> <span class="o">//=</span> <span class="mi">60</span>
+    <span class="n">hour</span> <span class="o">=</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">24</span>
+    <span class="n">i</span> <span class="o">//=</span> <span class="mi">24</span>
+    <span class="k">return</span> <span class="n">i</span><span class="p">,</span> <span class="n">hour</span><span class="p">,</span> <span class="n">minute</span><span class="p">,</span> <span class="n">second</span></div>
+
+<span class="k">def</span> <span class="nf">intervalstr</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+    <span class="n">days</span><span class="p">,</span> <span class="n">hours</span><span class="p">,</span> <span class="n">minutes</span><span class="p">,</span> <span class="n">seconds</span> <span class="o">=</span> <span class="n">sec2interval</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+    <span class="n">days</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%d</span><span class="s1">d&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">days</span><span class="p">)</span> <span class="k">if</span> <span class="n">days</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+    <span class="n">hours</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%d</span><span class="s1">h&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">hours</span><span class="p">)</span> <span class="k">if</span> <span class="n">hours</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+    <span class="n">minutes</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%d</span><span class="s1">m&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">minutes</span><span class="p">)</span> <span class="k">if</span> <span class="n">minutes</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+    <span class="n">seconds</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%d</span><span class="s1">s&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">seconds</span><span class="p">)</span> <span class="k">if</span> <span class="n">seconds</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+
+    <span class="k">if</span> <span class="n">days</span> <span class="ow">or</span> <span class="n">hours</span> <span class="ow">or</span> <span class="n">minutes</span> <span class="ow">or</span> <span class="n">seconds</span><span class="p">:</span>
+        <span class="c1"># compose nonempty strings with blanks in between</span>
+        <span class="k">return</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">(</span><span class="n">days</span><span class="p">,</span><span class="n">hours</span><span class="p">,</span><span class="n">minutes</span><span class="p">,</span><span class="n">seconds</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s1">&#39;0s&#39;</span>
+
+<span class="k">def</span> <span class="nf">usecintervalstr</span><span class="p">(</span><span class="n">u</span><span class="p">):</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">u</span><span class="o">//</span><span class="mi">10</span><span class="o">**</span><span class="mi">6</span><span class="p">)</span>
+    <span class="n">usec</span> <span class="o">=</span> <span class="n">u</span> <span class="o">-</span> <span class="n">s</span><span class="o">*</span><span class="mi">10</span><span class="o">**</span><span class="mi">6</span>
+    <span class="k">return</span> <span class="n">intervalstr</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; </span><span class="si">%010.3f</span><span class="s1">us&#39;</span> <span class="o">%</span> <span class="n">usec</span>
+
+
+<span class="n">stckintervalstr</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">i</span><span class="p">:</span> <span class="n">intervalstr</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="o">*</span> <span class="mf">1.048576</span><span class="p">))</span>
+<span class="n">stckdintervalstr</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">i</span><span class="p">:</span> <span class="n">usecintervalstr</span><span class="p">(</span><span class="n">i</span><span class="o">/</span><span class="mf">4096.</span><span class="p">)</span>
+
+<div class="viewcode-block" id="unix2utc"><a class="viewcode-back" href="../../../modules.html#adapya.base.dtconv.unix2utc">[docs]</a><span class="k">def</span> <span class="nf">unix2utc</span><span class="p">(</span><span class="n">seconds</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; same as sec2utc() only with epoch 1970-01-01&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">sec2utc</span><span class="p">(</span><span class="n">seconds</span><span class="o">+</span><span class="n">SECS1970</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="utc2gx"><a class="viewcode-back" href="../../../modules.html#adapya.base.dtconv.utc2gx">[docs]</a><span class="k">def</span> <span class="nf">utc2gx</span><span class="p">(</span><span class="o">*</span><span class="n">secmsec</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Convert list composed of year,month,day,hour,minute,second,microsecond</span>
+<span class="sd">    to gx format list of two 32 bit integers (halfhours, microsecs) since epoch 0000-01-02</span>
+
+<span class="sd">    :param secmsec: list of year,month,day,hour,minute,second,microsecond</span>
+<span class="sd">    :returns: (halfhours, microsecs) since epoch 0000-01-02</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">mics</span> <span class="o">=</span> <span class="n">utc2micro</span><span class="p">(</span><span class="o">*</span><span class="n">secmsec</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">mics</span><span class="o">+</span><span class="mi">365</span><span class="o">*</span><span class="n">DAYSECS</span><span class="o">*</span><span class="mi">10</span><span class="o">**</span><span class="mi">6</span><span class="p">)</span><span class="o">//</span><span class="p">(</span><span class="mi">1800</span><span class="o">*</span><span class="mi">10</span><span class="o">**</span><span class="mi">6</span><span class="p">),</span> \
+           <span class="p">(</span><span class="n">mics</span><span class="o">+</span><span class="mi">365</span><span class="o">*</span><span class="n">DAYSECS</span><span class="o">*</span><span class="mi">10</span><span class="o">**</span><span class="mi">6</span><span class="p">)</span><span class="o">%</span><span class="p">(</span><span class="mi">1800</span><span class="o">*</span><span class="mi">10</span><span class="o">**</span><span class="mi">6</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="utc2micro"><a class="viewcode-back" href="../../../modules.html#adapya.base.dtconv.utc2micro">[docs]</a><span class="k">def</span> <span class="nf">utc2micro</span><span class="p">(</span><span class="o">*</span><span class="n">secmsec</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Convert list composed of year,month,day,hour,minute,second,microsecond</span>
+
+<span class="sd">    :param secmsec: list of year,month,day,hour,minute,second,microsecond</span>
+
+<span class="sd">    :returns: number of microseconds since the epoch 0001-01-01 00:00:00.000000</span>
+
+<span class="sd">    XTIMESTAMP(epoch 0001)</span>
+
+<span class="sd">    &gt;&gt;&gt; utc2micro(*UTCMIN)           # 0001-01-01 00:00:00.000000</span>
+<span class="sd">    0</span>
+<span class="sd">    &gt;&gt;&gt; &#39;%d&#39; % utc2micro(*UTCMAX)    # 9999-12-31 23:59:59.999999</span>
+<span class="sd">    &#39;315537897599999999&#39;</span>
+<span class="sd">    &gt;&gt;&gt; &#39;%d&#39; % utc2micro(*UTC1970)   # 1970-01-01 00:00:00.000000</span>
+<span class="sd">    &#39;62135596800000000&#39;</span>
+<span class="sd">    &gt;&gt;&gt; &#39;%d&#39; % utc2micro(*UTC2008SAMPLE)    # 2008-12-31 13:20:59.123456</span>
+<span class="sd">    &#39;63366326459123456&#39;</span>
+
+<span class="sd">    XTIMESTAMP(epoch 1970)</span>
+
+<span class="sd">    &gt;&gt;&gt; &#39;%d&#39; % (utc2micro(*UTCMIN)-utc2micro(*UTC1970))</span>
+<span class="sd">    &#39;-62135596800000000&#39;</span>
+<span class="sd">    &gt;&gt;&gt; &#39;%d&#39; % (utc2micro(*UTCMAX)-utc2micro(*UTC1970))</span>
+<span class="sd">    &#39;253402300799999999&#39;</span>
+<span class="sd">    &gt;&gt;&gt; &#39;%d&#39; % (utc2micro(*UTC1970)-utc2micro(*UTC1970))</span>
+<span class="sd">    &#39;0&#39;</span>
+<span class="sd">    &gt;&gt;&gt; &#39;%d&#39; % (utc2micro(*UTC2008SAMPLE)-utc2micro(*UTC1970))</span>
+<span class="sd">    &#39;1230729659123456&#39;</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">secmsec</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">InvalidDateException</span><span class="p">(</span>
+            <span class="s1">&#39;Only provided </span><span class="si">%d</span><span class="s1"> parameters for utc2sec() with </span><span class="si">%s</span><span class="s1">&#39;</span>
+            <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">secmsec</span><span class="p">),</span> <span class="nb">repr</span><span class="p">(</span><span class="n">secmsec</span><span class="p">))</span>
+            <span class="p">)</span>
+
+    <span class="n">microsec</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">secmsec</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">second</span>   <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">secmsec</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span>
+
+    <span class="n">minute</span><span class="o">=</span><span class="n">hour</span><span class="o">=</span><span class="n">day</span><span class="o">=</span><span class="n">month</span><span class="o">=</span><span class="n">year</span><span class="o">=</span><span class="n">days</span><span class="o">=</span><span class="mi">0</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">secmsec</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span><span class="p">(</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">second</span> <span class="o">&lt;</span> <span class="mi">60</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">InvalidDateException</span><span class="p">(</span>
+                <span class="s1">&#39;Invalid Value for second: </span><span class="si">%d</span><span class="s1"> utc2micro(</span><span class="si">%s</span><span class="s1">)&#39;</span>
+                <span class="o">%</span> <span class="p">(</span> <span class="n">second</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">secmsec</span><span class="p">))</span>
+                <span class="p">)</span>
+        <span class="n">minute</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">secmsec</span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">])</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">secmsec</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">hour</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">secmsec</span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">])</span>
+            <span class="k">if</span> <span class="ow">not</span><span class="p">(</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">minute</span> <span class="o">&lt;</span> <span class="mi">60</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">InvalidDateException</span><span class="p">(</span>
+                    <span class="s1">&#39;Invalid Value for minute: </span><span class="si">%d</span><span class="s1"> utc2micro(</span><span class="si">%s</span><span class="s1">)&#39;</span>
+                    <span class="o">%</span> <span class="p">(</span><span class="n">minute</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">secmsec</span><span class="p">))</span>
+                    <span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">secmsec</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">4</span><span class="p">:</span>
+                <span class="n">days</span> <span class="o">=</span> <span class="n">day</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">secmsec</span><span class="p">[</span><span class="o">-</span><span class="mi">5</span><span class="p">])</span>
+                <span class="k">if</span> <span class="ow">not</span><span class="p">(</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">hour</span> <span class="o">&lt;</span> <span class="mi">60</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="n">InvalidDateException</span><span class="p">(</span>
+                        <span class="s1">&#39;Invalid Value for hour: </span><span class="si">%d</span><span class="s1"> utc2micro(</span><span class="si">%s</span><span class="s1">)&#39;</span>
+                        <span class="o">%</span> <span class="p">(</span><span class="n">hour</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">secmsec</span><span class="p">))</span>
+                        <span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">secmsec</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">5</span><span class="p">:</span>
+                    <span class="n">month</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">secmsec</span><span class="p">[</span><span class="o">-</span><span class="mi">6</span><span class="p">])</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">secmsec</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">6</span><span class="p">:</span>
+                        <span class="n">year</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">secmsec</span><span class="p">[</span><span class="o">-</span><span class="mi">7</span><span class="p">])</span>
+
+                    <span class="k">if</span> <span class="ow">not</span><span class="p">(</span> <span class="mi">1</span> <span class="o">&lt;=</span> <span class="n">day</span> <span class="o">&lt;=</span> <span class="mi">31</span><span class="p">):</span>
+                        <span class="k">raise</span> <span class="n">InvalidDateException</span><span class="p">(</span>
+                            <span class="s1">&#39;Invalid Value for day: </span><span class="si">%d</span><span class="s1"> utc2micro(</span><span class="si">%s</span><span class="s1">)&#39;</span>
+                            <span class="o">%</span> <span class="p">(</span><span class="n">day</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">secmsec</span><span class="p">))</span>
+                            <span class="p">)</span>
+                    <span class="k">elif</span> <span class="ow">not</span><span class="p">(</span> <span class="mi">1</span> <span class="o">&lt;=</span> <span class="n">month</span> <span class="o">&lt;=</span> <span class="mi">12</span><span class="p">):</span>
+                        <span class="k">raise</span> <span class="n">InvalidDateException</span><span class="p">(</span>
+                            <span class="s1">&#39;Invalid Value for month: </span><span class="si">%d</span><span class="s1"> utc2micro(</span><span class="si">%s</span><span class="s1">)&#39;</span>
+                            <span class="o">%</span> <span class="p">(</span><span class="n">month</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">secmsec</span><span class="p">))</span>
+                            <span class="p">)</span>
+                    <span class="k">elif</span> <span class="ow">not</span><span class="p">(</span> <span class="mi">1</span> <span class="o">&lt;=</span> <span class="n">year</span> <span class="o">&lt;=</span> <span class="mi">9999</span><span class="p">):</span>
+                        <span class="k">raise</span> <span class="n">InvalidDateException</span><span class="p">(</span>
+                            <span class="s1">&#39;Invalid Value for year: </span><span class="si">%d</span><span class="s1"> utc2micro(</span><span class="si">%s</span><span class="s1">)&#39;</span>
+                            <span class="o">%</span> <span class="p">(</span><span class="n">month</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">secmsec</span><span class="p">))</span>
+                            <span class="p">)</span>
+
+                    <span class="n">days</span> <span class="o">=</span> <span class="n">greg2jdn</span><span class="p">(</span><span class="n">year</span><span class="p">,</span><span class="n">month</span><span class="p">,</span><span class="n">day</span><span class="p">)</span> <span class="o">-</span> <span class="n">RATADIE</span>
+    <span class="k">return</span> <span class="n">microsec</span> <span class="o">+</span> <span class="mi">10</span><span class="o">**</span><span class="mi">6</span> <span class="o">*</span> <span class="p">(</span><span class="n">second</span> <span class="o">+</span> <span class="mi">60</span> <span class="o">*</span> <span class="p">(</span><span class="n">minute</span> <span class="o">+</span> <span class="mi">60</span><span class="o">*</span><span class="n">hour</span><span class="p">)</span> <span class="o">+</span> <span class="n">days</span> <span class="o">*</span> <span class="n">DAYSECS</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="utc2nattime"><a class="viewcode-back" href="../../../modules.html#adapya.base.dtconv.utc2nattime">[docs]</a><span class="k">def</span> <span class="nf">utc2nattime</span><span class="p">(</span><span class="o">*</span><span class="n">secmsec</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; convert utc timestamp since 0001-01-01</span>
+<span class="sd">        to NATTIME Value in 10th of second precision</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span>  <span class="n">micro2nattime</span><span class="p">(</span><span class="n">utc2micro</span><span class="p">(</span><span class="o">*</span><span class="n">secmsec</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="utc2sec"><a class="viewcode-back" href="../../../modules.html#adapya.base.dtconv.utc2sec">[docs]</a><span class="k">def</span> <span class="nf">utc2sec</span><span class="p">(</span><span class="o">*</span><span class="n">utc</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Convert list composed of year,month,day,hour,minute,second [,microsec]</span>
+
+<span class="sd">    :param utc: list of year,month,day,hour,minute,second</span>
+<span class="sd">    :returns: number of seconds since the epoch 0001-01-01</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">utc2</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">utc</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">utc</span><span class="p">)</span><span class="o">&lt;</span><span class="mi">7</span><span class="p">:</span>
+        <span class="n">utc2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">utc2micro</span><span class="p">(</span><span class="o">*</span><span class="n">utc2</span><span class="p">)</span><span class="o">/</span><span class="mi">10</span><span class="o">**</span><span class="mi">6</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="utc2unix"><a class="viewcode-back" href="../../../modules.html#adapya.base.dtconv.utc2unix">[docs]</a><span class="k">def</span> <span class="nf">utc2unix</span><span class="p">(</span><span class="o">*</span><span class="n">utc</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; same as sec2utc() only with epoch 1970-01-01&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">utc2sec</span><span class="p">(</span><span class="o">*</span><span class="n">utc</span><span class="p">)</span><span class="o">-</span><span class="n">SECS1970</span></div>
+
+
+<div class="viewcode-block" id="utc2xts"><a class="viewcode-back" href="../../../modules.html#adapya.base.dtconv.utc2xts">[docs]</a><span class="k">def</span> <span class="nf">utc2xts</span><span class="p">(</span><span class="o">*</span><span class="n">secmsec</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Convert list composed of year,month,day,hour,minute,second,microsecond</span>
+<span class="sd">    to XTIMESTAMP (UNIXTIME in microsecond precision)</span>
+
+<span class="sd">    :param secmsec: list of year,month,day,hour,minute,second,microsecond</span>
+<span class="sd">    :returns: number of microseconds since the epoch 1970-01-01 00:00:00.000000</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">utc2micro</span><span class="p">(</span><span class="o">*</span><span class="n">secmsec</span><span class="p">)</span><span class="o">-</span><span class="n">MIC1970</span></div>
+
+
+<div class="viewcode-block" id="xts2utc"><a class="viewcode-back" href="../../../modules.html#adapya.base.dtconv.xts2utc">[docs]</a><span class="k">def</span> <span class="nf">xts2utc</span><span class="p">(</span><span class="n">microseconds</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; same as micro2utc() only with epoch 1970-01-01 &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">micro2utc</span><span class="p">(</span><span class="n">microseconds</span><span class="o">+</span><span class="n">MIC1970</span><span class="p">)</span></div>
+
+<span class="c1">#</span>
+<span class="c1"># --- Adabas datetime specific conversions ---</span>
+<span class="c1">#</span>
+<span class="c1"># from DATE</span>
+<span class="c1">#</span>
+
+<span class="k">def</span> <span class="nf">date2datetime</span><span class="p">(</span><span class="n">year</span><span class="p">,</span><span class="n">month</span><span class="p">,</span><span class="n">day</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">year</span><span class="p">,</span><span class="n">month</span><span class="p">,</span><span class="n">day</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">date2timestamp</span><span class="p">(</span><span class="n">year</span><span class="p">,</span><span class="n">month</span><span class="p">,</span><span class="n">day</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">year</span><span class="p">,</span><span class="n">month</span><span class="p">,</span><span class="n">day</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+
+<div class="viewcode-block" id="date2natdate"><a class="viewcode-back" href="../../../modules.html#adapya.base.dtconv.date2natdate">[docs]</a><span class="k">def</span> <span class="nf">date2natdate</span><span class="p">(</span><span class="n">year</span><span class="p">,</span><span class="n">month</span><span class="p">,</span><span class="n">day</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Convert a gregorian date to a natdate integer</span>
+
+<span class="sd">    No checking is done for valid dates. Natural</span>
+<span class="sd">    does not allow dates earlier than 1582-01-01</span>
+
+<span class="sd">    &gt;&gt;&gt; date2natdate(1,1,1)</span>
+<span class="sd">    365</span>
+<span class="sd">    &gt;&gt;&gt; date2natdate(0,1,1)</span>
+<span class="sd">    -1</span>
+<span class="sd">    &gt;&gt;&gt; date2natdate(0,1,2)</span>
+<span class="sd">    0</span>
+<span class="sd">    &gt;&gt;&gt; date2natdate(1900,1,1)</span>
+<span class="sd">    693960</span>
+<span class="sd">    &gt;&gt;&gt; date2natdate(1582,1,1)</span>
+<span class="sd">    577813</span>
+<span class="sd">    &gt;&gt;&gt; date2natdate(1970,1,1)</span>
+<span class="sd">    719527</span>
+<span class="sd">    &gt;&gt;&gt; date2natdate(2000,1,1)</span>
+<span class="sd">    730484</span>
+<span class="sd">    &gt;&gt;&gt; date2natdate(2008,12,31)</span>
+<span class="sd">    733771</span>
+<span class="sd">    &gt;&gt;&gt; date2natdate(9999,12,31)</span>
+<span class="sd">    3652423</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">greg2jdn</span><span class="p">(</span><span class="n">year</span><span class="p">,</span><span class="n">month</span><span class="p">,</span><span class="n">day</span><span class="p">)</span><span class="o">-</span><span class="n">RATADIE</span><span class="o">+</span><span class="mi">365</span></div>
+
+
+<span class="k">def</span> <span class="nf">date2nattime</span><span class="p">(</span><span class="n">year</span><span class="p">,</span><span class="n">month</span><span class="p">,</span><span class="n">day</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">date2natdate</span><span class="p">(</span><span class="n">year</span><span class="p">,</span><span class="n">month</span><span class="p">,</span><span class="n">day</span><span class="p">)</span> <span class="o">*</span> <span class="n">DAYSECS</span> <span class="o">*</span> <span class="mi">10</span>
+
+<span class="k">def</span> <span class="nf">date2unixtime</span><span class="p">(</span><span class="n">year</span><span class="p">,</span><span class="n">month</span><span class="p">,</span><span class="n">day</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">utc2unix</span><span class="p">(</span><span class="n">date2timestamp</span><span class="p">(</span><span class="n">year</span><span class="p">,</span><span class="n">month</span><span class="p">,</span><span class="n">day</span><span class="p">))</span>
+
+<span class="k">def</span> <span class="nf">date2xtimestamp</span><span class="p">(</span><span class="n">year</span><span class="p">,</span><span class="n">month</span><span class="p">,</span><span class="n">day</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">utc2xts</span><span class="p">(</span><span class="n">date2timestamp</span><span class="p">(</span><span class="n">year</span><span class="p">,</span><span class="n">month</span><span class="p">,</span><span class="n">day</span><span class="p">))</span>
+
+
+<span class="c1">#</span>
+<span class="c1"># from datetime</span>
+<span class="c1">#</span>
+
+<span class="k">def</span> <span class="nf">datetime2date</span><span class="p">(</span><span class="n">year</span><span class="p">,</span><span class="n">month</span><span class="p">,</span><span class="n">day</span><span class="p">,</span><span class="n">hour</span><span class="p">,</span><span class="n">minute</span><span class="p">,</span><span class="n">second</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">year</span><span class="p">,</span><span class="n">month</span><span class="p">,</span><span class="n">day</span>
+
+<span class="k">def</span> <span class="nf">datetime2time</span><span class="p">(</span><span class="n">year</span><span class="p">,</span><span class="n">month</span><span class="p">,</span><span class="n">day</span><span class="p">,</span><span class="n">hour</span><span class="p">,</span><span class="n">minute</span><span class="p">,</span><span class="n">second</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">hour</span><span class="p">,</span><span class="n">minute</span><span class="p">,</span><span class="n">second</span>
+
+<span class="k">def</span> <span class="nf">datetime2timestamp</span><span class="p">(</span><span class="n">year</span><span class="p">,</span><span class="n">month</span><span class="p">,</span><span class="n">day</span><span class="p">,</span><span class="n">hour</span><span class="p">,</span><span class="n">minute</span><span class="p">,</span><span class="n">second</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">year</span><span class="p">,</span><span class="n">month</span><span class="p">,</span><span class="n">day</span><span class="p">,</span><span class="n">hour</span><span class="p">,</span><span class="n">minute</span><span class="p">,</span><span class="n">second</span><span class="p">,</span><span class="mi">0</span>
+
+<span class="k">def</span> <span class="nf">datetime2natdate</span><span class="p">(</span><span class="n">year</span><span class="p">,</span><span class="n">month</span><span class="p">,</span><span class="n">day</span><span class="p">,</span><span class="n">hour</span><span class="p">,</span><span class="n">minute</span><span class="p">,</span><span class="n">second</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">date2natdate</span><span class="p">(</span><span class="n">year</span><span class="p">,</span><span class="n">month</span><span class="p">,</span><span class="n">day</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">datetime2nattime</span><span class="p">(</span><span class="n">year</span><span class="p">,</span><span class="n">month</span><span class="p">,</span><span class="n">day</span><span class="p">,</span><span class="n">hour</span><span class="p">,</span><span class="n">minute</span><span class="p">,</span><span class="n">second</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">utc2nattime</span><span class="p">(</span><span class="n">year</span><span class="p">,</span><span class="n">month</span><span class="p">,</span><span class="n">day</span><span class="p">,</span><span class="n">hour</span><span class="p">,</span><span class="n">minute</span><span class="p">,</span><span class="n">second</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">datetime2unixtime</span><span class="p">(</span><span class="n">year</span><span class="p">,</span><span class="n">month</span><span class="p">,</span><span class="n">day</span><span class="p">,</span><span class="n">hour</span><span class="p">,</span><span class="n">minute</span><span class="p">,</span><span class="n">second</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">utc2unix</span><span class="p">(</span><span class="n">year</span><span class="p">,</span><span class="n">month</span><span class="p">,</span><span class="n">day</span><span class="p">,</span><span class="n">hour</span><span class="p">,</span><span class="n">minute</span><span class="p">,</span><span class="n">second</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">datetime2xtimestamp</span><span class="p">(</span><span class="n">year</span><span class="p">,</span><span class="n">month</span><span class="p">,</span><span class="n">day</span><span class="p">,</span><span class="n">hour</span><span class="p">,</span><span class="n">minute</span><span class="p">,</span><span class="n">second</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">datetime2xtimestamp</span><span class="p">(</span><span class="n">year</span><span class="p">,</span><span class="n">month</span><span class="p">,</span><span class="n">day</span><span class="p">,</span><span class="n">hour</span><span class="p">,</span><span class="n">minute</span><span class="p">,</span><span class="n">second</span><span class="p">)</span> <span class="o">*</span> <span class="mi">10</span><span class="o">**</span><span class="mi">6</span>
+
+<span class="c1">#</span>
+<span class="c1"># from timestamp</span>
+<span class="c1">#</span>
+
+<span class="k">def</span> <span class="nf">timestamp2date</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">m</span><span class="p">,</span><span class="n">d</span><span class="p">,</span><span class="n">h</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">s</span><span class="p">,</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">y</span><span class="p">,</span><span class="n">m</span><span class="p">,</span><span class="n">d</span>
+
+<span class="k">def</span> <span class="nf">timestamp2datetime</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">m</span><span class="p">,</span><span class="n">d</span><span class="p">,</span><span class="n">h</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">s</span><span class="p">,</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">y</span><span class="p">,</span><span class="n">m</span><span class="p">,</span><span class="n">d</span><span class="p">,</span><span class="n">h</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">s</span>
+
+<span class="k">def</span> <span class="nf">timestamp2natdate</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">m</span><span class="p">,</span><span class="n">d</span><span class="p">,</span><span class="n">h</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">s</span><span class="p">,</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">date2natdate</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">m</span><span class="p">,</span><span class="n">d</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">timestamp2nattime</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">m</span><span class="p">,</span><span class="n">d</span><span class="p">,</span><span class="n">h</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">s</span><span class="p">,</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">utc2nattime</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">m</span><span class="p">,</span><span class="n">d</span><span class="p">,</span><span class="n">h</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">s</span><span class="p">,</span><span class="n">x</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">timestamp2unixtime</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">m</span><span class="p">,</span><span class="n">d</span><span class="p">,</span><span class="n">h</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">s</span><span class="p">,</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">utc2unix</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">m</span><span class="p">,</span><span class="n">d</span><span class="p">,</span><span class="n">h</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">s</span><span class="p">,</span><span class="n">x</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">timestamp2xtimestamp</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">m</span><span class="p">,</span><span class="n">d</span><span class="p">,</span><span class="n">h</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">s</span><span class="p">,</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">utc2xts</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">m</span><span class="p">,</span><span class="n">d</span><span class="p">,</span><span class="n">h</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">s</span><span class="p">,</span><span class="n">x</span><span class="p">)</span>
+
+<span class="c1">#</span>
+<span class="c1"># from natdate</span>
+<span class="c1">#</span>
+
+<span class="k">def</span> <span class="nf">natdate2date</span><span class="p">(</span><span class="n">nd</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">jdn2greg</span><span class="p">(</span><span class="n">nd</span><span class="o">+</span><span class="n">RATADIE</span><span class="o">-</span><span class="mi">365</span><span class="p">)</span>
+
+<div class="viewcode-block" id="natdate2nattime"><a class="viewcode-back" href="../../../modules.html#adapya.base.dtconv.natdate2nattime">[docs]</a><span class="k">def</span> <span class="nf">natdate2nattime</span><span class="p">(</span><span class="n">nd</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; convert NATDATE counting days since Jan. 2, 0000 to</span>
+<span class="sd">        NATTIME Value in 10th of second precision</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">nd</span><span class="o">*</span><span class="n">DAYSECS</span><span class="o">*</span><span class="mi">10</span></div>
+
+
+<span class="c1">#</span>
+<span class="c1"># from nattime</span>
+<span class="c1">#</span>
+
+<span class="k">def</span> <span class="nf">nattime2date</span><span class="p">(</span><span class="n">nt</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">natdate2date</span><span class="p">(</span><span class="n">nt</span> <span class="o">//</span> <span class="p">(</span><span class="n">DAYSECS</span><span class="o">*</span><span class="mi">10</span><span class="p">))</span>
+
+<span class="k">def</span> <span class="nf">nattime2datetime</span><span class="p">(</span><span class="n">nt</span><span class="p">):</span>
+    <span class="n">y</span><span class="p">,</span><span class="n">m</span><span class="p">,</span><span class="n">d</span><span class="p">,</span><span class="n">h</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">s</span><span class="p">,</span><span class="n">_</span> <span class="o">=</span> <span class="n">nattime2utc</span><span class="p">(</span><span class="n">nt</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">y</span><span class="p">,</span><span class="n">m</span><span class="p">,</span><span class="n">d</span><span class="p">,</span><span class="n">h</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">s</span>
+
+<span class="k">def</span> <span class="nf">nattime2timestamp</span><span class="p">(</span><span class="n">nt</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">nattime2utc</span><span class="p">(</span><span class="n">nt</span><span class="p">)</span>
+
+<div class="viewcode-block" id="nattime2natdate"><a class="viewcode-back" href="../../../modules.html#adapya.base.dtconv.nattime2natdate">[docs]</a><span class="k">def</span> <span class="nf">nattime2natdate</span><span class="p">(</span><span class="n">nt</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Convert NATTIME Value in 10th of second precision to</span>
+<span class="sd">    NATDATE couning days since Jan. 2, 0000</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">nt</span><span class="o">//</span><span class="p">(</span><span class="n">DAYSECS</span><span class="o">*</span><span class="mi">10</span><span class="p">)</span></div>
+
+<span class="c1">#</span>
+<span class="c1"># from xtimestamp</span>
+<span class="c1">#</span>
+<div class="viewcode-block" id="xtimestamp2timestamp"><a class="viewcode-back" href="../../../modules.html#adapya.base.dtconv.xtimestamp2timestamp">[docs]</a><span class="k">def</span> <span class="nf">xtimestamp2timestamp</span><span class="p">(</span><span class="n">mics</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    &gt;&gt;&gt; xtimestamp2timestamp(0)</span>
+<span class="sd">    (1970, 1, 1, 0, 0, 0, 0)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">xts2utc</span><span class="p">(</span><span class="n">mics</span><span class="p">)</span></div>
+
+<span class="c1">#</span>
+<span class="c1"># simple datetime tuple to string conversions</span>
+<span class="c1">#</span>
+<span class="n">DTF</span><span class="o">=</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span>
+<span class="n">DTN</span><span class="o">=</span><span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">%H%M%S&quot;</span>
+
+<div class="viewcode-block" id="dt2strf"><a class="viewcode-back" href="../../../modules.html#adapya.base.dtconv.dt2strf">[docs]</a><span class="k">def</span> <span class="nf">dt2strf</span><span class="p">(</span><span class="o">*</span><span class="n">dt</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    &gt;&gt;&gt; dt2strf( 2010,4,30, 11, 55, 13)</span>
+<span class="sd">    &#39;2010-04-30 11:55:13&#39;</span>
+
+<span class="sd">    &gt;&gt;&gt; d1=(2010,1,2,11,44,55)</span>
+<span class="sd">    &gt;&gt;&gt; dt2strf( *d1)</span>
+<span class="sd">    &#39;2010-01-02 11:44:55&#39;</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="o">*</span><span class="n">dt</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">d</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">DTF</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ts2strf"><a class="viewcode-back" href="../../../modules.html#adapya.base.dtconv.ts2strf">[docs]</a><span class="k">def</span> <span class="nf">ts2strf</span><span class="p">(</span><span class="o">*</span><span class="n">ts</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    &gt;&gt;&gt; ts2strf( 2010,4,30, 11, 55, 13, 999999)</span>
+<span class="sd">    &#39;2010-04-30 11:55:13.999999&#39;</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="o">*</span><span class="n">ts</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">d</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">DTF</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;.</span><span class="si">%06d</span><span class="s1">&#39;</span><span class="o">%</span><span class="n">d</span><span class="o">.</span><span class="n">microsecond</span></div>
+
+
+<div class="viewcode-block" id="dt2str"><a class="viewcode-back" href="../../../modules.html#adapya.base.dtconv.dt2str">[docs]</a><span class="k">def</span> <span class="nf">dt2str</span><span class="p">(</span><span class="o">*</span><span class="n">dt</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; make a datetime string from a datetime tuple</span>
+
+<span class="sd">    &gt;&gt;&gt; dt2str( 2010,4,30, 11,55,13)</span>
+<span class="sd">    &#39;20100430115513&#39;</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="o">*</span><span class="n">dt</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">d</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">DTN</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="str2dt"><a class="viewcode-back" href="../../../modules.html#adapya.base.dtconv.str2dt">[docs]</a><span class="k">def</span> <span class="nf">str2dt</span><span class="p">(</span><span class="n">ds</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; make a datetime tuple from a datetime string or number</span>
+
+<span class="sd">    &gt;&gt;&gt; str2dt( &#39;20160229115513&#39; )</span>
+<span class="sd">    (2016, 2, 29, 11, 55, 13)</span>
+<span class="sd">    &gt;&gt;&gt; str2dt( b&#39;20160301235513&#39; )</span>
+<span class="sd">    (2016, 3, 1, 23, 55, 13)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="p">(</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">bytearray</span><span class="p">,</span> <span class="nb">str</span><span class="p">)):</span>
+        <span class="n">ds</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>   <span class="c1"># make it a string if number</span>
+
+    <span class="n">zero</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;0&#39;</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="p">(</span><span class="nb">bytes</span><span class="p">,</span><span class="nb">bytearray</span><span class="p">))</span> <span class="k">else</span> <span class="s1">&#39;0&#39;</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">14</span><span class="p">:</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">zero</span><span class="o">*</span><span class="p">(</span><span class="mi">14</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">ds</span><span class="p">))</span><span class="o">+</span><span class="n">ds</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span> <span class="o">==</span> <span class="mi">14</span><span class="p">:</span>                                       <span class="c1"># Datetime</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">zero</span><span class="o">*</span><span class="p">(</span><span class="mi">14</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">ds</span><span class="p">))</span><span class="o">+</span><span class="n">ds</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">4</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="mi">4</span><span class="p">:</span><span class="mi">6</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="mi">6</span><span class="p">:</span><span class="mi">8</span><span class="p">]),</span> \
+               <span class="nb">int</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="mi">8</span><span class="p">:</span><span class="mi">10</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="mi">10</span><span class="p">:</span><span class="mi">12</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="mi">12</span><span class="p">:</span><span class="mi">14</span><span class="p">])</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span> <span class="o">==</span> <span class="mi">20</span><span class="p">:</span>                                     <span class="c1"># Timestamp</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">4</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="mi">4</span><span class="p">:</span><span class="mi">6</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="mi">6</span><span class="p">:</span><span class="mi">8</span><span class="p">]),</span> \
+               <span class="nb">int</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="mi">8</span><span class="p">:</span><span class="mi">10</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="mi">10</span><span class="p">:</span><span class="mi">12</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="mi">12</span><span class="p">:</span><span class="mi">14</span><span class="p">]),</span> \
+               <span class="nb">int</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="mi">14</span><span class="p">:</span><span class="mi">20</span><span class="p">])</span></div>
+
+
+<span class="c1">#</span>
+<span class="c1"># test some functions</span>
+<span class="c1">#</span>
+
+<div class="viewcode-block" id="testgreg2jdn"><a class="viewcode-back" href="../../../modules.html#adapya.base.dtconv.testgreg2jdn">[docs]</a><span class="k">def</span> <span class="nf">testgreg2jdn</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Conversion of seconds to gregorian date&quot;&quot;&quot;</span>
+
+    <span class="n">samples</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="c1"># year, month, day, secs</span>
+    <span class="c1">#</span>
+    <span class="p">(</span>   <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0000000000</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3124137600</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3129235200</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">6279811200</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">6284908800</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">300</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">9435484800</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">300</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">9440582400</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">400</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">12591158400</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">400</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">12596342400</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">500</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">15746918400</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">500</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">15752016000</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">600</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">18902592000</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">600</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">18907689600</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">700</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">22058265600</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">700</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">22063363200</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">800</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">25213939200</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">800</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">25219123200</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">900</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">28369699200</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">900</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">28374796800</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">1000</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">31525372800</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">1000</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">31530470400</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">1100</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">34681046400</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">1100</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">34686144000</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">1200</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">37836720000</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">1200</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">37841904000</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">1300</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">40992480000</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">1300</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">40997577600</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">1400</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">44148153600</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">1400</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">44153251200</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">47303827200</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">47308924800</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">1582</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">49891507200</span><span class="p">),</span>       <span class="c1"># 577448*DAYTICS),</span>
+    <span class="c1">#</span>
+    <span class="p">(</span> <span class="mi">1600</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">50459500800</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">1600</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">50464684800</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">1700</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">53615260800</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">1700</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">53620358400</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">1800</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">56770934400</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">1800</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">56776032000</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">1900</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">59926608000</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">1900</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">59931705600</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">1970</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">62135596800</span><span class="p">),</span>       <span class="c1"># 719162*DAYTICS</span>
+    <span class="p">(</span> <span class="mi">2000</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">63082281600</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">2000</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">63087465600</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">2100</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">66238041600</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">2100</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">66243139200</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">2200</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">69393715200</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">2200</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">69398812800</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">2300</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">72549388800</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">2300</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">72554486400</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">2400</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">75705062400</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">2400</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">75710246400</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">2500</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">78860822400</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">2500</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">78865920000</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">2600</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">82016496000</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">2600</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">82021593600</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">2700</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">85172169600</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">2700</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">85177267200</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">2800</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">88327843200</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">2800</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">88333027200</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">2900</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">91483603200</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">2900</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">91488700800</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">3000</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">94639276800</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">3000</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">94644374400</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">1</span> <span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">1601</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">50491123200</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">1899</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">31</span><span class="p">,</span> <span class="mi">59926521600</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">1904</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">60052752000</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">1970</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">62135596800</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">2001</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">63113904000</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">9900</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">312387321600</span><span class="p">),</span>
+    <span class="p">(</span> <span class="mi">9999</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">31</span><span class="p">,</span> <span class="mi">315537811200</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">y</span><span class="p">,</span><span class="n">m</span><span class="p">,</span><span class="n">d</span><span class="p">,</span><span class="n">secs</span> <span class="ow">in</span> <span class="n">samples</span><span class="p">:</span>
+        <span class="n">gy</span><span class="p">,</span> <span class="n">gm</span><span class="p">,</span> <span class="n">gd</span> <span class="o">=</span> <span class="n">jdn2greg</span><span class="p">(</span><span class="n">secs</span><span class="o">//</span><span class="n">DAYSECS</span> <span class="o">+</span> <span class="n">RATADIE</span><span class="p">)</span>
+
+        <span class="n">gsec</span> <span class="o">=</span> <span class="p">(</span><span class="n">greg2jdn</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">m</span><span class="p">,</span><span class="n">d</span><span class="p">)</span><span class="o">-</span><span class="n">RATADIE</span><span class="p">)</span> <span class="o">*</span> <span class="n">DAYSECS</span>
+        <span class="c1"># print   Y  m  d  secs  days          natdate            nattime</span>
+        <span class="c1"># print(  y, m, d, secs, secs//DAYSECS, secs//DAYSECS+365, (secs+DAYSECS*365)*10 )</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">secs</span> <span class="o">==</span> <span class="n">gsec</span>
+            <span class="k">assert</span>    <span class="n">y</span> <span class="o">==</span> <span class="n">gy</span>
+            <span class="k">assert</span>    <span class="n">m</span> <span class="o">==</span> <span class="n">gm</span>
+            <span class="k">assert</span>    <span class="n">d</span> <span class="o">==</span> <span class="n">gd</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;datetime assertion error:&quot;</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span><span class="n">m</span><span class="p">,</span><span class="n">d</span><span class="p">,</span><span class="n">secs</span><span class="p">,</span> <span class="s1">&#39;vs.&#39;</span><span class="p">,</span> <span class="n">gy</span><span class="p">,</span><span class="n">gm</span><span class="p">,</span><span class="n">gd</span><span class="p">,</span><span class="n">gsec</span><span class="p">)</span></div>
+
+<span class="c1">#</span>
+<span class="n">time0</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">clockbase0</span> <span class="o">=</span> <span class="mi">0</span>
+
+<div class="viewcode-block" id="clock_time"><a class="viewcode-back" href="../../../modules.html#adapya.base.dtconv.clock_time">[docs]</a><span class="k">def</span> <span class="nf">clock_time</span><span class="p">(</span><span class="n">resync</span><span class="o">=</span><span class="mi">300</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;:param resync: interval for resyncing with time()</span>
+<span class="sd">    :returns: high resolution time</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">time0</span><span class="p">,</span> <span class="n">clockbase0</span>
+
+    <span class="n">clock1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">clock</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">time0</span> <span class="ow">or</span> <span class="p">(</span><span class="n">resync</span> <span class="ow">and</span> <span class="n">resync</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">clock1</span><span class="o">+</span><span class="n">clockbase0</span> <span class="o">-</span> <span class="n">time0</span><span class="p">)):</span>
+        <span class="n">time0</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+        <span class="k">while</span> <span class="mi">1</span><span class="p">:</span>                   <span class="c1"># until t=time() changes</span>
+            <span class="n">clock1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">clock</span><span class="p">()</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">t</span> <span class="o">!=</span> <span class="n">time0</span><span class="p">:</span>
+                <span class="n">time0</span><span class="p">,</span> <span class="n">clockbase0</span> <span class="o">=</span> <span class="n">t</span><span class="p">,</span> <span class="n">t</span><span class="o">-</span><span class="n">clock1</span>
+                <span class="c1"># print( &#39;clock_time()&#39;, datetime.fromtimestamp(t))</span>
+                <span class="k">break</span>
+
+    <span class="k">return</span> <span class="n">clock1</span><span class="o">+</span><span class="n">clockbase0</span></div>
+
+<span class="k">def</span> <span class="nf">demo_clock_time</span><span class="p">():</span>
+    <span class="c1"># show differences in clock_time to time() when time() changes</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">t1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100000</span><span class="p">):</span>
+        <span class="n">c</span><span class="p">,</span><span class="n">t</span> <span class="o">=</span> <span class="n">clock_time</span><span class="p">(),</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">t</span> <span class="o">!=</span> <span class="n">t1</span><span class="p">:</span>
+            <span class="n">t1</span><span class="o">=</span><span class="n">t</span>
+            <span class="n">a</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span> <span class="p">)</span>
+    <span class="k">for</span> <span class="n">c</span><span class="p">,</span><span class="n">t</span>  <span class="ow">in</span> <span class="n">a</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">c</span><span class="p">),</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">doctest</span>
+    <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">()</span>
+
+<span class="c1"># $Date: 2017-05-17 20:51:16 +0200 (Mi, 17 Mai 2017) $</span>
+<span class="c1"># $Rev: 768 $</span>
+<span class="c1">#</span>
+<span class="c1">#  Copyright 2004-ThisYear Software AG</span>
+<span class="c1">#</span>
+<span class="c1">#  Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1">#  you may not use this file except in compliance with the License.</span>
+<span class="c1">#  You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#      http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1">#  Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1">#  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1">#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1">#  See the License for the specific language governing permissions and</span>
+<span class="c1">#  limitations under the License.</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2004-2023, software AG.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

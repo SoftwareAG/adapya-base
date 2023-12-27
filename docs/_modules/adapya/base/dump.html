@@ -1,0 +1,756 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>adapya.base.dump &mdash; adapya-base 1.3.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+    <link rel="shortcut icon" href="../../../_static/SAG2015.ico"/>
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> adapya-base
+          
+
+          
+            
+            <img src="../../../_static/SAG2015.ico" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.3.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installing.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide.html">Using adapya-base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../scripts.html">Scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">Package Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../indices.html">Indices</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">adapya-base</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>adapya.base.dump</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for adapya.base.dump</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">dump - Buffer hex display functions</span>
+<span class="sd">===================================</span>
+
+<span class="sd">This module contains buffer storage display functions</span>
+
+<span class="sd">- most notably dump() used for logging buffers</span>
+<span class="sd">- classes/methods for reversing readable SYSUDUMP data</span>
+<span class="sd">  into virtual storage</span>
+<span class="sd">- diffdump for printing differences in buffers using difflib</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>          <span class="c1"># PY3</span>
+
+<span class="kn">import</span> <span class="nn">binascii</span>
+<span class="kn">from</span> <span class="nn">binascii</span> <span class="kn">import</span> <span class="n">unhexlify</span>
+<span class="kn">import</span> <span class="nn">struct</span>
+<span class="kn">import</span> <span class="nn">string</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+
+<span class="n">benco</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">getdefaultencoding</span><span class="p">()</span>
+<span class="k">if</span> <span class="n">benco</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">,</span> <span class="s1">&#39;cp1252&#39;</span><span class="p">,</span> <span class="s1">&#39;latin_1&#39;</span><span class="p">):</span>
+    <span class="n">benco</span> <span class="o">=</span> <span class="s1">&#39;latin_1&#39;</span>
+
+<span class="c1">#</span>
+<span class="c1"># set up printable ASCII table for translate()</span>
+<span class="c1">#</span>
+
+<span class="c1"># ASCII printables</span>
+<span class="n">ascpribles</span><span class="o">=</span>\
+      <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span>  <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span>\
+      <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span>  <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span>\
+      <span class="sa">b</span><span class="s1">&#39; &#39;</span> <span class="sa">b</span><span class="s1">&#39;!&#39;</span> <span class="sa">b</span><span class="s1">&#39;&quot;&#39;</span> <span class="sa">b</span><span class="s1">&#39;#&#39;</span> <span class="sa">b</span><span class="s1">&#39;$&#39;</span> <span class="sa">b</span><span class="s1">&#39;%&#39;</span> <span class="sa">b</span><span class="s1">&#39;&amp;&#39;</span> <span class="sa">b</span><span class="s2">&quot;&#39;&quot;</span> <span class="sa">b</span><span class="s1">&#39;(&#39;</span> <span class="sa">b</span><span class="s1">&#39;)&#39;</span> <span class="sa">b</span><span class="s1">&#39;*&#39;</span> <span class="sa">b</span><span class="s1">&#39;+&#39;</span> <span class="sa">b</span><span class="s1">&#39;,&#39;</span>  <span class="sa">b</span><span class="s1">&#39;-&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;/&#39;</span>\
+      <span class="sa">b</span><span class="s1">&#39;0&#39;</span> <span class="sa">b</span><span class="s1">&#39;1&#39;</span> <span class="sa">b</span><span class="s1">&#39;2&#39;</span> <span class="sa">b</span><span class="s1">&#39;3&#39;</span> <span class="sa">b</span><span class="s1">&#39;4&#39;</span> <span class="sa">b</span><span class="s1">&#39;5&#39;</span> <span class="sa">b</span><span class="s1">&#39;6&#39;</span> <span class="sa">b</span><span class="s1">&#39;7&#39;</span> <span class="sa">b</span><span class="s1">&#39;8&#39;</span> <span class="sa">b</span><span class="s1">&#39;9&#39;</span> <span class="sa">b</span><span class="s1">&#39;:&#39;</span> <span class="sa">b</span><span class="s1">&#39;;&#39;</span> <span class="sa">b</span><span class="s1">&#39;&lt;&#39;</span>  <span class="sa">b</span><span class="s1">&#39;=&#39;</span> <span class="sa">b</span><span class="s1">&#39;&gt;&#39;</span> <span class="sa">b</span><span class="s1">&#39;?&#39;</span>\
+      <span class="sa">b</span><span class="s1">&#39;@&#39;</span> <span class="sa">b</span><span class="s1">&#39;A&#39;</span> <span class="sa">b</span><span class="s1">&#39;B&#39;</span> <span class="sa">b</span><span class="s1">&#39;C&#39;</span> <span class="sa">b</span><span class="s1">&#39;D&#39;</span> <span class="sa">b</span><span class="s1">&#39;E&#39;</span> <span class="sa">b</span><span class="s1">&#39;F&#39;</span> <span class="sa">b</span><span class="s1">&#39;G&#39;</span> <span class="sa">b</span><span class="s1">&#39;H&#39;</span> <span class="sa">b</span><span class="s1">&#39;I&#39;</span> <span class="sa">b</span><span class="s1">&#39;J&#39;</span> <span class="sa">b</span><span class="s1">&#39;K&#39;</span> <span class="sa">b</span><span class="s1">&#39;L&#39;</span>  <span class="sa">b</span><span class="s1">&#39;M&#39;</span> <span class="sa">b</span><span class="s1">&#39;N&#39;</span> <span class="sa">b</span><span class="s1">&#39;O&#39;</span>\
+      <span class="sa">b</span><span class="s1">&#39;P&#39;</span> <span class="sa">b</span><span class="s1">&#39;Q&#39;</span> <span class="sa">b</span><span class="s1">&#39;R&#39;</span> <span class="sa">b</span><span class="s1">&#39;S&#39;</span> <span class="sa">b</span><span class="s1">&#39;T&#39;</span> <span class="sa">b</span><span class="s1">&#39;U&#39;</span> <span class="sa">b</span><span class="s1">&#39;V&#39;</span> <span class="sa">b</span><span class="s1">&#39;W&#39;</span> <span class="sa">b</span><span class="s1">&#39;X&#39;</span> <span class="sa">b</span><span class="s1">&#39;Y&#39;</span> <span class="sa">b</span><span class="s1">&#39;Z&#39;</span> <span class="sa">b</span><span class="s1">&#39;[&#39;</span> <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span> <span class="sa">b</span><span class="s1">&#39;]&#39;</span> <span class="sa">b</span><span class="s1">&#39;^&#39;</span> <span class="sa">b</span><span class="s1">&#39;_&#39;</span>\
+      <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;a&#39;</span> <span class="sa">b</span><span class="s1">&#39;b&#39;</span> <span class="sa">b</span><span class="s1">&#39;c&#39;</span> <span class="sa">b</span><span class="s1">&#39;d&#39;</span> <span class="sa">b</span><span class="s1">&#39;e&#39;</span> <span class="sa">b</span><span class="s1">&#39;f&#39;</span> <span class="sa">b</span><span class="s1">&#39;g&#39;</span> <span class="sa">b</span><span class="s1">&#39;h&#39;</span> <span class="sa">b</span><span class="s1">&#39;i&#39;</span> <span class="sa">b</span><span class="s1">&#39;j&#39;</span> <span class="sa">b</span><span class="s1">&#39;k&#39;</span> <span class="sa">b</span><span class="s1">&#39;l&#39;</span>  <span class="sa">b</span><span class="s1">&#39;m&#39;</span> <span class="sa">b</span><span class="s1">&#39;n&#39;</span> <span class="sa">b</span><span class="s1">&#39;o&#39;</span>\
+      <span class="sa">b</span><span class="s1">&#39;p&#39;</span> <span class="sa">b</span><span class="s1">&#39;q&#39;</span> <span class="sa">b</span><span class="s1">&#39;r&#39;</span> <span class="sa">b</span><span class="s1">&#39;s&#39;</span> <span class="sa">b</span><span class="s1">&#39;t&#39;</span> <span class="sa">b</span><span class="s1">&#39;u&#39;</span> <span class="sa">b</span><span class="s1">&#39;v&#39;</span> <span class="sa">b</span><span class="s1">&#39;w&#39;</span> <span class="sa">b</span><span class="s1">&#39;x&#39;</span> <span class="sa">b</span><span class="s1">&#39;y&#39;</span> <span class="sa">b</span><span class="s1">&#39;z&#39;</span> <span class="sa">b</span><span class="s1">&#39;{&#39;</span> <span class="sa">b</span><span class="s1">&#39;|&#39;</span>  <span class="sa">b</span><span class="s1">&#39;}&#39;</span> <span class="sa">b</span><span class="s1">&#39;~&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span>\
+      <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span>  <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span>\
+      <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span>  <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span>\
+      <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span>  <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span>\
+      <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span>  <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span>\
+      <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span>  <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span>\
+      <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span>  <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span>\
+      <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span>  <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span>\
+      <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span>  <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span>
+
+
+<span class="c1"># EBCDIC printables</span>
+<span class="n">ebcpribles</span><span class="o">=</span>\
+    <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span>\
+    <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span>\
+    <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span>\
+    <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span>\
+    <span class="sa">b</span><span class="s1">&#39; &#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;&lt;&#39;</span> <span class="sa">b</span><span class="s1">&#39;(&#39;</span> <span class="sa">b</span><span class="s1">&#39;+&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span>\
+    <span class="sa">b</span><span class="s1">&#39;&amp;&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;!&#39;</span> <span class="sa">b</span><span class="s1">&#39;$&#39;</span> <span class="sa">b</span><span class="s1">&#39;*&#39;</span> <span class="sa">b</span><span class="s1">&#39;)&#39;</span> <span class="sa">b</span><span class="s1">&#39;;&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span>\
+    <span class="sa">b</span><span class="s1">&#39;-&#39;</span> <span class="sa">b</span><span class="s1">&#39;/&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;,&#39;</span> <span class="sa">b</span><span class="s1">&#39;%&#39;</span> <span class="sa">b</span><span class="s1">&#39;_&#39;</span> <span class="sa">b</span><span class="s1">&#39;&gt;&#39;</span> <span class="sa">b</span><span class="s1">&#39;?&#39;</span>\
+    <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;:&#39;</span> <span class="sa">b</span><span class="s1">&#39;#&#39;</span> <span class="sa">b</span><span class="s1">&#39;@&#39;</span> <span class="sa">b</span><span class="s2">&quot;&#39;&quot;</span> <span class="sa">b</span><span class="s1">&#39;=&#39;</span> <span class="sa">b</span><span class="s1">&#39;&quot;&#39;</span>\
+    <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;a&#39;</span> <span class="sa">b</span><span class="s1">&#39;b&#39;</span> <span class="sa">b</span><span class="s1">&#39;c&#39;</span> <span class="sa">b</span><span class="s1">&#39;d&#39;</span> <span class="sa">b</span><span class="s1">&#39;e&#39;</span> <span class="sa">b</span><span class="s1">&#39;f&#39;</span> <span class="sa">b</span><span class="s1">&#39;g&#39;</span> <span class="sa">b</span><span class="s1">&#39;h&#39;</span> <span class="sa">b</span><span class="s1">&#39;i&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span>\
+    <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;j&#39;</span> <span class="sa">b</span><span class="s1">&#39;k&#39;</span> <span class="sa">b</span><span class="s1">&#39;l&#39;</span> <span class="sa">b</span><span class="s1">&#39;m&#39;</span> <span class="sa">b</span><span class="s1">&#39;n&#39;</span> <span class="sa">b</span><span class="s1">&#39;o&#39;</span> <span class="sa">b</span><span class="s1">&#39;p&#39;</span> <span class="sa">b</span><span class="s1">&#39;q&#39;</span> <span class="sa">b</span><span class="s1">&#39;r&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span>\
+    <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;s&#39;</span> <span class="sa">b</span><span class="s1">&#39;t&#39;</span> <span class="sa">b</span><span class="s1">&#39;u&#39;</span> <span class="sa">b</span><span class="s1">&#39;v&#39;</span> <span class="sa">b</span><span class="s1">&#39;w&#39;</span> <span class="sa">b</span><span class="s1">&#39;x&#39;</span> <span class="sa">b</span><span class="s1">&#39;y&#39;</span> <span class="sa">b</span><span class="s1">&#39;z&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span>\
+    <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span>\
+    <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;A&#39;</span> <span class="sa">b</span><span class="s1">&#39;B&#39;</span> <span class="sa">b</span><span class="s1">&#39;C&#39;</span> <span class="sa">b</span><span class="s1">&#39;D&#39;</span> <span class="sa">b</span><span class="s1">&#39;E&#39;</span> <span class="sa">b</span><span class="s1">&#39;F&#39;</span> <span class="sa">b</span><span class="s1">&#39;G&#39;</span> <span class="sa">b</span><span class="s1">&#39;H&#39;</span> <span class="sa">b</span><span class="s1">&#39;I&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span>\
+    <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;J&#39;</span> <span class="sa">b</span><span class="s1">&#39;K&#39;</span> <span class="sa">b</span><span class="s1">&#39;L&#39;</span> <span class="sa">b</span><span class="s1">&#39;M&#39;</span> <span class="sa">b</span><span class="s1">&#39;N&#39;</span> <span class="sa">b</span><span class="s1">&#39;O&#39;</span> <span class="sa">b</span><span class="s1">&#39;P&#39;</span> <span class="sa">b</span><span class="s1">&#39;Q&#39;</span> <span class="sa">b</span><span class="s1">&#39;R&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span>\
+    <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;S&#39;</span> <span class="sa">b</span><span class="s1">&#39;T&#39;</span> <span class="sa">b</span><span class="s1">&#39;U&#39;</span> <span class="sa">b</span><span class="s1">&#39;V&#39;</span> <span class="sa">b</span><span class="s1">&#39;W&#39;</span> <span class="sa">b</span><span class="s1">&#39;X&#39;</span> <span class="sa">b</span><span class="s1">&#39;Y&#39;</span> <span class="sa">b</span><span class="s1">&#39;Z&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span>\
+    <span class="sa">b</span><span class="s1">&#39;0&#39;</span> <span class="sa">b</span><span class="s1">&#39;1&#39;</span> <span class="sa">b</span><span class="s1">&#39;2&#39;</span> <span class="sa">b</span><span class="s1">&#39;3&#39;</span> <span class="sa">b</span><span class="s1">&#39;4&#39;</span> <span class="sa">b</span><span class="s1">&#39;5&#39;</span> <span class="sa">b</span><span class="s1">&#39;6&#39;</span> <span class="sa">b</span><span class="s1">&#39;7&#39;</span> <span class="sa">b</span><span class="s1">&#39;8&#39;</span> <span class="sa">b</span><span class="s1">&#39;9&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span> <span class="sa">b</span><span class="s1">&#39;.&#39;</span>
+
+<span class="n">priblesdict</span><span class="o">=</span><span class="p">{</span>
+    <span class="c1"># print tables for other ebcdict codepages may be added dynamically</span>
+    <span class="p">}</span>
+
+<span class="c1"># If the system supports a full single byte character set (rather than</span>
+<span class="c1"># &#39;ascii&#39;) make a translate table that contains special characters too.</span>
+<span class="c1"># This is usualy enabled in lib/site.py where the encoding is gotten</span>
+<span class="c1"># from locale.getdefaultlocale()</span>
+<span class="c1"># &#39;cp037&#39; is used as the corresponding Latin1 EBCDIC code page</span>
+
+<span class="k">def</span> <span class="nf">getprible</span><span class="p">(</span><span class="n">codec</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">codec</span> <span class="ow">in</span> <span class="n">priblesdict</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">priblesdict</span><span class="p">[</span><span class="n">codec</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">getdefaultencoding</span><span class="p">()</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;cp1252&#39;</span><span class="p">,</span> <span class="s1">&#39;latin_1&#39;</span><span class="p">):</span>
+            <span class="n">tbuf</span><span class="o">=</span><span class="n">adapya</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">Abuf</span><span class="p">(</span><span class="mi">256</span><span class="p">)</span>
+            <span class="n">tbuf</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">32</span><span class="p">]</span><span class="o">=</span><span class="mi">32</span><span class="o">*</span><span class="s1">&#39;.&#39;</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span><span class="mi">127</span><span class="p">):</span>
+                <span class="n">tbuf</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">=</span><span class="nb">chr</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="n">tbuf</span><span class="p">[</span><span class="mi">127</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;.&#39;</span>           <span class="c1"># &#39;DEL&#39;</span>
+            <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">getdefaultencoding</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;cp1252&#39;</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span><span class="mi">160</span><span class="p">):</span>
+                    <span class="n">tbuf</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">=</span><span class="nb">chr</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                <span class="c1"># windows has defined additional codepoints in the control</span>
+                <span class="c1"># character range 0x80-0x9f except the following:</span>
+                <span class="n">tbuf</span><span class="p">[</span><span class="mh">0x81</span><span class="p">]</span><span class="o">=</span><span class="n">tbuf</span><span class="p">[</span><span class="mh">0x8d</span><span class="p">]</span><span class="o">=</span><span class="n">tbuf</span><span class="p">[</span><span class="mh">0x8f</span><span class="p">]</span><span class="o">=</span><span class="n">tbuf</span><span class="p">[</span><span class="mh">0x90</span><span class="p">]</span><span class="o">=</span><span class="n">tbuf</span><span class="p">[</span><span class="mh">0x9d</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;.&#39;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">tbuf</span><span class="p">[</span><span class="mi">128</span><span class="p">:</span><span class="mi">160</span><span class="p">]</span><span class="o">=</span><span class="mi">32</span><span class="o">*</span><span class="s1">&#39;.&#39;</span>
+
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">160</span><span class="p">,</span><span class="mi">256</span><span class="p">):</span>
+                <span class="n">tbuf</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">=</span><span class="nb">chr</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span><span class="mi">128</span><span class="p">):</span>
+                <span class="n">tbuf</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">=</span><span class="nb">chr</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="n">ascpribles</span><span class="o">=</span><span class="n">tbuf</span><span class="p">[:]</span>   <span class="c1"># repackage as string for string.translate()</span>
+
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span><span class="mi">255</span><span class="p">):</span>
+                <span class="n">tbuf</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">=</span><span class="nb">chr</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="n">t2</span><span class="o">=</span><span class="n">tbuf</span><span class="p">[:]</span>
+            <span class="n">ustr</span> <span class="o">=</span> <span class="n">t2</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">codec</span><span class="p">)</span>
+
+            <span class="n">tbuf</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">256</span><span class="p">]</span> <span class="o">=</span> <span class="n">ustr</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">getdefaultencoding</span><span class="p">(),</span><span class="s1">&#39;replace&#39;</span><span class="p">)</span>
+            <span class="n">tbuf</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">64</span><span class="p">]</span><span class="o">=</span><span class="mi">64</span><span class="o">*</span><span class="s1">&#39;.&#39;</span>
+            <span class="n">tbuf</span><span class="p">[</span><span class="mi">255</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span>
+            <span class="n">ep</span> <span class="o">=</span> <span class="n">tbuf</span><span class="p">[:]</span>
+            <span class="n">priblesdict</span><span class="p">[</span><span class="n">codec</span><span class="p">]</span> <span class="o">=</span> <span class="n">ep</span> <span class="c1"># add new table to dict</span>
+            <span class="k">return</span> <span class="n">ep</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ebcpribles</span>
+
+
+
+<span class="c1"># Hexadecimal table</span>
+<span class="n">ishex</span><span class="o">=</span>\
+      <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span>\
+      <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span>\
+      <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span>\
+      <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span>\
+      <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span>\
+      <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span>\
+      <span class="s1">&#39;0&#39;</span> <span class="s1">&#39;1&#39;</span> <span class="s1">&#39;2&#39;</span> <span class="s1">&#39;3&#39;</span> <span class="s1">&#39;4&#39;</span> <span class="s1">&#39;5&#39;</span> <span class="s1">&#39;6&#39;</span> <span class="s1">&#39;7&#39;</span> <span class="s1">&#39;8&#39;</span> <span class="s1">&#39;9&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span>\
+      <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span>\
+      <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;A&#39;</span> <span class="s1">&#39;B&#39;</span> <span class="s1">&#39;C&#39;</span> <span class="s1">&#39;D&#39;</span> <span class="s1">&#39;E&#39;</span> <span class="s1">&#39;F&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span>\
+      <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span>\
+      <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span>\
+      <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span>\
+      <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;a&#39;</span> <span class="s1">&#39;b&#39;</span> <span class="s1">&#39;c&#39;</span> <span class="s1">&#39;d&#39;</span> <span class="s1">&#39;e&#39;</span> <span class="s1">&#39;f&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span>\
+      <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span>\
+      <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span>\
+      <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span>\
+      <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span>\
+      <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span>\
+      <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span>\
+      <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span>\
+      <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span>\
+      <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span>\
+      <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span>\
+      <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span>\
+      <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span>\
+      <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span>\
+      <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span>\
+      <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span>\
+      <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span>\
+      <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span>\
+      <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span>\
+      <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span>
+
+<div class="viewcode-block" id="diffdump"><a class="viewcode-back" href="../../../modules.html#adapya.base.dump.diffdump">[docs]</a><span class="k">def</span> <span class="nf">diffdump</span><span class="p">(</span><span class="n">buf1</span><span class="p">,</span> <span class="n">buf2</span><span class="p">,</span> <span class="n">header1</span><span class="o">=</span><span class="s1">&#39;Buffer 1&#39;</span><span class="p">,</span> <span class="n">header2</span><span class="o">=</span><span class="s1">&#39;Buffer 2&#39;</span><span class="p">,</span>
+        <span class="n">startaddr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fd</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Print the difference of 2 buffers&quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">difflib</span> <span class="kn">import</span> <span class="n">Differ</span>
+
+    <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">hexversion</span> <span class="o">&gt;</span> <span class="mh">0x03010100</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">_io</span> <span class="kn">import</span> <span class="n">StringIO</span> <span class="c1"># _io implemented in C code</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">cStringIO</span> <span class="kn">import</span> <span class="n">StringIO</span>
+
+    <span class="n">f1</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">()</span>
+    <span class="n">f2</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">()</span>
+
+    <span class="n">dump</span><span class="p">(</span><span class="n">buf1</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="n">header1</span><span class="p">,</span> <span class="n">startaddr</span><span class="o">=</span><span class="n">startaddr</span><span class="p">,</span> <span class="n">fd</span><span class="o">=</span><span class="n">f1</span><span class="p">)</span>
+    <span class="n">dump</span><span class="p">(</span><span class="n">buf2</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="n">header2</span><span class="p">,</span> <span class="n">startaddr</span><span class="o">=</span><span class="n">startaddr</span><span class="p">,</span> <span class="n">fd</span><span class="o">=</span><span class="n">f2</span><span class="p">)</span>
+
+    <span class="n">f1</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># reposition to file start</span>
+    <span class="n">f2</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">d</span> <span class="o">=</span> <span class="n">Differ</span><span class="p">()</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">compare</span><span class="p">(</span><span class="n">f1</span><span class="o">.</span><span class="n">readlines</span><span class="p">(),</span> <span class="n">f2</span><span class="o">.</span><span class="n">readlines</span><span class="p">()))</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    print(&#39;results of dump()&#39;)</span>
+<span class="sd">    print(f1.readlines())</span>
+<span class="sd">    print(f2.readlines())</span>
+<span class="sd">    print(result)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">fd</span><span class="o">==</span><span class="kc">None</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">fd</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="n">result</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="diffbin"><a class="viewcode-back" href="../../../modules.html#adapya.base.dump.diffbin">[docs]</a><span class="k">def</span> <span class="nf">diffbin</span><span class="p">(</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">header1</span><span class="o">=</span><span class="s1">&#39;Buffer1&#39;</span><span class="p">,</span> <span class="n">header2</span><span class="o">=</span><span class="s1">&#39;Buffer2&#39;</span><span class="p">,</span>
+        <span class="n">startaddr</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">fd</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Binary difference printer for buffer objects a and b</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">difflib</span> <span class="kn">import</span> <span class="n">SequenceMatcher</span>
+
+    <span class="n">s</span><span class="o">=</span><span class="n">SequenceMatcher</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Comparing</span><span class="se">\n</span><span class="s2">    A = </span><span class="si">%s</span><span class="se">\n</span><span class="s2">    B = </span><span class="si">%s</span><span class="s2"> &quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">header1</span><span class="p">,</span> <span class="n">header2</span><span class="p">),</span>
+          <span class="n">file</span><span class="o">=</span><span class="n">fd</span><span class="p">)</span>
+
+
+    <span class="k">for</span> <span class="n">tag</span><span class="p">,</span> <span class="n">i1</span><span class="p">,</span> <span class="n">i2</span><span class="p">,</span> <span class="n">j1</span><span class="p">,</span> <span class="n">j2</span> <span class="ow">in</span> <span class="n">s</span><span class="o">.</span><span class="n">get_opcodes</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="si">%s</span><span class="s2"> A+</span><span class="si">%04X</span><span class="s2">(</span><span class="si">%04X</span><span class="s2">) vs. B+</span><span class="si">%04X</span><span class="s2">(</span><span class="si">%04X</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span>
+            <span class="n">tag</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">(),</span> <span class="n">i1</span><span class="p">,</span><span class="n">i2</span><span class="o">-</span><span class="n">i1</span><span class="p">,</span> <span class="n">j1</span><span class="p">,</span> <span class="n">j2</span><span class="o">-</span><span class="n">j1</span><span class="p">),</span> <span class="n">file</span><span class="o">=</span><span class="n">fd</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">tag</span> <span class="o">==</span> <span class="s1">&#39;delete&#39;</span><span class="p">:</span>
+            <span class="n">dump</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="n">i1</span><span class="p">:</span><span class="n">i2</span><span class="p">],</span><span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;A&#39;</span><span class="p">,</span><span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">startaddr</span><span class="o">=</span><span class="n">startaddr</span><span class="o">+</span><span class="n">i1</span><span class="p">,</span><span class="n">fd</span><span class="o">=</span><span class="n">fd</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">tag</span> <span class="o">==</span> <span class="s1">&#39;equal&#39;</span><span class="p">:</span>
+            <span class="n">dump</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="n">i1</span><span class="p">:</span><span class="n">i2</span><span class="p">],</span><span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;A&#39;</span><span class="p">,</span><span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">startaddr</span><span class="o">=</span><span class="n">startaddr</span><span class="o">+</span><span class="n">i1</span><span class="p">,</span><span class="n">fd</span><span class="o">=</span><span class="n">fd</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">tag</span> <span class="o">==</span> <span class="s1">&#39;replace&#39;</span><span class="p">:</span>
+            <span class="n">dump</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="n">i1</span><span class="p">:</span><span class="n">i2</span><span class="p">],</span><span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;A&#39;</span><span class="p">,</span><span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">startaddr</span><span class="o">=</span><span class="n">startaddr</span><span class="o">+</span><span class="n">i1</span><span class="p">,</span><span class="n">fd</span><span class="o">=</span><span class="n">fd</span><span class="p">)</span>
+            <span class="n">dump</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="n">j1</span><span class="p">:</span><span class="n">j2</span><span class="p">],</span><span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;B&#39;</span><span class="p">,</span><span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">startaddr</span><span class="o">=</span><span class="n">startaddr</span><span class="o">+</span><span class="n">j1</span><span class="p">,</span><span class="n">fd</span><span class="o">=</span><span class="n">fd</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span> <span class="c1"># tag == &#39;insert&#39;:</span>
+            <span class="n">dump</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="n">j1</span><span class="p">:</span><span class="n">j2</span><span class="p">],</span><span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;B&#39;</span><span class="p">,</span><span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">startaddr</span><span class="o">=</span><span class="n">startaddr</span><span class="o">+</span><span class="n">j1</span><span class="p">,</span><span class="n">fd</span><span class="o">=</span><span class="n">fd</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Simliarity between objects is </span><span class="si">%3.1f%%</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">ratio</span><span class="p">()</span><span class="o">*</span><span class="mi">100</span><span class="p">,),</span><span class="n">file</span><span class="o">=</span><span class="n">fd</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="dump"><a class="viewcode-back" href="../../../modules.html#adapya.base.dump.dump">[docs]</a><span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="s1">&#39;Buffer&#39;</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">startaddr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fd</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ecodec</span><span class="o">=</span><span class="s1">&#39;cp037&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; print or log buffer</span>
+
+<span class="sd">    :param buf: string, bytestring or bytearray</span>
+<span class="sd">    :param ecodec: ebcdic codec name for ebcdic printable characters</span>
+<span class="sd">    :param startaddr: dump lines will be prefixed with given start address plus offset</span>
+<span class="sd">        as absolute address rather than relative offset from buffer start</span>
+
+<span class="sd">    Example to write warning to logger adalog::</span>
+
+<span class="sd">        dump(a,log=adalog.warning)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ep</span> <span class="o">=</span> <span class="n">getprible</span><span class="p">(</span><span class="n">ecodec</span><span class="p">)</span> <span class="c1"># get ebcdic printables table</span>
+    <span class="n">lines</span><span class="o">=</span><span class="p">[]</span>
+    <span class="k">if</span> <span class="n">header</span><span class="p">:</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">header</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">sys</span><span class="o">.</span><span class="n">hexversion</span> <span class="o">&gt;</span> <span class="mh">0x03010100</span><span class="p">:</span>
+        <span class="n">buf</span> <span class="o">=</span> <span class="n">buf</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf16&#39;</span><span class="p">)</span> <span class="c1"># does not exist anymore in PY3.8 &#39;unicode_internal&#39;)    # convert to byte string</span>
+        <span class="c1"># buf is now local variable</span>
+
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">j</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">buf</span><span class="p">)</span> <span class="k">if</span> <span class="n">buf</span> <span class="k">else</span> <span class="mi">0</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="mi">0</span>     <span class="c1"># unique line offset</span>
+    <span class="n">pline</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span> <span class="c1"># previous unique line</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">j</span><span class="o">//</span><span class="mi">16</span><span class="p">):</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="n">i</span><span class="o">*</span><span class="mi">16</span>
+        <span class="n">cline</span> <span class="o">=</span> <span class="n">buf</span><span class="p">[</span><span class="n">k</span><span class="p">:</span><span class="n">k</span><span class="o">+</span><span class="mi">16</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">pline</span> <span class="o">!=</span> <span class="n">cline</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">p</span><span class="o">+</span><span class="mi">1</span> <span class="o">&lt;</span> <span class="n">i</span><span class="p">:</span>  <span class="c1"># some line(s) were suppressed</span>
+                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">      </span><span class="si">%d</span><span class="s1"> identical line(s) suppressed&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">i</span><span class="o">-</span><span class="p">(</span><span class="n">p</span><span class="o">+</span><span class="mi">1</span><span class="p">)))</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">i</span>
+            <span class="n">pline</span> <span class="o">=</span> <span class="n">cline</span>
+
+            <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">hexversion</span> <span class="o">&gt;</span> <span class="mh">0x03010100</span><span class="p">:</span>
+                <span class="c1"># Python 3</span>
+                <span class="n">transd1</span><span class="o">=</span><span class="n">buf</span><span class="p">[</span><span class="n">k</span><span class="p">:</span><span class="n">k</span><span class="o">+</span><span class="mi">16</span><span class="p">]</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">ascpribles</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">benco</span><span class="p">)</span>
+                <span class="n">transd2</span><span class="o">=</span><span class="n">buf</span><span class="p">[</span><span class="n">k</span><span class="p">:</span><span class="n">k</span><span class="o">+</span><span class="mi">16</span><span class="p">]</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">ep</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">benco</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">transd1</span><span class="o">=</span><span class="n">buf</span><span class="p">[</span><span class="n">k</span><span class="p">:</span><span class="n">k</span><span class="o">+</span><span class="mi">16</span><span class="p">]</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">ascpribles</span><span class="p">)</span>
+                <span class="n">transd2</span><span class="o">=</span><span class="n">buf</span><span class="p">[</span><span class="n">k</span><span class="p">:</span><span class="n">k</span><span class="o">+</span><span class="mi">16</span><span class="p">]</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">ep</span><span class="p">)</span>
+
+            <span class="n">i1</span><span class="p">,</span><span class="n">i2</span><span class="p">,</span><span class="n">i3</span><span class="p">,</span><span class="n">i4</span><span class="o">=</span><span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;!IIII&#39;</span><span class="p">,</span> <span class="n">buf</span><span class="p">[</span><span class="n">k</span><span class="p">:</span><span class="n">k</span><span class="o">+</span><span class="mi">16</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">startaddr</span><span class="p">:</span>
+                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> </span><span class="si">%08X</span><span class="s1"> </span><span class="si">%08X</span><span class="s1"> </span><span class="si">%08X</span><span class="s1"> </span><span class="si">%08X</span><span class="s1"> </span><span class="si">%08X</span><span class="s1"> </span><span class="si">%s</span><span class="s1"> </span><span class="si">%s</span><span class="s1">&#39;</span>\
+                  <span class="o">%</span> <span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">startaddr</span><span class="o">+</span><span class="n">k</span><span class="p">,</span><span class="n">i1</span><span class="p">,</span><span class="n">i2</span><span class="p">,</span><span class="n">i3</span><span class="p">,</span><span class="n">i4</span><span class="p">,</span> <span class="n">transd1</span><span class="p">,</span> <span class="n">transd2</span><span class="p">)</span>
+                  <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> </span><span class="si">%04X</span><span class="s1"> </span><span class="si">%08X</span><span class="s1"> </span><span class="si">%08X</span><span class="s1"> </span><span class="si">%08X</span><span class="s1"> </span><span class="si">%08X</span><span class="s1"> </span><span class="si">%s</span><span class="s1"> </span><span class="si">%s</span><span class="s1">&#39;</span>\
+                  <span class="o">%</span> <span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span><span class="n">i1</span><span class="p">,</span><span class="n">i2</span><span class="p">,</span><span class="n">i3</span><span class="p">,</span><span class="n">i4</span><span class="p">,</span> <span class="n">transd1</span><span class="p">,</span> <span class="n">transd2</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">p</span> <span class="o">&lt;</span> <span class="n">i</span><span class="p">:</span>  <span class="c1"># lines including last line suppressed?</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">      </span><span class="si">%d</span><span class="s1"> identical line(s) suppressed&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">i</span><span class="o">-</span><span class="n">p</span><span class="p">))</span>
+
+    <span class="n">k</span><span class="o">=</span><span class="n">j</span><span class="o">//</span><span class="mi">16</span><span class="o">*</span><span class="mi">16</span>
+    <span class="n">rest</span><span class="o">=</span><span class="n">j</span><span class="o">%</span><span class="mi">16</span>
+    <span class="c1"># print(&#39;rest=&#39;,rest)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">rest</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">rline</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%02X</span><span class="s1">&#39;</span><span class="o">*</span><span class="n">rest</span> <span class="o">%</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;B&#39;</span><span class="o">*</span><span class="n">rest</span><span class="p">,</span> <span class="n">buf</span><span class="p">[</span><span class="n">k</span><span class="p">:</span><span class="n">k</span><span class="o">+</span><span class="n">rest</span><span class="p">])</span>\
+                <span class="o">+</span> <span class="p">(</span><span class="mi">32</span><span class="o">-</span><span class="n">rest</span><span class="o">*</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="s1">&#39; &#39;</span> <span class="c1"># fill up with blanks</span>
+        <span class="k">if</span> <span class="n">startaddr</span><span class="p">:</span>
+            <span class="n">r1</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> </span><span class="si">%08X</span><span class="s1"> </span><span class="si">%s</span><span class="s1"> </span><span class="si">%s</span><span class="s1"> </span><span class="si">%s</span><span class="s1"> </span><span class="si">%s</span><span class="s1"> &#39;</span>\
+              <span class="o">%</span> <span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">startaddr</span><span class="o">+</span><span class="n">k</span><span class="p">,</span> <span class="n">rline</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">8</span><span class="p">],</span><span class="n">rline</span><span class="p">[</span><span class="mi">8</span><span class="p">:</span><span class="mi">16</span><span class="p">],</span>
+                 <span class="n">rline</span><span class="p">[</span><span class="mi">16</span><span class="p">:</span><span class="mi">24</span><span class="p">],</span><span class="n">rline</span><span class="p">[</span><span class="mi">24</span><span class="p">:</span><span class="mi">32</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">r1</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> </span><span class="si">%04X</span><span class="s1"> </span><span class="si">%s</span><span class="s1"> </span><span class="si">%s</span><span class="s1"> </span><span class="si">%s</span><span class="s1"> </span><span class="si">%s</span><span class="s1"> &#39;</span>\
+              <span class="o">%</span> <span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">rline</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">8</span><span class="p">],</span><span class="n">rline</span><span class="p">[</span><span class="mi">8</span><span class="p">:</span><span class="mi">16</span><span class="p">],</span>
+                 <span class="n">rline</span><span class="p">[</span><span class="mi">16</span><span class="p">:</span><span class="mi">24</span><span class="p">],</span><span class="n">rline</span><span class="p">[</span><span class="mi">24</span><span class="p">:</span><span class="mi">32</span><span class="p">])</span>
+
+        <span class="n">r2</span> <span class="o">=</span> <span class="n">buf</span><span class="p">[</span><span class="n">k</span><span class="p">:</span><span class="n">k</span><span class="o">+</span><span class="n">rest</span><span class="p">]</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">ascpribles</span><span class="p">)</span><span class="o">+</span>\
+              <span class="p">(</span><span class="mi">16</span><span class="o">-</span><span class="n">rest</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="sa">b</span><span class="s1">&#39; &#39;</span><span class="o">+</span>\
+              <span class="n">buf</span><span class="p">[</span><span class="n">k</span><span class="p">:</span><span class="n">k</span><span class="o">+</span><span class="n">rest</span><span class="p">]</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">ep</span><span class="p">)</span>
+
+        <span class="c1"># print(r1,r2, type(r1), type(r2))</span>
+
+        <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">hexversion</span> <span class="o">&gt;</span> <span class="mh">0x03010100</span><span class="p">:</span>
+            <span class="c1"># Python 3</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">r1</span> <span class="o">+</span> <span class="n">r2</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">benco</span><span class="p">)</span> <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">r1</span><span class="o">+</span><span class="n">r2</span> <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">header</span><span class="p">:</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">log</span><span class="p">:</span>
+        <span class="n">log</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">),</span> <span class="n">file</span><span class="o">=</span><span class="n">fd</span><span class="p">)</span></div>
+
+
+<span class="n">hex2buf</span><span class="o">=</span><span class="k">lambda</span> <span class="n">hexbuf</span><span class="p">:</span> \
+    <span class="n">binascii</span><span class="o">.</span><span class="n">unhexlify</span><span class="p">(</span>
+        <span class="n">string</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+            <span class="n">string</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">hexbuf</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="p">)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">convert hexadecimal input &#39;hexbuf&#39; to buffer string</span>
+<span class="sd">blanks and CR LF are suppressed</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">txt2buf</span><span class="o">=</span><span class="k">lambda</span> <span class="n">txt</span><span class="p">:</span> <span class="n">txt</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">convert text input &#39;txt&#39; that may be split over several lines to string</span>
+<span class="sd">blanks and CR LF are suppressed</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="ishexstr"><a class="viewcode-back" href="../../../modules.html#adapya.base.dump.ishexstr">[docs]</a><span class="k">def</span> <span class="nf">ishexstr</span><span class="p">(</span><span class="nb">str</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    test string str for being all hexadecimal characters</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">ord</span><span class="p">(</span><span class="n">ishex</span><span class="p">[</span><span class="nb">ord</span><span class="p">(</span><span class="n">c</span><span class="p">)]):</span>
+            <span class="k">return</span> <span class="mi">0</span>
+    <span class="k">return</span> <span class="mi">1</span></div>
+
+
+
+<div class="viewcode-block" id="hex3buf"><a class="viewcode-back" href="../../../modules.html#adapya.base.dump.hex3buf">[docs]</a><span class="k">def</span> <span class="nf">hex3buf</span><span class="p">(</span><span class="n">hexbuf</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    convert TSO interpreted hex screen to buffer</span>
+<span class="sd">    input must contain triple of interpreted and 2 hex lines</span>
+<span class="sd">    where each column is one character</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">x</span><span class="o">=</span><span class="n">string</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">hexbuf</span><span class="p">,</span><span class="s1">&#39; &#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+    <span class="n">lines</span><span class="o">=</span><span class="n">string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">i</span><span class="o">=</span><span class="mi">0</span>
+    <span class="n">s</span><span class="o">=</span><span class="s1">&#39;&#39;</span>
+    <span class="n">x</span><span class="o">=</span><span class="s1">&#39;&#39;</span>
+    <span class="k">while</span> <span class="n">i</span><span class="o">+</span><span class="mi">2</span><span class="o">&lt;</span><span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
+        <span class="n">line1</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">line2</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">line1</span><span class="p">)</span><span class="o">==</span><span class="nb">len</span><span class="p">(</span><span class="n">line2</span><span class="p">)</span> <span class="ow">and</span> \
+            <span class="n">ishexstr</span><span class="p">(</span><span class="n">line1</span><span class="p">)</span> <span class="ow">and</span> <span class="n">ishexstr</span><span class="p">(</span><span class="n">line2</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">a</span><span class="p">,</span><span class="n">b</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">line1</span><span class="p">,</span> <span class="n">line2</span><span class="p">):</span>
+                <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="o">+</span><span class="n">a</span><span class="o">+</span><span class="n">b</span>
+            <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="o">+</span><span class="n">binascii</span><span class="o">.</span><span class="n">unhexlify</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="n">i</span><span class="o">+=</span><span class="mi">3</span>
+            <span class="n">x</span><span class="o">=</span><span class="s1">&#39;&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">i</span><span class="o">+=</span><span class="mi">1</span>
+    <span class="k">return</span> <span class="n">s</span></div>
+
+
+<div class="viewcode-block" id="hexRbuf"><a class="viewcode-back" href="../../../modules.html#adapya.base.dump.hexRbuf">[docs]</a><span class="k">def</span> <span class="nf">hexRbuf</span><span class="p">(</span><span class="n">hexbuf</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; interpret printed hex printed buffers in various formats</span>
+<span class="sd">        formats: TSO print</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">x</span><span class="o">=</span><span class="n">string</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">hexbuf</span><span class="p">,</span><span class="s1">&#39; &#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+    <span class="n">lines</span><span class="o">=</span><span class="n">string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">bbuf</span><span class="o">=</span><span class="p">[]</span>
+    <span class="n">newbuf</span><span class="o">=</span><span class="s1">&#39;&#39;</span>
+    <span class="n">offset</span><span class="o">=</span><span class="mi">0</span>
+    <span class="n">i</span><span class="o">=</span><span class="mi">0</span>
+    <span class="n">ii</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+    <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">ii</span><span class="p">:</span>
+        <span class="n">line</span><span class="o">=</span><span class="n">lines</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="c1"># print(&#39;i=%d, ii=%d, line=%s&#39; % (i,ii,line))</span>
+        <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;URBH&#39;</span><span class="p">)</span> <span class="ow">or</span>  \
+           <span class="p">(</span><span class="n">ii</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="ow">and</span> <span class="n">lines</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;5544&#39;</span><span class="p">)):</span>
+            <span class="c1"># try TSO hex display</span>
+            <span class="k">if</span> <span class="n">newbuf</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                <span class="n">bbuf</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">newbuf</span><span class="p">)</span>
+                <span class="c1"># dump(newbuf)</span>
+                <span class="n">newbuf</span><span class="o">=</span><span class="s1">&#39;&#39;</span>
+            <span class="n">x</span><span class="o">=</span><span class="s1">&#39;&#39;</span>
+            <span class="k">while</span> <span class="n">i</span><span class="o">+</span><span class="mi">2</span><span class="o">&lt;</span><span class="n">ii</span><span class="p">:</span>
+                <span class="n">line1</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">line2</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">line1</span><span class="p">)</span><span class="o">==</span><span class="nb">len</span><span class="p">(</span><span class="n">line2</span><span class="p">)</span> <span class="ow">and</span> \
+                    <span class="n">ishexstr</span><span class="p">(</span><span class="n">line1</span><span class="p">)</span> <span class="ow">and</span> <span class="n">ishexstr</span><span class="p">(</span><span class="n">line2</span><span class="p">):</span>
+                    <span class="k">for</span> <span class="n">a</span><span class="p">,</span><span class="n">b</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">line1</span><span class="p">,</span> <span class="n">line2</span><span class="p">):</span>
+                        <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="o">+</span><span class="n">a</span><span class="o">+</span><span class="n">b</span>
+                    <span class="n">newbuf</span><span class="o">=</span><span class="n">newbuf</span><span class="o">+</span><span class="n">binascii</span><span class="o">.</span><span class="n">unhexlify</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+                    <span class="n">i</span><span class="o">+=</span><span class="mi">3</span>
+                    <span class="n">x</span><span class="o">=</span><span class="s1">&#39;&#39;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">i</span><span class="o">+=</span><span class="mi">1</span>
+                <span class="c1"># print(&#39;TSO line %d: %s&#39; % (i, lines[i]))</span>
+                <span class="c1"># dump(newbuf)</span>
+                <span class="k">if</span> <span class="n">lines</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">):</span>
+                    <span class="n">i</span><span class="o">-=</span><span class="mi">1</span>
+                    <span class="k">break</span>
+        <span class="k">elif</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;x000000!&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">newbuf</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                <span class="n">bbuf</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">newbuf</span><span class="p">)</span>
+                <span class="c1"># dump(newbuf)</span>
+                <span class="n">newbuf</span><span class="o">=</span><span class="s1">&#39;&#39;</span>
+                <span class="n">offset</span><span class="o">=</span><span class="mi">0</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">line</span><span class="p">,</span><span class="s1">&#39;!&#39;</span><span class="p">)</span>
+            <span class="n">s1</span><span class="o">=</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">s2</span><span class="o">=</span><span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">s1</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;x0&#39;</span><span class="p">):</span>
+                <span class="k">break</span>
+            <span class="n">s1x</span> <span class="o">=</span> <span class="s1">&#39;x</span><span class="si">%06x</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">offset</span>
+            <span class="c1"># print(s1)</span>
+            <span class="c1"># print(s2)</span>
+            <span class="c1"># print(offset, s1x)</span>
+            <span class="k">if</span> <span class="n">s1</span> <span class="o">==</span> <span class="n">s1x</span><span class="p">:</span> <span class="c1"># expected offset?</span>
+                <span class="n">newbuf</span><span class="o">+=</span><span class="n">binascii</span><span class="o">.</span><span class="n">unhexlify</span><span class="p">(</span><span class="n">s2</span><span class="p">)</span>
+                <span class="n">offset</span><span class="o">+=</span><span class="mi">32</span>
+                <span class="c1"># print(offset)</span>
+        <span class="n">i</span><span class="o">+=</span><span class="mi">1</span>
+    <span class="k">if</span> <span class="n">newbuf</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+        <span class="n">bbuf</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">newbuf</span><span class="p">)</span>
+        <span class="c1"># dump(newbuf)</span>
+        <span class="n">newbuf</span><span class="o">=</span><span class="s1">&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">bbuf</span></div>
+
+<span class="k">if</span> <span class="vm">__name__</span><span class="o">==</span><span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+
+    <span class="kn">import</span> <span class="nn">getopt</span>
+    <span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">abspath</span>
+
+    <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;&#39;</span>
+    <span class="n">filename2</span><span class="o">=</span><span class="s1">&#39;&#39;</span>
+    <span class="n">maxsize</span><span class="o">=</span><span class="mh">0x02000000</span>  <span class="c1"># 32 meg</span>
+    <span class="n">skip</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">usage</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span>
+<span class="sd">&quot;&quot;&quot;dump.py - File hex dumper script</span>
+
+<span class="sd"> Usage: python dump.py [--file]  &lt;filename&gt;</span>
+<span class="sd">                                 &lt;filename1&gt;,&lt;filename2&gt;</span>
+
+<span class="sd"> Options:</span>
+
+<span class="sd">    -h, --help              display this help</span>
+<span class="sd">    -f, --file &lt;filename&gt;   &lt;filename&gt; is file to dump or</span>
+<span class="sd">                            file1,file2 for file difference</span>
+<span class="sd">    -m, --maxsize &lt;n&gt;       limit size (bytes) of dump</span>
+<span class="sd">    -s, --skip &lt;s&gt;          skip bytes from start of file</span>
+<span class="sd">    -v, --verbose           with file difference (detailed binary)</span>
+
+<span class="sd"> Example (short parameter form):</span>
+<span class="sd">    python dump.py -f hex.bin       - prints hexdump of hex.bin</span>
+<span class="sd">    python dump.py -f t1.bin,t2.bin - prints hexdump of t1.bin</span>
+<span class="sd">                                      with differences from t2.bin</span>
+<span class="sd">    python dump.py -v -f t1.bin,t2.bin  print detailed binary</span>
+<span class="sd">                                        difference using diffbin()</span>
+<span class="sd">                                          i.e. difflib.SequenceMatcher</span>
+
+<span class="sd">&quot;&quot;&quot;</span><span class="p">)</span>
+        <span class="k">return</span>  <span class="c1"># from usage()</span>
+
+    <span class="c1"># main logic</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">opts</span><span class="p">,</span> <span class="n">args</span> <span class="o">=</span> <span class="n">getopt</span><span class="o">.</span><span class="n">getopt</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span>
+          <span class="s1">&#39;hf:m:s:v&#39;</span><span class="p">,</span>
+          <span class="p">[</span><span class="s1">&#39;help&#39;</span><span class="p">,</span><span class="s1">&#39;file=&#39;</span><span class="p">,</span><span class="s1">&#39;maxsize=&#39;</span><span class="p">,</span><span class="s1">&#39;skip=&#39;</span><span class="p">,</span><span class="s1">&#39;verbose&#39;</span><span class="p">])</span>
+
+        <span class="k">for</span> <span class="n">opt</span><span class="p">,</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">opts</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">opt</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;-h&#39;</span><span class="p">,</span> <span class="s1">&#39;--help&#39;</span><span class="p">,</span> <span class="s1">&#39;--verbose&#39;</span><span class="p">):</span>
+                <span class="n">usage</span><span class="p">()</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="n">opt</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;-v&#39;</span><span class="p">,</span> <span class="s1">&#39;--verbose&#39;</span><span class="p">):</span>
+                <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span>
+            <span class="k">elif</span> <span class="n">opt</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;-f&#39;</span><span class="p">,</span> <span class="s1">&#39;--file&#39;</span><span class="p">):</span>
+                <span class="c1"># Ensure that 2 splits occur by appending &#39;,,&#39;</span>
+                <span class="n">filename</span><span class="p">,</span><span class="n">filename2</span><span class="p">,</span><span class="n">_</span> <span class="o">=</span> <span class="p">(</span><span class="n">arg</span><span class="o">+</span><span class="s1">&#39;,,&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">opt</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;-m&#39;</span><span class="p">,</span> <span class="s1">&#39;--maxsize&#39;</span><span class="p">):</span>
+                <span class="n">maxsize</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">opt</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;-m&#39;</span><span class="p">,</span> <span class="s1">&#39;--maxsize&#39;</span><span class="p">):</span>
+                <span class="n">skip</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">getopt</span><span class="o">.</span><span class="n">GetoptError</span><span class="p">:</span>
+        <span class="n">usage</span><span class="p">()</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">filename</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">filename</span><span class="o">=</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">filename</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">filename</span><span class="o">=</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">filename2</span><span class="o">=</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">filename2</span><span class="p">:</span>
+        <span class="n">fd</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="s1">&#39;rb&#39;</span><span class="p">)</span>
+        <span class="n">fc</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="n">fd</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">fd</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename2</span><span class="p">,</span><span class="s1">&#39;rb&#39;</span><span class="p">)</span>
+        <span class="n">fc2</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="n">fd</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="n">diffbin</span><span class="p">(</span><span class="n">fc</span><span class="p">,</span><span class="n">fc2</span><span class="p">,</span>
+                     <span class="n">header1</span><span class="o">=</span><span class="n">abspath</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span>
+                     <span class="n">header2</span><span class="o">=</span><span class="n">abspath</span><span class="p">(</span><span class="n">filename2</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">diffdump</span><span class="p">(</span><span class="n">fc</span><span class="p">,</span><span class="n">fc2</span><span class="p">,</span>
+                     <span class="n">header1</span><span class="o">=</span><span class="n">abspath</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span>
+                     <span class="n">header2</span><span class="o">=</span><span class="n">abspath</span><span class="p">(</span><span class="n">filename2</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">fd</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="s1">&#39;rb&#39;</span><span class="p">)</span>
+        <span class="n">saddr</span> <span class="o">=</span> <span class="n">skip</span>
+        <span class="k">if</span> <span class="n">skip</span><span class="p">:</span>
+            <span class="n">fd</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">skip</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">SEEK_CUR</span><span class="p">)</span>
+
+        <span class="k">while</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">fc</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">maxsize</span><span class="p">)</span>
+            <span class="n">ll</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">fc</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">ll</span><span class="p">:</span>
+                <span class="n">dump</span><span class="p">(</span><span class="n">fc</span><span class="p">,</span><span class="n">startaddr</span><span class="o">=</span><span class="n">saddr</span><span class="p">,</span><span class="n">header</span><span class="o">=</span><span class="n">abspath</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
+                <span class="n">saddr</span><span class="o">+=</span><span class="n">ll</span>
+            <span class="c1">#if ll &lt; maxsize:</span>
+            <span class="c1">#    break</span>
+            <span class="k">break</span>
+        <span class="n">fd</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+<span class="c1">#  Copyright 2004-ThisYear Software AG</span>
+<span class="c1">#</span>
+<span class="c1">#  Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1">#  you may not use this file except in compliance with the License.</span>
+<span class="c1">#  You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#      http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1">#  Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1">#  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1">#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1">#  See the License for the specific language governing permissions and</span>
+<span class="c1">#  limitations under the License.</span>
+<span class="c1">#  $Date: 2021-07-06 18:11:28 +0200 (Tue, 06 Jul 2021) $</span>
+<span class="c1">#  $Rev: 1018 $</span>
+
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2004-2023, software AG.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

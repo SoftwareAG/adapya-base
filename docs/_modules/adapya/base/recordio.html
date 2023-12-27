@@ -1,0 +1,540 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>adapya.base.recordio &mdash; adapya-base 1.3.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+    <link rel="shortcut icon" href="../../../_static/SAG2015.ico"/>
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> adapya-base
+          
+
+          
+            
+            <img src="../../../_static/SAG2015.ico" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.3.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installing.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide.html">Using adapya-base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../scripts.html">Scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">Package Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../indices.html">Indices</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">adapya-base</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>adapya.base.recordio</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for adapya.base.recordio</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">recordio - read and write records</span>
+<span class="sd">=================================</span>
+
+<span class="sd">The module recordio contains functions to read or write records with special</span>
+<span class="sd">structures (variable, variable blocked):</span>
+
+<span class="sd">    - RDW   records preceded by a record descriptor word</span>
+
+<span class="sd">    - BDW   variable records blocked</span>
+
+<span class="sd">    - EXCL4 records preceded by a 4 bytes exclusive record length</span>
+<span class="sd">            in native byte-order)</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>          <span class="c1"># PY3</span>
+<span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">BytesIO</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">adapya.base.defs</span> <span class="kn">import</span> <span class="n">Abuf</span>
+<span class="kn">from</span> <span class="nn">adapya.base.dump</span> <span class="kn">import</span> <span class="n">dump</span>
+<span class="kn">from</span> <span class="nn">adapya.base.datamap</span> <span class="kn">import</span> <span class="n">Datamap</span><span class="p">,</span> <span class="n">Uint2</span><span class="p">,</span> <span class="n">Uint1</span><span class="p">,</span> <span class="n">Uint4</span><span class="p">,</span> <span class="n">NETWORKBO</span>
+
+
+<span class="n">SEGALL</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">SEGFIRST</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">SEGLAST</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">SEGMIDDLE</span> <span class="o">=</span> <span class="mi">3</span>
+
+<span class="k">def</span> <span class="nf">segmenttype</span><span class="p">(</span><span class="n">seg</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">seg</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">BaseException</span><span class="p">(</span><span class="s1">&#39;invalid segment type </span><span class="si">%02X</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">seg</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span><span class="s1">&#39;complete record&#39;</span><span class="p">,</span><span class="s1">&#39;first segment&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;last segment&#39;</span><span class="p">,</span><span class="s1">&#39;middle segment&#39;</span><span class="p">][</span><span class="n">seg</span><span class="p">]</span>
+
+
+<span class="n">rdw</span> <span class="o">=</span>  <span class="n">Datamap</span><span class="p">(</span><span class="s1">&#39;RDW&#39;</span><span class="p">,</span>
+    <span class="c1"># RDW Record descriptor word</span>
+    <span class="n">Uint2</span><span class="p">(</span><span class="s1">&#39;rlen&#39;</span><span class="p">),</span> <span class="c1"># Record length</span>
+    <span class="n">Uint1</span><span class="p">(</span><span class="s1">&#39;seg&#39;</span><span class="p">),</span> <span class="c1"># Segment control</span>
+    <span class="n">Uint1</span><span class="p">(</span><span class="s1">&#39;seg2&#39;</span><span class="p">),</span> <span class="c1"># Segment control 2 (unused)</span>
+    <span class="n">byteOrder</span><span class="o">=</span><span class="n">NETWORKBO</span><span class="p">,</span>
+    <span class="p">)</span>
+
+<span class="n">excl4</span> <span class="o">=</span>  <span class="n">Datamap</span><span class="p">(</span><span class="s1">&#39;EXCL4&#39;</span><span class="p">,</span>
+    <span class="c1"># 4 Byte Excluded length Record</span>
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;rlen&#39;</span><span class="p">),</span> <span class="c1"># Record length</span>
+    <span class="p">)</span>
+
+<span class="c1"># used for writing</span>
+<span class="n">wrdw</span> <span class="o">=</span>  <span class="n">Datamap</span><span class="p">(</span><span class="s1">&#39;RDW&#39;</span><span class="p">,</span>
+    <span class="c1"># RDW Record descriptor word</span>
+    <span class="n">Uint2</span><span class="p">(</span><span class="s1">&#39;rlen&#39;</span><span class="p">),</span> <span class="c1"># Record length</span>
+    <span class="n">Uint1</span><span class="p">(</span><span class="s1">&#39;seg&#39;</span><span class="p">),</span> <span class="c1"># Segment control</span>
+    <span class="n">Uint1</span><span class="p">(</span><span class="s1">&#39;seg2&#39;</span><span class="p">),</span> <span class="c1"># Segment control 2 (unused)</span>
+    <span class="n">byteOrder</span><span class="o">=</span><span class="n">NETWORKBO</span><span class="p">,</span>
+    <span class="n">buffer</span><span class="o">=</span><span class="n">Abuf</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span>
+    <span class="p">)</span>
+
+<span class="n">isnp</span> <span class="o">=</span>  <span class="n">Datamap</span><span class="p">(</span><span class="s1">&#39;ISN_prefix&#39;</span><span class="p">,</span>
+    <span class="n">Uint4</span><span class="p">(</span><span class="s1">&#39;isn&#39;</span><span class="p">),</span> <span class="c1"># Segment descriptor</span>
+    <span class="n">byteOrder</span><span class="o">=</span><span class="n">NETWORKBO</span><span class="p">,</span>
+    <span class="n">buffer</span><span class="o">=</span><span class="n">Abuf</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+    <span class="p">)</span>
+
+
+<div class="viewcode-block" id="readrec"><a class="viewcode-back" href="../../../modules.html#adapya.base.recordio.readrec">[docs]</a><span class="k">def</span> <span class="nf">readrec</span><span class="p">(</span><span class="n">f</span><span class="p">,</span><span class="n">recform</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span><span class="n">dumphdr</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span><span class="n">numrec</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">skiprec</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ecodec</span><span class="o">=</span><span class="s1">&#39;cp037&#39;</span><span class="p">,</span><span class="n">debug</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">into</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; readrec - Generator function to read records</span>
+<span class="sd">    with special record format specified in recform</span>
+
+<span class="sd">        :param f: filehandle of open file</span>
+<span class="sd">        :param recform: record format to process</span>
+
+<span class="sd">            - &#39;RDW&#39; variable record format (2 bytes length, Network byte order)</span>
+<span class="sd">                    return record without RDW header (exclusive)</span>
+
+<span class="sd">            - &#39;RDW+&#39; variable record format (2 bytes length, Network byte order)</span>
+<span class="sd">                    return record including RDW header</span>
+
+<span class="sd">                    Note: for segmented records rlen in RDW header is length</span>
+<span class="sd">                          of first segment and not the whole record</span>
+
+<span class="sd">            - &#39;BDW&#39; variable record blocked: input includes Block Descriptor Word</span>
+<span class="sd">                    which is skipped</span>
+<span class="sd">                    return record without RDW header (exclusive)</span>
+
+<span class="sd">            - &#39;BDW+&#39; same as BDW but return record including RDW header</span>
+
+<span class="sd">            - &#39;EXCL4&#39; exclusive 4 bytes length, native byte order</span>
+
+<span class="sd">        :param dumphdr: header text of record; if not empty: prints record</span>
+<span class="sd">        :param ecodec: Ebcdic codec for character interpretation when dumping records</span>
+<span class="sd">        :param debug: 1 - print RDW information</span>
+<span class="sd">        :param into:  1 - read into and return modifyable bytearray rather that bytes</span>
+<span class="sd">                          (only for non segemented RDW files)</span>
+
+<span class="sd">    Example usage::</span>
+
+<span class="sd">    &gt;&gt; for rec in readrec(f,recform=&#39;RDW&#39;,dumphdr=&#39;my_records&#39;):</span>
+<span class="sd">    &gt;&gt;    process(rec)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">V</span> <span class="o">=</span> <span class="mi">1</span>        <span class="c1"># variable records</span>
+    <span class="n">VB</span> <span class="o">=</span> <span class="mi">2</span>       <span class="c1"># variable blocked includes variable</span>
+    <span class="n">WITH_RDW</span> <span class="o">=</span> <span class="mi">4</span> <span class="c1"># return record with RDW header</span>
+
+    <span class="n">bu</span> <span class="o">=</span> <span class="kc">None</span>    <span class="c1"># BytesIO object</span>
+    <span class="n">recfm</span><span class="o">=</span><span class="mi">0</span>
+    <span class="n">block_rlen</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="n">recform</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;RDW&#39;</span><span class="p">):</span>
+        <span class="n">recfm</span> <span class="o">=</span> <span class="n">V</span>
+    <span class="k">elif</span> <span class="n">recform</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;BDW&#39;</span><span class="p">):</span>
+        <span class="n">recfm</span> <span class="o">=</span> <span class="n">VB</span>
+    <span class="k">if</span> <span class="n">recform</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;+&#39;</span><span class="p">):</span>
+        <span class="n">recfm</span> <span class="o">|=</span> <span class="n">WITH_RDW</span>
+
+    <span class="k">if</span> <span class="n">recfm</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">V</span><span class="o">|</span><span class="n">VB</span><span class="p">):</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># counting complete/logical records</span>
+        <span class="k">while</span>  <span class="n">i</span> <span class="o">&lt;</span> <span class="n">skiprec</span><span class="p">:</span>     <span class="c1"># skipping records loop</span>
+            <span class="n">rdws</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rdws</span><span class="p">)</span><span class="o">&lt;</span><span class="mi">4</span><span class="p">:</span>
+                <span class="k">return</span>
+            <span class="n">rdw</span><span class="o">.</span><span class="n">buffer</span><span class="o">=</span><span class="n">rdws</span>     <span class="c1"># use rdws as underlying buffer</span>
+            <span class="n">rlen</span> <span class="o">=</span> <span class="n">rdw</span><span class="o">.</span><span class="n">rlen</span>
+
+            <span class="k">if</span> <span class="n">rlen</span> <span class="o">&gt;</span> <span class="mh">0x7fff</span><span class="p">:</span>
+                <span class="n">dwtype</span><span class="o">=</span><span class="s1">&#39;record&#39;</span>
+                <span class="k">if</span> <span class="n">recfm</span> <span class="o">&amp;</span> <span class="n">VB</span> <span class="ow">and</span> <span class="n">block_rlen</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+                    <span class="n">dwtype</span><span class="o">=</span><span class="s1">&#39;block&#39;</span>
+                <span class="k">raise</span> <span class="ne">BaseException</span><span class="p">(</span><span class="s1">&#39;Invalid </span><span class="si">%s</span><span class="s1"> length </span><span class="si">%s</span><span class="s1"> exceeds 32k-1 in record </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span>
+                         <span class="p">(</span><span class="n">dwtype</span><span class="p">,</span> <span class="n">rlen</span><span class="p">,</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="n">recfm</span> <span class="o">&amp;</span> <span class="n">VB</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">block_rlen</span> <span class="o">&gt;</span> <span class="mi">4</span><span class="p">:</span> <span class="c1"># reduce remaining block length by record len</span>
+                    <span class="n">block_rlen</span> <span class="o">-=</span> <span class="n">rlen</span>
+                <span class="k">else</span><span class="p">:</span> <span class="c1"># need to consume BDW block header 4 bytes</span>
+                    <span class="n">block_rlen</span> <span class="o">=</span> <span class="n">rlen</span>
+                    <span class="k">if</span> <span class="n">debug</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="n">dump</span><span class="p">(</span><span class="n">rdws</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">4</span><span class="p">],</span><span class="n">header</span><span class="o">=</span><span class="s1">&#39;Block Descriptor Word&#39;</span><span class="p">)</span>
+                    <span class="k">continue</span>  <span class="c1"># need to read RDW</span>
+
+            <span class="k">if</span> <span class="n">rdw</span><span class="o">.</span><span class="n">rlen</span> <span class="o">&gt;</span> <span class="mi">4</span><span class="p">:</span>    <span class="c1"># it&#39;s a record</span>
+                <span class="n">record</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">rdw</span><span class="o">.</span><span class="n">rlen</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">SEEK_CUR</span><span class="p">)</span> <span class="c1"># skip record</span>
+            <span class="k">if</span> <span class="n">rdw</span><span class="o">.</span><span class="n">seg</span> <span class="ow">in</span> <span class="p">(</span><span class="n">SEGFIRST</span><span class="p">,</span> <span class="n">SEGMIDDLE</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">debug</span><span class="o">&amp;</span><span class="mi">1</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Skipping </span><span class="si">%s</span><span class="s1"> len(</span><span class="si">%04x</span><span class="s1">) in logical record </span><span class="si">%d</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span>
+                    <span class="n">segmenttype</span><span class="p">(</span><span class="n">rdw</span><span class="o">.</span><span class="n">seg</span><span class="p">),</span> <span class="n">rdw</span><span class="o">.</span><span class="n">rlen</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+                <span class="k">continue</span> <span class="c1"># only count last or unsegmented records</span>
+
+            <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">debug</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Skipping </span><span class="si">%s</span><span class="s1"> len(</span><span class="si">%04x</span><span class="s1">) in logical record </span><span class="si">%d</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span>
+                <span class="n">segmenttype</span><span class="p">(</span><span class="n">rdw</span><span class="o">.</span><span class="n">seg</span><span class="p">),</span> <span class="n">rdw</span><span class="o">.</span><span class="n">rlen</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+
+        <span class="n">maxrec</span> <span class="o">=</span> <span class="n">skiprec</span> <span class="o">+</span> <span class="n">numrec</span>
+        <span class="k">while</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">rdws</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rdws</span><span class="p">)</span><span class="o">&lt;</span><span class="mi">4</span><span class="p">:</span>
+                <span class="k">return</span>
+            <span class="n">rdw</span><span class="o">.</span><span class="n">buffer</span><span class="o">=</span><span class="n">rdws</span> <span class="c1"># use rdws as underlying buffer</span>
+            <span class="n">rlen</span> <span class="o">=</span> <span class="n">rdw</span><span class="o">.</span><span class="n">rlen</span>
+
+            <span class="k">if</span> <span class="n">rlen</span> <span class="o">&gt;</span> <span class="mh">0x7fff</span><span class="p">:</span>
+                <span class="n">dwtype</span><span class="o">=</span><span class="s1">&#39;record&#39;</span>
+                <span class="k">if</span> <span class="n">recfm</span> <span class="o">&amp;</span> <span class="n">VB</span> <span class="ow">and</span> <span class="n">block_rlen</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+                    <span class="n">dwtype</span><span class="o">=</span><span class="s1">&#39;block&#39;</span>
+                <span class="k">raise</span> <span class="ne">BaseException</span><span class="p">(</span><span class="s1">&#39;Invalid </span><span class="si">%s</span><span class="s1"> length </span><span class="si">%s</span><span class="s1"> exceeds 32k-1 in record </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span>
+                         <span class="p">(</span><span class="n">dwtype</span><span class="p">,</span> <span class="n">rlen</span><span class="p">,</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="n">recfm</span> <span class="o">&amp;</span> <span class="n">VB</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">block_rlen</span> <span class="o">&gt;</span> <span class="mi">4</span><span class="p">:</span>  <span class="c1"># still records in block</span>
+                    <span class="n">block_rlen</span> <span class="o">-=</span> <span class="n">rlen</span>
+                <span class="k">else</span><span class="p">:</span> <span class="c1"># need to consume BDW block header 4 bytes</span>
+                    <span class="n">block_rlen</span> <span class="o">=</span> <span class="n">rlen</span>
+
+                    <span class="k">if</span> <span class="n">debug</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="n">dump</span><span class="p">(</span><span class="n">rdws</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">4</span><span class="p">],</span><span class="n">header</span><span class="o">=</span><span class="s1">&#39;Block Descriptor Word&#39;</span><span class="p">)</span>
+                    <span class="k">continue</span>  <span class="c1"># need to read RDW</span>
+
+            <span class="k">if</span> <span class="n">rlen</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">:</span>    <span class="c1"># empty record</span>
+                <span class="k">yield</span> <span class="sa">b</span><span class="s1">&#39;&#39;</span>
+
+            <span class="k">if</span> <span class="n">debug</span><span class="o">&amp;</span><span class="mi">1</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Reading </span><span class="si">%s</span><span class="s1"> len(</span><span class="si">%04x</span><span class="s1">) in logical record </span><span class="si">%d</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span>
+                <span class="n">segmenttype</span><span class="p">(</span><span class="n">rdw</span><span class="o">.</span><span class="n">seg</span><span class="p">),</span> <span class="n">rdw</span><span class="o">.</span><span class="n">rlen</span><span class="p">,</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="n">rdw</span><span class="o">.</span><span class="n">seg</span> <span class="p">:</span> <span class="c1"># copy any segmented record to buffer</span>
+                <span class="k">if</span> <span class="n">rdw</span><span class="o">.</span><span class="n">seg</span> <span class="o">==</span> <span class="n">SEGFIRST</span><span class="p">:</span> <span class="c1"># first segment</span>
+                    <span class="n">bu</span><span class="o">=</span><span class="n">BytesIO</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">recform</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;+&#39;</span><span class="p">):</span> <span class="c1"># record to include RDW</span>
+                        <span class="n">bu</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">rdws</span><span class="p">)</span>
+
+                <span class="n">bu</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">rlen</span><span class="o">-</span><span class="mi">4</span><span class="p">))</span>
+
+                <span class="k">if</span> <span class="n">rdw</span><span class="o">.</span><span class="n">seg</span> <span class="o">==</span> <span class="n">SEGLAST</span><span class="p">:</span> <span class="c1"># last segment</span>
+                    <span class="n">record</span> <span class="o">=</span> <span class="n">bu</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span> <span class="c1"># return collected segments</span>
+                    <span class="k">if</span> <span class="n">dumphdr</span><span class="p">:</span>
+                        <span class="n">dump</span><span class="p">(</span> <span class="n">record</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\n</span><span class="si">%s</span><span class="s1">: </span><span class="si">%d</span><span class="s1">, total length </span><span class="si">%04X</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span>
+                            <span class="n">dumphdr</span><span class="p">,</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">record</span><span class="p">)),</span><span class="n">ecodec</span><span class="o">=</span><span class="n">ecodec</span> <span class="p">)</span>
+                    <span class="k">yield</span> <span class="n">record</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">continue</span>    <span class="c1"># do not count numrec for first/middle segment</span>
+
+            <span class="k">else</span><span class="p">:</span>  <span class="c1"># record is not segmented i.e. complete</span>
+                <span class="k">if</span> <span class="n">recform</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;+&#39;</span><span class="p">):</span> <span class="c1"># record to include RDW</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">SEEK_CUR</span><span class="p">)</span> <span class="c1"># rewind to record start</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">rlen</span> <span class="o">-=</span> <span class="mi">4</span>
+
+                <span class="k">if</span> <span class="n">into</span><span class="p">:</span>
+                    <span class="n">record</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">(</span><span class="n">rlen</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">readinto</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">record</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">rlen</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">dumphdr</span><span class="p">:</span>
+                    <span class="n">rdwx</span> <span class="o">=</span> <span class="s1">&#39; (</span><span class="si">%04X</span><span class="s1">,</span><span class="si">%04X</span><span class="s1">)&#39;</span> <span class="o">%</span><span class="p">(</span><span class="n">rdw</span><span class="o">.</span><span class="n">rlen</span><span class="p">,</span> <span class="n">rdw</span><span class="o">.</span><span class="n">seg</span><span class="p">)</span>
+                    <span class="n">dump</span><span class="p">(</span> <span class="n">record</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\n</span><span class="si">%s</span><span class="s1">: </span><span class="si">%d%s</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">dumphdr</span><span class="p">,</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">rdwx</span><span class="p">),</span><span class="n">ecodec</span><span class="o">=</span><span class="n">ecodec</span> <span class="p">)</span>
+                <span class="k">yield</span> <span class="n">record</span>
+            <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">numrec</span> <span class="ow">and</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="n">maxrec</span><span class="p">:</span>
+                <span class="k">return</span>
+            <span class="c1"># while loop</span>
+
+    <span class="k">elif</span> <span class="n">recform</span> <span class="o">==</span> <span class="s1">&#39;EXCL4&#39;</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">skiprec</span><span class="p">):</span>
+            <span class="n">e4s</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">e4s</span><span class="p">)</span><span class="o">&lt;</span><span class="mi">4</span><span class="p">:</span>
+                <span class="k">return</span>
+            <span class="n">excl4</span><span class="o">.</span><span class="n">buffer</span><span class="o">=</span><span class="n">e4s</span> <span class="c1"># use rdws as underlying buffer</span>
+            <span class="k">if</span> <span class="n">excl4</span><span class="o">.</span><span class="n">rlen</span> <span class="o">&gt;</span> <span class="mi">4</span><span class="p">:</span>    <span class="c1"># record</span>
+                <span class="n">record</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">excl4</span><span class="o">.</span><span class="n">rlen</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">SEEK_CUR</span><span class="p">)</span> <span class="c1"># skip record</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="n">skiprec</span>   <span class="c1"># i is total record count starting from 1</span>
+        <span class="n">maxrec</span> <span class="o">=</span> <span class="n">skiprec</span><span class="o">+</span><span class="n">numrec</span>
+        <span class="k">while</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">numrec</span> <span class="ow">and</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="n">maxrec</span><span class="p">:</span>
+                <span class="k">return</span>
+            <span class="n">e4s</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">e4s</span><span class="p">)</span><span class="o">&lt;</span><span class="mi">4</span><span class="p">:</span>
+                <span class="k">return</span>
+            <span class="n">excl4</span><span class="o">.</span><span class="n">buffer</span><span class="o">=</span><span class="n">e4s</span> <span class="c1"># use rdws as underlying buffer</span>
+            <span class="n">rlen</span> <span class="o">=</span> <span class="n">excl4</span><span class="o">.</span><span class="n">rlen</span>
+            <span class="k">if</span> <span class="n">rlen</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>    <span class="c1"># empty record</span>
+                <span class="k">yield</span> <span class="sa">b</span><span class="s1">&#39;&#39;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">record</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">rlen</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">dumphdr</span><span class="p">:</span>
+                    <span class="n">dump</span><span class="p">(</span> <span class="n">record</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\n</span><span class="si">%s</span><span class="s1">: </span><span class="si">%d</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">dumphdr</span><span class="p">,</span><span class="n">i</span><span class="p">),</span><span class="n">ecodec</span><span class="o">=</span><span class="n">ecodec</span> <span class="p">)</span>
+                <span class="k">yield</span> <span class="n">record</span>
+            <span class="c1"># while loop</span>
+
+
+
+    <span class="k">elif</span> <span class="n">recform</span><span class="o">==</span><span class="s1">&#39;&#39;</span><span class="p">:</span>   <span class="c1"># textfile, read data is str</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">skiprec</span><span class="p">):</span>
+            <span class="n">record</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">record</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>  <span class="c1"># end of file</span>
+                <span class="k">return</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="n">skiprec</span>   <span class="c1"># i is total record count starting from 1</span>
+        <span class="n">maxrec</span> <span class="o">=</span> <span class="n">skiprec</span><span class="o">+</span><span class="n">numrec</span>
+        <span class="k">while</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">numrec</span> <span class="ow">and</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="n">maxrec</span><span class="p">:</span>
+                <span class="k">return</span>  <span class="c1"># all processed</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">record</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">record</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>  <span class="c1"># not b&#39;&#39;</span>
+                    <span class="k">return</span>  <span class="c1"># end of file</span>
+                <span class="n">record</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span> <span class="c1"># remove trailing whitespace and newline</span>
+                <span class="k">if</span> <span class="n">dumphdr</span><span class="p">:</span>
+                    <span class="n">dump</span><span class="p">(</span> <span class="n">record</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\n</span><span class="si">%s</span><span class="s1">: </span><span class="si">%d</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">dumphdr</span><span class="p">,</span><span class="n">i</span><span class="p">),</span><span class="n">ecodec</span><span class="o">=</span><span class="n">ecodec</span> <span class="p">)</span>
+                <span class="k">yield</span> <span class="n">record</span>
+            <span class="c1"># while loop</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">BaseException</span><span class="p">(</span><span class="s1">&#39;Invalid recform </span><span class="si">%r</span><span class="s1"> specified&#39;</span> <span class="o">%</span> <span class="n">recform</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="writerec"><a class="viewcode-back" href="../../../modules.html#adapya.base.recordio.writerec">[docs]</a><span class="k">def</span> <span class="nf">writerec</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">record</span><span class="p">,</span> <span class="n">isn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">recform</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; writerec - function to write records with special record format</span>
+
+<span class="sd">        :param f: filehandle of open file</span>
+<span class="sd">        :param record: record string/bytearray to be written</span>
+<span class="sd">        :param isn: prefix record with an 4 byte integer in Network byte order</span>
+<span class="sd">        :param recform: record format to process::</span>
+
+<span class="sd">            - &#39;RDW&#39; variable record format:</span>
+
+<span class="sd">              2 bytes length, 2 bytes emtpy in Network byte order</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">recform</span> <span class="o">==</span> <span class="s1">&#39;RDW&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">isn</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">wrdw</span><span class="o">.</span><span class="n">rlen</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">record</span><span class="p">)</span><span class="o">+</span><span class="mi">4</span>
+            <span class="k">else</span><span class="p">:</span>                   <span class="c1"># include ISN as 4 bytes prefix</span>
+                <span class="n">wrdw</span><span class="o">.</span><span class="n">rlen</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">record</span><span class="p">)</span><span class="o">+</span><span class="mi">8</span>
+
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">wrdw</span><span class="o">.</span><span class="n">buffer</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">isn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">isnp</span><span class="o">.</span><span class="n">isn</span><span class="o">=</span><span class="n">isn</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">isnp</span><span class="o">.</span><span class="n">buffer</span><span class="p">)</span>
+
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">BaseException</span><span class="p">(</span><span class="s1">&#39;Invalid recform </span><span class="si">%r</span><span class="s1"> specified&#39;</span> <span class="o">%</span> <span class="n">recform</span><span class="p">)</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">sys</span>
+    <span class="c1"># import doctest</span>
+    <span class="c1"># doctest.testmod()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="vm">__doc__</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">===&gt; </span><span class="si">%s</span><span class="s1"> has no main section - do not execute it directly! &lt;===</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="vm">__file__</span><span class="p">)</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">99</span><span class="p">)</span>
+
+
+<span class="c1">#  Copyright 2004-ThisYear Software AG</span>
+<span class="c1">#</span>
+<span class="c1">#  Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1">#  you may not use this file except in compliance with the License.</span>
+<span class="c1">#  You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#      http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1">#  Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1">#  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1">#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1">#  See the License for the specific language governing permissions and</span>
+<span class="c1">#  limitations under the License.</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2004-2023, software AG.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

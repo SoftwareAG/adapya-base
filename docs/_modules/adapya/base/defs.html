@@ -1,0 +1,721 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>adapya.base.defs &mdash; adapya-base 1.3.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+    <link rel="shortcut icon" href="../../../_static/SAG2015.ico"/>
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> adapya-base
+          
+
+          
+            
+            <img src="../../../_static/SAG2015.ico" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.3.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installing.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide.html">Using adapya-base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../scripts.html">Scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">Package Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../indices.html">Indices</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">adapya-base</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>adapya.base.defs</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for adapya.base.defs</h1><div class="highlight"><pre>
+<span></span><span class="ch">#! /usr/bin/env python</span>
+<span class="c1"># -*- coding: latin1 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">defs - Basic definitions for adapya</span>
+<span class="sd">===================================</span>
+
+<span class="sd">The module defs.py in the adapya.base package defines basic functionality</span>
+<span class="sd">for the adapya packages</span>
+
+<span class="sd">- Abuf class (read/write buffer) provides byte buffers with read and write</span>
+<span class="sd">  access funtions</span>
+
+<span class="sd">- Logging</span>
+
+<span class="sd">- dummymutex for synchronizing printing and logging</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>          <span class="c1"># PY3</span>
+
+<span class="n">__version__</span> <span class="o">=</span> <span class="s1">&#39;v.r.l&#39;</span>
+<span class="k">if</span> <span class="n">__version__</span> <span class="o">==</span> <span class="s1">&#39;v.r.l&#39;</span><span class="p">:</span>
+    <span class="n">_svndate</span><span class="o">=</span><span class="s1">&#39;$Date: 2023-12-01 00:54:33 +0100 (Fri, 01 Dec 2023) $&#39;</span>
+    <span class="n">_svnrev</span><span class="o">=</span><span class="s1">&#39;$Rev: 1072 $&#39;</span>
+    <span class="n">__version__</span> <span class="o">=</span> <span class="s1">&#39;Dev &#39;</span> <span class="o">+</span>  <span class="n">_svnrev</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;$&#39;</span><span class="p">)</span> <span class="o">+</span> \
+                  <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_svndate</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;$&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">])</span>
+
+<span class="kn">import</span> <span class="nn">ast</span><span class="o">,</span> <span class="nn">ctypes</span><span class="o">,</span> <span class="nn">logging</span><span class="o">,</span> <span class="nn">sys</span>
+
+<span class="n">debug</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1"># log extra information if set</span>
+
+<span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">hexversion</span> <span class="o">&lt;</span> <span class="mh">0x03010100</span> <span class="ow">and</span> <span class="n">sys</span><span class="o">.</span><span class="n">platform</span> <span class="o">==</span> <span class="s1">&#39;zos&#39;</span><span class="p">:</span>
+    <span class="c1"># Get helpers for string conversion between Latin1 and EBCDIC (cp037)</span>
+    <span class="c1"># for read() and write() with Abuf instances -</span>
+    <span class="c1"># for Rocket Python port: source is in Latin1 and system runs EBCDIC.</span>
+    <span class="c1"># No need for this in PY3 where strings are in unicode and</span>
+    <span class="c1"># decode() / encode() will do the job.</span>
+    <span class="c1"># todo: for other EBCDIC flavours these functions would need to be</span>
+    <span class="c1">#       properly parameterized</span>
+    <span class="kn">from</span> <span class="nn">.conv</span> <span class="kn">import</span> <span class="n">str2ebc</span><span class="p">,</span> <span class="n">ebc2str</span>
+
+
+<div class="viewcode-block" id="ProgrammingError"><a class="viewcode-back" href="../../../modules.html#adapya.base.defs.ProgrammingError">[docs]</a><span class="k">class</span> <span class="nc">ProgrammingError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span> <span class="k">pass</span></div>
+
+<span class="k">class</span> <span class="nc">DummyContext</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+    <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">excty</span><span class="p">,</span><span class="n">excva</span><span class="p">,</span><span class="n">tt</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+<span class="sd">&quot;&quot;&quot;adapya.base.defs.dummymutex is a dummy lock for</span>
+<span class="sd">printing and logging in the Adabas api modules</span>
+<span class="sd">override with a real lock object e.g. passed</span>
+<span class="sd">as pmutex parameter to the Adabas class</span>
+
+<span class="sd">E. g. with multi-processing</span>
+<span class="sd">    &gt;&gt;&gt; pmutex = multiprocessing.Lock()</span>
+<span class="sd">    &gt;&gt;&gt; with pmutex:</span>
+<span class="sd">    ...     print &#39;synchronized printing&#39;</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="n">dummymutex</span> <span class="o">=</span> <span class="n">DummyContext</span><span class="p">()</span>
+
+<span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">hexversion</span> <span class="o">&gt;</span> <span class="mh">0x03010100</span><span class="p">:</span>
+    <span class="c1"># Python 3</span>
+    <span class="k">def</span> <span class="nf">Abuf</span><span class="p">(</span><span class="n">init</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s1">&#39;strict&#39;</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Create a read/write buffer similar to a bytearray.</span>
+<span class="sd">        This factory function returns a Cbuf object.</span>
+
+<span class="sd">            :param init: a buffer size &gt; 0 or an initial nonempty</span>
+<span class="sd">                string or unicode string which determines the size</span>
+<span class="sd">                of the buffer.</span>
+<span class="sd">            :param encoding: standard encoding encode string to binary</span>
+<span class="sd">                string, default is &#39;utf-8&#39;</span>
+
+<span class="sd">        Some Abuf use examples (Python2):</span>
+
+<span class="sd">        &gt;&gt;&gt; a=Abuf(10)</span>
+<span class="sd">        &gt;&gt;&gt; a.write(&#39;abc&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; a.write(&#39;DEFG&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; a.value</span>
+<span class="sd">        b&#39;abcDEFG&#39;</span>
+<span class="sd">        &gt;&gt;&gt; a.raw</span>
+<span class="sd">        b&#39;abcDEFG\\x00\\x00\\x00&#39;</span>
+<span class="sd">        &gt;&gt;&gt; a.tell()</span>
+<span class="sd">        7</span>
+<span class="sd">        &gt;&gt;&gt; a.seek(0)</span>
+<span class="sd">        &gt;&gt;&gt; a.read(3)</span>
+<span class="sd">        b&#39;abc&#39;</span>
+<span class="sd">        &gt;&gt;&gt; a.read_text(4)</span>
+<span class="sd">        &#39;DEFG&#39;</span>
+<span class="sd">        &gt;&gt;&gt; a[0]</span>
+<span class="sd">        b&#39;a&#39;</span>
+<span class="sd">        &gt;&gt;&gt; a[0:3]</span>
+<span class="sd">        b&#39;abc&#39;</span>
+<span class="sd">        &gt;&gt;&gt; a[3:]=b&#39;1234567&#39;</span>
+<span class="sd">        &gt;&gt;&gt; a.value</span>
+<span class="sd">        b&#39;abc1234567&#39;</span>
+
+
+<span class="sd">        Some examples (Python3):</span>
+
+<span class="sd">        &gt;&gt;&gt; e=Abuf(10,encoding=&#39;cp037&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; e.write(&#39;ABC&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; e.write(b&#39;123&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; e.value</span>
+<span class="sd">        b&#39;\\xc1\\xc2\\xc3123&#39;</span>
+<span class="sd">        &gt;&gt;&gt; e.raw</span>
+<span class="sd">        b&#39;\\xc1\\xc2\\xc3123\\x00\\x00\\x00\\x00&#39;</span>
+<span class="sd">        &gt;&gt;&gt; e.seek(0)</span>
+<span class="sd">        &gt;&gt;&gt; e.read_text(3)</span>
+<span class="sd">        &#39;ABC&#39;</span>
+<span class="sd">        &gt;&gt;&gt; e.read(3)</span>
+<span class="sd">        b&#39;123&#39;</span>
+<span class="sd">        &gt;&gt;&gt; e[0]</span>
+<span class="sd">        b&#39;\xc1&#39;</span>
+<span class="sd">        &gt;&gt;&gt; e[0:3]</span>
+<span class="sd">        b&#39;\xc1\xc2\xc3&#39;</span>
+
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">size</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">binit</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;&#39;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">init</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">binit</span> <span class="o">=</span> <span class="n">init</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">,</span><span class="n">errors</span><span class="o">=</span><span class="n">errors</span><span class="p">)</span>
+            <span class="n">size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">binit</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">init</span><span class="p">,</span> <span class="p">(</span><span class="nb">bytes</span><span class="p">,</span><span class="nb">bytearray</span><span class="p">)):</span>
+            <span class="n">size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">init</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">init</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)):</span>
+            <span class="n">size</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">init</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">init</span><span class="p">)</span>
+
+        <span class="n">Cchar</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_char</span> <span class="o">*</span> <span class="n">size</span>
+
+        <span class="k">class</span> <span class="nc">Cbuf</span><span class="p">(</span><span class="n">Cchar</span><span class="p">):</span>
+            <span class="n">_type_</span>   <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_char</span>
+            <span class="n">_length_</span> <span class="o">=</span> <span class="n">size</span>
+
+            <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">size</span><span class="p">,</span><span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">,</span><span class="n">errors</span><span class="o">=</span><span class="n">errors</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">encoding</span> <span class="o">=</span> <span class="n">encoding</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">if</span> <span class="n">size</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+                    <span class="n">Cchar</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">ProgrammingError</span><span class="p">(</span><span class="s1">&#39;Cbuf: Unable to allocate zero size buffer&#39;</span><span class="p">)</span>
+
+            <span class="c1"># add file methods to the object</span>
+            <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wstr</span><span class="p">):</span>
+                <span class="sd">&quot;&quot;&quot; Supports writing string or binary string &quot;&quot;&quot;</span>
+                <span class="n">p1</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos</span>
+
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">wstr</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                    <span class="n">bstr</span> <span class="o">=</span> <span class="n">wstr</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">,</span><span class="n">errors</span><span class="o">=</span><span class="n">errors</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">bstr</span> <span class="o">=</span> <span class="n">wstr</span>
+
+                <span class="n">length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">bstr</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">p1</span> <span class="o">+</span> <span class="n">length</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_length_</span><span class="p">:</span>
+                    <span class="c1"># c_char_Array size exceeded</span>
+                    <span class="n">length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_length_</span> <span class="o">-</span> <span class="n">p1</span>
+                <span class="n">p2</span> <span class="o">=</span> <span class="n">p1</span> <span class="o">+</span> <span class="n">length</span>
+                <span class="bp">self</span><span class="p">[</span><span class="n">p1</span><span class="p">:</span><span class="n">p2</span><span class="p">]</span> <span class="o">=</span> <span class="n">bstr</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">length</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="o">=</span> <span class="n">p2</span>
+
+            <span class="n">write_text</span> <span class="o">=</span> <span class="n">write</span>  <span class="c1"># write_text same method as write PY3</span>
+
+            <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
+                <span class="s2">&quot; return bytes string from buffer from current position &quot;</span>
+                <span class="k">if</span> <span class="n">size</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="s1">&#39;&#39;</span>
+                <span class="n">p1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos</span>
+                <span class="n">p2</span> <span class="o">=</span> <span class="n">p1</span> <span class="o">+</span> <span class="n">size</span>
+                <span class="k">if</span> <span class="n">p2</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="o">=</span><span class="n">p2</span>
+                    <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">p1</span><span class="p">:</span><span class="n">p2</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">p1</span><span class="p">:</span><span class="n">p2</span><span class="p">]</span>
+
+            <span class="k">def</span> <span class="nf">read_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="n">errors</span><span class="p">):</span>
+                <span class="sd">&quot;&quot;&quot; return string from buffer from current position &quot;&quot;&quot;</span>
+                <span class="k">if</span> <span class="n">size</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="s1">&#39;&#39;</span>
+                <span class="c1"># determine size of one blank</span>
+                <span class="n">ss</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">,</span><span class="n">errors</span><span class="o">=</span><span class="n">errors</span><span class="p">))</span>
+                <span class="n">p1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos</span>
+                <span class="n">p2</span> <span class="o">=</span> <span class="n">p1</span> <span class="o">+</span> <span class="n">size</span><span class="o">*</span><span class="n">ss</span>
+                <span class="k">if</span> <span class="n">p2</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="o">=</span><span class="n">p2</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">p1</span><span class="p">:</span><span class="n">p2</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">,</span><span class="n">errors</span><span class="o">=</span><span class="n">errors</span><span class="p">)</span>
+
+            <span class="k">def</span> <span class="nf">seek</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">where</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span> <span class="c1"># from buffer start</span>
+                    <span class="n">np</span><span class="o">=</span><span class="n">offset</span>
+                <span class="k">elif</span> <span class="n">where</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span> <span class="c1"># from current pos</span>
+                    <span class="n">np</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="o">+</span><span class="n">offset</span>
+                <span class="k">else</span><span class="p">:</span>   <span class="c1"># where=2 from the end</span>
+                    <span class="n">np</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">size</span><span class="p">)</span><span class="o">+</span><span class="n">offset</span>
+                <span class="k">if</span> <span class="n">np</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="o">=</span><span class="mi">0</span>
+                <span class="k">elif</span> <span class="n">np</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="o">=</span><span class="n">np</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+            <span class="k">def</span> <span class="nf">tell</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos</span>
+
+            <span class="k">def</span> <span class="nf">buf2str</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                <span class="s2">&quot;convert byte string in buffer to string and strip blanks and nul&quot;</span>
+                <span class="n">s</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[:]</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">,</span><span class="n">errors</span><span class="o">=</span><span class="n">errors</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39; </span><span class="se">\x00</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="n">cc</span> <span class="o">=</span> <span class="n">Cbuf</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">init</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">cc</span><span class="o">.</span><span class="n">value</span><span class="o">=</span><span class="n">binit</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">init</span><span class="p">,</span> <span class="p">(</span><span class="nb">bytes</span><span class="p">,</span><span class="nb">bytearray</span><span class="p">)):</span>
+            <span class="n">cc</span><span class="o">.</span><span class="n">value</span><span class="o">=</span><span class="n">init</span>
+        <span class="k">return</span> <span class="n">cc</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="c1"># Python 2</span>
+<div class="viewcode-block" id="Abuf"><a class="viewcode-back" href="../../../modules.html#adapya.base.defs.Abuf">[docs]</a>    <span class="k">def</span> <span class="nf">Abuf</span><span class="p">(</span><span class="n">init</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s1">&#39;strict&#39;</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Create a read/write buffer similar to a bytearray.</span>
+<span class="sd">        This factory function returns a Cbuf object.</span>
+
+<span class="sd">            :param init: a buffer size &gt; 0 or an initial nonempty</span>
+<span class="sd">                string or unicode string which determines the size</span>
+<span class="sd">                of the buffer.</span>
+
+<span class="sd">        Some Abuf use examples:</span>
+
+<span class="sd">        &gt;&gt;&gt; a=Abuf(10)</span>
+<span class="sd">        &gt;&gt;&gt; a.write(&#39;abc&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; a.write(&#39;DEFG&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; a.value</span>
+<span class="sd">        &#39;abcDEFG&#39;</span>
+<span class="sd">        &gt;&gt;&gt; a.raw</span>
+<span class="sd">        &#39;abcDEFG\\x00\\x00\\x00&#39;</span>
+<span class="sd">        &gt;&gt;&gt; a.tell()</span>
+<span class="sd">        7</span>
+<span class="sd">        &gt;&gt;&gt; a.seek(0)</span>
+<span class="sd">        &gt;&gt;&gt; a.read(3)</span>
+<span class="sd">        &#39;abc&#39;</span>
+<span class="sd">        &gt;&gt;&gt; a.read_text(4)</span>
+<span class="sd">        u&#39;DEFG&#39;</span>
+<span class="sd">        &gt;&gt;&gt; a[0]</span>
+<span class="sd">        &#39;a&#39;</span>
+<span class="sd">        &gt;&gt;&gt; a[0:3]</span>
+<span class="sd">        &#39;abc&#39;</span>
+<span class="sd">        &gt;&gt;&gt; a[3:]=&#39;1234567&#39;</span>
+<span class="sd">        &gt;&gt;&gt; a.value</span>
+<span class="sd">        &#39;abc1234567&#39;</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">size</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">istr</span><span class="o">=</span><span class="s1">&#39;&#39;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">init</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">istr</span><span class="o">=</span><span class="n">init</span>
+            <span class="n">size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">init</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">init</span><span class="p">,</span> <span class="n">unicode</span><span class="p">):</span>
+            <span class="n">istr</span><span class="o">=</span><span class="n">init</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">encoding</span><span class="p">,</span><span class="n">errors</span><span class="p">)</span>
+            <span class="n">size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">init</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">init</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">long</span><span class="p">)):</span>
+            <span class="n">size</span><span class="o">=</span><span class="n">init</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">init</span><span class="p">)</span>
+
+        <span class="n">Cchar</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_char</span> <span class="o">*</span> <span class="n">size</span>
+
+        <span class="k">class</span> <span class="nc">Cbuf</span><span class="p">(</span><span class="n">Cchar</span><span class="p">):</span>
+            <span class="n">_type_</span>   <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_char</span>
+            <span class="n">_length_</span> <span class="o">=</span> <span class="n">size</span>
+
+            <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">size</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">encoding</span> <span class="o">=</span> <span class="n">encoding</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">if</span> <span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">Cchar</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">ProgrammingError</span><span class="p">(</span><span class="s1">&#39;Cbuf: Unable to allocate zero size buffer&#39;</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="sa">u</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">encoding</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;</span><span class="se">\x40</span><span class="s1">&#39;</span><span class="p">:</span> <span class="c1"># and sys.platform==&#39;zos&#39;:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">ebcdic</span> <span class="o">=</span> <span class="mi">1</span>     <span class="c1"># target is ebcdic encoding</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">ebcdic</span> <span class="o">=</span> <span class="mi">0</span>
+
+            <span class="c1"># add file methods to the object</span>
+            <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wstr</span><span class="p">):</span>
+                <span class="n">p1</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">wstr</span><span class="p">,</span> <span class="n">unicode</span><span class="p">):</span>
+                    <span class="n">bstr</span> <span class="o">=</span> <span class="n">wstr</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">encoding</span><span class="p">,</span><span class="n">errors</span><span class="p">)</span>
+                    <span class="c1"># elif isinstance(wstr, str) and self.ebcdic:</span>
+                    <span class="c1"># bstr = unicode(wstr).encode(encoding,errors)</span>
+                    <span class="c1">##    bstr = str2ebc(wstr)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">bstr</span> <span class="o">=</span> <span class="n">wstr</span>
+                <span class="n">length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">bstr</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">p1</span> <span class="o">+</span> <span class="n">length</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_length_</span><span class="p">:</span>
+                    <span class="c1"># c_char_Array size exceeded</span>
+                    <span class="n">length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_length_</span> <span class="o">-</span> <span class="n">p1</span>
+                <span class="n">p2</span> <span class="o">=</span> <span class="n">p1</span> <span class="o">+</span> <span class="n">length</span>
+                <span class="bp">self</span><span class="p">[</span><span class="n">p1</span><span class="p">:</span><span class="n">p2</span><span class="p">]</span> <span class="o">=</span> <span class="n">bstr</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">length</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="o">=</span> <span class="n">p2</span>
+
+            <span class="k">def</span> <span class="nf">write_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wstr</span><span class="p">):</span>
+                <span class="n">p1</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">wstr</span><span class="p">,</span> <span class="n">unicode</span><span class="p">):</span>
+                    <span class="n">bstr</span> <span class="o">=</span> <span class="n">wstr</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">encoding</span><span class="p">,</span><span class="n">errors</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">wstr</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">ebcdic</span><span class="p">:</span>
+                    <span class="n">bstr</span> <span class="o">=</span> <span class="n">unicode</span><span class="p">(</span><span class="n">wstr</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">encoding</span><span class="p">,</span><span class="n">errors</span><span class="p">)</span>
+                    <span class="c1">##    bstr = str2ebc(wstr)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">bstr</span> <span class="o">=</span> <span class="n">wstr</span>
+                <span class="n">length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">bstr</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">p1</span> <span class="o">+</span> <span class="n">length</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_length_</span><span class="p">:</span>
+                    <span class="c1"># c_char_Array size exceeded</span>
+                    <span class="n">length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_length_</span> <span class="o">-</span> <span class="n">p1</span>
+                <span class="n">p2</span> <span class="o">=</span> <span class="n">p1</span> <span class="o">+</span> <span class="n">length</span>
+                <span class="bp">self</span><span class="p">[</span><span class="n">p1</span><span class="p">:</span><span class="n">p2</span><span class="p">]</span> <span class="o">=</span> <span class="n">bstr</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">length</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="o">=</span> <span class="n">p2</span>
+
+            <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">size</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="s1">&#39;&#39;</span>
+                <span class="n">p1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos</span>
+                <span class="n">p2</span> <span class="o">=</span> <span class="n">p1</span> <span class="o">+</span> <span class="n">size</span>
+                <span class="k">if</span> <span class="n">p2</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="o">=</span><span class="n">p2</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+                <span class="n">rs</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">p1</span><span class="p">:</span><span class="n">p2</span><span class="p">]</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ebcdic</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">ebc2str</span><span class="p">(</span><span class="n">rs</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">rs</span>
+
+            <span class="k">def</span> <span class="nf">read_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="n">errors</span><span class="p">):</span>
+                <span class="sd">&quot;&quot;&quot; return unicode string from buffer from current position &quot;&quot;&quot;</span>
+                <span class="k">if</span> <span class="n">size</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="sa">u</span><span class="s1">&#39;&#39;</span>
+                <span class="c1"># determine size of one blank</span>
+                <span class="n">ss</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">encoding</span><span class="p">,</span><span class="n">errors</span><span class="p">))</span>
+                <span class="n">p1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos</span>
+                <span class="n">p2</span> <span class="o">=</span> <span class="n">p1</span> <span class="o">+</span> <span class="n">size</span><span class="o">*</span><span class="n">ss</span>
+                <span class="k">if</span> <span class="n">p2</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="o">=</span><span class="n">p2</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">p1</span><span class="p">:</span><span class="n">p2</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">encoding</span><span class="p">,</span><span class="n">errors</span><span class="p">)</span>
+
+            <span class="k">def</span> <span class="nf">seek</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">where</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span> <span class="c1"># from buffer start</span>
+                    <span class="n">np</span><span class="o">=</span><span class="n">offset</span>
+                <span class="k">elif</span> <span class="n">where</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span> <span class="c1"># from current pos</span>
+                    <span class="n">np</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="o">+</span><span class="n">offset</span>
+                <span class="k">else</span><span class="p">:</span>   <span class="c1"># where=2 from the end</span>
+                    <span class="n">np</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">size</span><span class="p">)</span><span class="o">+</span><span class="n">offset</span>
+                <span class="k">if</span> <span class="n">np</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="o">=</span><span class="mi">0</span>
+                <span class="k">elif</span> <span class="n">np</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="o">=</span><span class="n">np</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+            <span class="k">def</span> <span class="nf">tell</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos</span>
+
+            <span class="k">def</span> <span class="nf">buf2str</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                <span class="s2">&quot;Convert byte string in buffer to string and strip blanks and nul&quot;</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ebcdic</span><span class="p">:</span>
+                    <span class="n">s</span> <span class="o">=</span> <span class="n">ebc2str</span><span class="p">(</span><span class="bp">self</span><span class="p">[:])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">s</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[:]</span>
+                <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39; </span><span class="se">\x00</span><span class="s1">&#39;</span><span class="p">)</span> <span class="c1"># remove blanks NUL at end</span>
+
+        <span class="n">cc</span> <span class="o">=</span> <span class="n">Cbuf</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">init</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">unicode</span><span class="p">)):</span>
+            <span class="n">cc</span><span class="o">.</span><span class="n">value</span><span class="o">=</span><span class="n">istr</span>
+
+        <span class="k">return</span> <span class="n">cc</span></div>
+
+<div class="viewcode-block" id="evalb"><a class="viewcode-back" href="../../../modules.html#adapya.base.defs.evalb">[docs]</a><span class="k">def</span> <span class="nf">evalb</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Evaluates string for single byte escape sequences</span>
+
+<span class="sd">    :returns: byte string</span>
+
+<span class="sd">    &gt;&gt;&gt; evalb(&#39;ABC\xe4\xff&#39;)</span>
+<span class="sd">    b&#39;ABCäÿ&#39;</span>
+
+<span class="sd">    .. note:: In PY3 no unicode escapes can be used,</span>
+<span class="sd">        use evals() for that purpose.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">b2</span><span class="o">=</span><span class="s2">&quot;b&#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">s</span>
+    <span class="k">return</span> <span class="n">ast</span><span class="o">.</span><span class="n">literal_eval</span><span class="p">(</span><span class="n">b2</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="evals"><a class="viewcode-back" href="../../../modules.html#adapya.base.defs.evals">[docs]</a><span class="k">def</span> <span class="nf">evals</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Evaluates string for unicode escape sequences</span>
+
+<span class="sd">    :returns: string</span>
+
+<span class="sd">    &gt;&gt;&gt; evals(&#39;ABC\u00e4\u00ff&#39;)</span>
+<span class="sd">    &#39;ABCäÿ&#39;</span>
+
+<span class="sd">    &gt;&gt;&gt; evals(&#39;ABC\xe4\xff&#39;)</span>
+<span class="sd">    &#39;ABCäÿ&#39;</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        In PY3 no escaped single bytes can be defined in strings</span>
+<span class="sd">        - they are mapped to unicode characters.</span>
+
+<span class="sd">        use evalb() for that purpose.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">s2</span><span class="o">=</span><span class="s2">&quot;&#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">s</span>
+    <span class="k">return</span> <span class="n">ast</span><span class="o">.</span><span class="n">literal_eval</span><span class="p">(</span><span class="n">s2</span><span class="p">)</span></div>
+
+
+<span class="n">LOGCMD</span><span class="o">=</span><span class="mi">1</span>        <span class="c1">#0x01</span>
+<span class="n">LOGBEFORE</span><span class="o">=</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">1</span>  <span class="c1">#0x02</span>
+<span class="n">LOGCB</span><span class="o">=</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">2</span>      <span class="c1">#0x04</span>
+<span class="n">LOGFB</span><span class="o">=</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">3</span>      <span class="c1">#0x08</span>
+<span class="n">LOGRB</span><span class="o">=</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">4</span>      <span class="c1">#0x10</span>
+<span class="n">LOGSB</span><span class="o">=</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">5</span>      <span class="c1">#0x20</span>
+<span class="n">LOGVB</span><span class="o">=</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">6</span>      <span class="c1">#0x40</span>
+<span class="n">LOGIB</span><span class="o">=</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">7</span>      <span class="c1">#0x80</span>
+<span class="n">LOGMB</span><span class="o">=</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">8</span>      <span class="c1">#0x0100     # Multifetch buffer</span>
+<span class="n">LOGPB</span><span class="o">=</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">9</span>      <span class="c1">#0x0200     # Performance buffer</span>
+<span class="n">LOGUB</span><span class="o">=</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">10</span>     <span class="c1">#0x0400</span>
+<span class="n">LOGAOS</span><span class="o">=</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">16</span>    <span class="c1">#0x10000</span>
+<span class="n">LOGRSP</span><span class="o">=</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">17</span>    <span class="c1">#0x20000</span>
+<span class="n">LOGBUF</span><span class="o">=</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">18</span>    <span class="c1">#0x40000 LOG all buffers</span>
+<span class="n">LOGSP</span><span class="o">=</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">19</span>     <span class="c1">#0x80000 LOG depending on command option (command table option)</span>
+<span class="n">LOGTCP</span><span class="o">=</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">20</span>    <span class="c1">#0x0100000 log on TCP level</span>
+
+<span class="n">logopt</span> <span class="o">=</span> <span class="n">LOGRSP</span><span class="o">|</span><span class="n">LOGCB</span>  <span class="c1"># global log parameter for current log setting</span>
+<span class="n">logstr</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>            <span class="c1"># log options printable last set</span>
+
+<span class="c1"># define a Handler which writes DEBUG messages or higher to the sys.stderr</span>
+
+<span class="c1"># changed to stdout so that nosetests can capture the logged data</span>
+<span class="c1">#  and output it only on error (2011_1102)</span>
+<span class="c1">#  leaving it on sys.stderr would write the full log even for successful tests</span>
+<span class="n">console</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">StreamHandler</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>   <span class="c1">#default is sys.stderr</span>
+
+<span class="c1">#console.setLevel(logging.DEBUG)</span>
+<span class="c1"># format for simple console use</span>
+<span class="c1">#formatter = logging.Formatter(&#39;adalog: %(message)s&#39;)</span>
+<span class="c1">## tell the handler to use this format</span>
+<span class="c1">#console.setFormatter(formatter)</span>
+
+<span class="c1"># add the handler to the root logger</span>
+<span class="n">rootlog</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">rootlog</span><span class="o">.</span><span class="n">handlers</span><span class="p">:</span>
+    <span class="n">rootlog</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">console</span><span class="p">)</span>
+
+<span class="n">adalog</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;adalog&#39;</span><span class="p">)</span>
+<span class="n">adalog</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+<span class="c1"># adalog.propagate = False # avoid duplicate messages</span>
+
+
+<div class="viewcode-block" id="log"><a class="viewcode-back" href="../../../modules.html#adapya.base.defs.log">[docs]</a><span class="k">def</span> <span class="nf">log</span><span class="p">(</span><span class="n">logparm</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; set adapya.base interface log options</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">logopt</span><span class="p">,</span><span class="n">adalog</span><span class="p">,</span><span class="n">logstr</span>
+    <span class="kn">from</span> <span class="nn">.datamap</span> <span class="kn">import</span> <span class="n">flag_str</span>
+
+    <span class="k">if</span> <span class="n">logparm</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="k">elif</span> <span class="n">logparm</span> <span class="o">!=</span> <span class="n">logopt</span><span class="p">:</span>
+        <span class="n">logopt</span><span class="o">=</span><span class="n">logparm</span>
+
+    <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">logopt</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">logstr</span><span class="o">=</span><span class="s1">&#39;off&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logstr</span> <span class="o">=</span> <span class="n">flag_str</span><span class="p">(</span><span class="n">logopt</span><span class="p">,</span> <span class="p">((</span><span class="n">LOGCMD</span><span class="p">,</span><span class="s1">&#39;LOGCMD&#39;</span><span class="p">),</span>
+                <span class="p">(</span><span class="n">LOGBEFORE</span><span class="p">,</span><span class="s1">&#39;LOGBEFORE&#39;</span><span class="p">),(</span><span class="n">LOGCB</span><span class="p">,</span><span class="s1">&#39;LOGCB&#39;</span><span class="p">),(</span><span class="n">LOGFB</span><span class="p">,</span><span class="s1">&#39;LOGFB&#39;</span><span class="p">),</span>
+                <span class="p">(</span><span class="n">LOGRB</span><span class="p">,</span><span class="s1">&#39;LOGRB&#39;</span><span class="p">),(</span><span class="n">LOGSB</span><span class="p">,</span><span class="s1">&#39;LOGSB&#39;</span><span class="p">),(</span><span class="n">LOGVB</span><span class="p">,</span><span class="s1">&#39;LOGVB&#39;</span><span class="p">),</span>
+                <span class="p">(</span><span class="n">LOGIB</span><span class="p">,</span><span class="s1">&#39;LOGIB&#39;</span><span class="p">),(</span><span class="n">LOGAOS</span><span class="p">,</span><span class="s1">&#39;LOGAOS&#39;</span><span class="p">),(</span><span class="n">LOGRSP</span><span class="p">,</span><span class="s1">&#39;LOGRSP&#39;</span><span class="p">),</span>
+                <span class="p">(</span><span class="n">LOGMB</span><span class="p">,</span><span class="s1">&#39;LOGMB&#39;</span><span class="p">),(</span><span class="n">LOGPB</span><span class="p">,</span><span class="s1">&#39;LOGPB&#39;</span><span class="p">),(</span><span class="n">LOGBUF</span><span class="p">,</span><span class="s1">&#39;LOGBUF&#39;</span><span class="p">),</span>
+                <span class="p">(</span><span class="n">LOGSP</span><span class="p">,</span><span class="s1">&#39;LOGSP&#39;</span><span class="p">),(</span><span class="n">LOGTCP</span><span class="p">,</span><span class="s1">&#39;LOGTCP&#39;</span><span class="p">),</span>
+                <span class="p">))</span>
+        <span class="n">adalog</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Adapya logging: </span><span class="si">%s</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">logstr</span><span class="p">)</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">doctest</span>
+    <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">()</span>
+
+<span class="c1">#  Copyright 2004-ThisYear Software AG</span>
+<span class="c1">#</span>
+<span class="c1">#  Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1">#  you may not use this file except in compliance with the License.</span>
+<span class="c1">#  You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#      http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1">#  Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1">#  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1">#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1">#  See the License for the specific language governing permissions and</span>
+<span class="c1">#  limitations under the License.</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2004-2023, software AG.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
